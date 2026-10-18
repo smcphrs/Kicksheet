@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import WizardContainer from 'components/wizard/WizardContainer'
+import WizardContainer from '@/components/wizard/WizardContainer'
 
 export default async function NewGamePage() {
   const cookieStore = cookies()
