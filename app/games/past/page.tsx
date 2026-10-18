@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Calendar, MapPin, Clock } from 'lucide-react'
 
-export const dynamic = 'force-dynamic'
+export const instant = false
 
 export default async function PastGamesPage() {
   const cookieStore =  await cookies()

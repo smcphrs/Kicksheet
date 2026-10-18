@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Player } from '@/types/models'
 import { Pencil } from 'lucide-react'
 
-export const dynamic = 'force-dynamic'
+export const instant = false
 
 export default async function Dashboard() {
   const cookieStore = await cookies()

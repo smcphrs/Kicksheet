@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import WizardContainer from '@/components/wizard/WizardContainer'
 
-export const dynamic = 'force-dynamic'
+export const instant = false
 
 export default async function NewGamePage() {
   const cookieStore = await cookies()
