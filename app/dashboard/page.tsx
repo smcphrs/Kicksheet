@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { Player } from '@/types/models'
 import { Pencil } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Dashboard() {
   const cookieStore = await cookies()
   const supabase = createClient(cookieStore)

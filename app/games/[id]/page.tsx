@@ -6,6 +6,9 @@ import { ChevronLeft, MapPin, Clock, Calendar, CloudRain } from 'lucide-react'
 import { InningAssignment, Player } from '@/types/models'
 import ShareButton from '@/components/ShareButton'
 
+export const dynamic = 'force-dynamic'
+
+
 export default async function GameDayView({ params }: { params: { id: string } }) {
   const cookieStore = await cookies()
   const supabase = createClient(cookieStore)
