@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import WizardContainer from '@/components/wizard/WizardContainer'
 
 export default async function NewGamePage() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const supabase = createClient(cookieStore)
 
   // 1. Authenticate the user

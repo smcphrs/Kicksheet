@@ -5,7 +5,7 @@ import { Player } from '@/types/models'
 import { Pencil } from 'lucide-react'
 
 export default async function Dashboard() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const supabase = createClient(cookieStore)
 
   const { data: teams, error } = await supabase

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Calendar, MapPin, Clock } from 'lucide-react'
 
 export default async function PastGamesPage() {
-  const cookieStore = cookies()
+  const cookieStore =  await cookies()
   const supabase = createClient(cookieStore)
 
   const { data: { session } } = await supabase.auth.getSession()

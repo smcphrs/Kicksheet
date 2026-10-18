@@ -7,7 +7,7 @@ import { InningAssignment, Player } from '@/types/models'
 import ShareButton from '@/components/ShareButton'
 
 export default async function GameDayView({ params }: { params: { id: string } }) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const supabase = createClient(cookieStore)
 
   const { data: { session } } = await supabase.auth.getSession()
