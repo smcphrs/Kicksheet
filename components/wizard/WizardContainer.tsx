@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useDraftStore } from '@/store/useDraftStore'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/utils/supabase/client'
 import { Player } from '@/types/models'
 import { ChevronLeft, ChevronRight, Save, Loader2 } from 'lucide-react'
 
