@@ -6,6 +6,8 @@ import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import { LogOut } from 'lucide-react'
 
+export const instant = false
+
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
