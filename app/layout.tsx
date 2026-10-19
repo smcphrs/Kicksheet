@@ -1,3 +1,4 @@
+import Navigation from '@/components/Navigation'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
@@ -26,42 +27,13 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-gray-50 text-gray-900 min-h-screen flex flex-col`}>
-        {session && (
-          <nav className="bg-white border-b sticky top-0 z-40">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between h-16">
-                <div className="flex items-center gap-8">
-                  <Link href="/dashboard" className="flex items-center gap-2">
-                    <span className="text-xl font-bold text-blue-600 tracking-tight">Kicksheet</span>
-                  </Link>
-                  <div className="hidden sm:flex space-x-6">
-                    <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 font-medium">
-                      Dashboard
-                    </Link>
-                    <Link href="/games/past" className="text-gray-600 hover:text-gray-900 font-medium">
-                      Past Games
-                    </Link>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-4">
-                  <form action="/auth/signout" method="post">
-                    <button className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
-                      <LogOut className="w-4 h-4" />
-                      <span className="hidden sm:inline">Sign Out</span>
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </nav>
-        )}
-        
-        <main className="flex-1 flex flex-col">
-          {children}
-        </main>
-      </body>
+      <body className={inter.className}>
+  <Navigation />
+  {/* pb-20 adds space for mobile bottom nav, sm:pt-20 adds space for desktop top nav */}
+  <main className="pb-20 sm:pb-0 sm:pt-20">
+    {children}
+  </main>
+</body>
     </html>
   )
 }
