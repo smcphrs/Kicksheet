@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useDraftStore } from '@/store/useDraftStore'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, Save, User, Sparkles } from 'lucide-react'
+import { ArrowLeft, Loader2, Save, User, Sparkles, AlertTriangle } from 'lucide-react'
 
 const POSITIONS = ['Bench', 'P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF', 'EH']
 const FIELD_POSITIONS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF', 'EH']
@@ -23,8 +23,8 @@ export default function PositionsStep4() {
   
   const [players, setPlayers] = useState<any[]>([])
   const [activeInning, setActiveInning] = useState(1)
+  const [fairPlayEnabled, setFairPlayEnabled] = useState(true) // The new Fair Play Toggle
   
-  // State to track assignments: Record<inningNumber, Record<playerId, position>>
   const [assignments, setAssignments] = useState<Record<number, Record<string, string>>>({})
 
   useEffect(() => {
@@ -70,6 +70,23 @@ export default function PositionsStep4() {
     fetchPlayers()
   }, [])
 
+  // --- FAIR PLAY CALCULATION LOGIC ---
+  // Count how many total times each player is benched across ALL innings
+  const benchCounts: Record<string, number> = {}
+  players.forEach(p => benchCounts[p.id] = 0)
+  
+  Object.values(assignments).forEach(inningAssignments => {
+    Object.entries(inningAssignments).forEach(([playerId, pos]) => {
+      if (pos === 'Bench') {
+        benchCounts[playerId] = (benchCounts[playerId] || 0) + 1
+      }
+    })
+  })
+
+  // Find players who haven't sat out a single inning yet
+  const unbenchedPlayers = players.filter(p => benchCounts[p.id] === 0)
+  // -----------------------------------
+
   const handlePositionChange = (playerId: string, position: string) => {
     setAssignments(prev => ({
       ...prev,
@@ -80,7 +97,6 @@ export default function PositionsStep4() {
     }))
   }
 
-  // Smart "AI" Auto-Assign Algorithm
   const handleAutoSetInning = () => {
     let unassignedPlayers = [...players]
     const newInningAssignments: Record<string, string> = {}
@@ -91,13 +107,13 @@ export default function PositionsStep4() {
       const matchIdx = unassignedPlayers.findIndex(p => p.preferred_positions && p.preferred_positions[0] === pos)
       if (matchIdx !== -1) {
         newInningAssignments[unassignedPlayers[matchIdx].id] = pos
-        unassignedPlayers.splice(matchIdx, 1) // Remove from pool
+        unassignedPlayers.splice(matchIdx, 1)
       }
     })
 
     // Pass 2: Any Backup Preference
     availablePositions.forEach(pos => {
-      if (Object.values(newInningAssignments).includes(pos)) return // Position already filled
+      if (Object.values(newInningAssignments).includes(pos)) return
       const matchIdx = unassignedPlayers.findIndex(p => p.preferred_positions && p.preferred_positions.includes(pos))
       if (matchIdx !== -1) {
         newInningAssignments[unassignedPlayers[matchIdx].id] = pos
@@ -105,7 +121,7 @@ export default function PositionsStep4() {
       }
     })
 
-    // Pass 3: Fill remaining empty field positions with whoever is left
+    // Pass 3: Fill remaining empty field positions
     availablePositions.forEach(pos => {
       if (Object.values(newInningAssignments).includes(pos)) return
       if (unassignedPlayers.length > 0) {
@@ -119,7 +135,6 @@ export default function PositionsStep4() {
       newInningAssignments[p.id] = 'Bench'
     })
 
-    // Save the new assignments to the state
     setAssignments(prev => ({
       ...prev,
       [activeInning]: newInningAssignments
@@ -195,14 +210,26 @@ export default function PositionsStep4() {
           <p className="text-gray-500 mt-2">Assign field positions for each inning.</p>
         </div>
         
-        {/* The new Auto Set button! */}
-        <button
-          onClick={handleAutoSetInning}
-          className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-xl shadow-sm transition-all"
-        >
-          <Sparkles className="w-4 h-4 mr-2" />
-          Auto Set Inning
-        </button>
+        <div className="flex items-center gap-4">
+          {/* Fair Play Toggle */}
+          <label className="flex items-center gap-2 cursor-pointer bg-white border border-gray-200 px-3 py-2 rounded-xl shadow-sm">
+            <input 
+              type="checkbox" 
+              checked={fairPlayEnabled}
+              onChange={(e) => setFairPlayEnabled(e.target.checked)}
+              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+            />
+            <span className="text-sm font-bold text-gray-700">Fair Play Rule</span>
+          </label>
+
+          <button
+            onClick={handleAutoSetInning}
+            className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-xl shadow-sm transition-all"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            Auto Set Inning
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -232,35 +259,58 @@ export default function PositionsStep4() {
           {players.map((player, idx) => {
             const currentPosition = assignments[activeInning]?.[player.id] || 'Bench'
             
+            // Fair Play Check: If rule is ON, they are benched NOW, they are benched MORE THAN ONCE total, and someone else has 0 bench time.
+            const showFairPlayWarning = 
+              fairPlayEnabled && 
+              currentPosition === 'Bench' && 
+              benchCounts[player.id] > 1 && 
+              unbenchedPlayers.length > 0 &&
+              !unbenchedPlayers.some(p => p.id === player.id) // Ensure we aren't suggesting they swap with themselves
+            
             return (
-              <div key={player.id} className="flex items-center justify-between p-2 sm:p-3 hover:bg-gray-50 rounded-xl transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded bg-gray-100 text-gray-500 font-bold flex items-center justify-center text-xs shrink-0">
-                    {idx + 1}
+              <div key={player.id} className="p-2 sm:p-3 hover:bg-gray-50 rounded-xl transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 rounded bg-gray-100 text-gray-500 font-bold flex items-center justify-center text-xs shrink-0">
+                      {idx + 1}
+                    </div>
+                    <div className="font-bold text-gray-900 text-sm sm:text-base flex items-center">
+                      {player.name}
+                      {player.isSub && (
+                        <span className="ml-2 text-[10px] uppercase bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full inline-flex items-center">
+                          <User className="w-3 h-3 mr-0.5" /> Sub
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="font-bold text-gray-900 text-sm sm:text-base flex items-center">
-                    {player.name}
-                    {player.isSub && (
-                      <span className="ml-2 text-[10px] uppercase bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full inline-flex items-center">
-                        <User className="w-3 h-3 mr-0.5" /> Sub
-                      </span>
-                    )}
-                  </div>
+
+                  <select
+                    value={currentPosition}
+                    onChange={(e) => handlePositionChange(player.id, e.target.value)}
+                    className={`px-3 py-2 rounded-lg border font-bold text-sm outline-none transition-colors cursor-pointer ${
+                      currentPosition !== 'Bench' 
+                        ? 'bg-blue-50 border-blue-200 text-blue-700' 
+                        : showFairPlayWarning 
+                          ? 'bg-amber-100 border-amber-300 text-amber-800' // Make the dropdown orange if warning
+                          : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
+                    }`}
+                  >
+                    {POSITIONS.map(pos => (
+                      <option key={pos} value={pos}>{pos}</option>
+                    ))}
+                  </select>
                 </div>
 
-                <select
-                  value={currentPosition}
-                  onChange={(e) => handlePositionChange(player.id, e.target.value)}
-                  className={`px-3 py-2 rounded-lg border font-bold text-sm outline-none transition-colors cursor-pointer ${
-                    currentPosition !== 'Bench' 
-                      ? 'bg-blue-50 border-blue-200 text-blue-700' 
-                      : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
-                  }`}
-                >
-                  {POSITIONS.map(pos => (
-                    <option key={pos} value={pos}>{pos}</option>
-                  ))}
-                </select>
+                {/* Fair Play Warning Message */}
+                {showFairPlayWarning && (
+                  <div className="mt-2 ml-9 flex items-start gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 p-2 rounded-lg border border-amber-100">
+                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>
+                      {player.name} is on the bench {benchCounts[player.id]} times. 
+                      Consider benching someone with 0 bench time (e.g. {unbenchedPlayers.slice(0, 3).map(p => p.name).join(', ')}) instead.
+                    </span>
+                  </div>
+                )}
               </div>
             )
           })}
