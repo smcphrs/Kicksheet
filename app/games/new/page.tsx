@@ -5,12 +5,11 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useDraftStore } from '@/store/useDraftStore'
 import Link from 'next/link'
-import { ArrowLeft, Calendar, Clock, MapPin, Users, Flag, Cloud, Loader2 } from 'lucide-react'
+import { ArrowLeft, Calendar, Clock, MapPin, Users, Flag, Cloud, Loader2, RotateCcw } from 'lucide-react'
 
 export default function GameDetailsStep1() {
   const router = useRouter()
   const supabase = createClient()
-  
   const store = useDraftStore()
   
   const [mounted, setMounted] = useState(false)
@@ -26,46 +25,60 @@ export default function GameDetailsStep1() {
   const [field, setField] = useState('')
   const [weather, setWeather] = useState('')
 
-  // 1. Fetch Teams and Hydrate Draft Store on Mount
   useEffect(() => {
     setMounted(true)
     
-    // Load existing draft data if present
-    if (store.selectedTeamId) setTeamId(store.selectedTeamId)
-    if (store.gameInfo) {
-      setDate(store.gameInfo.gameDate.split('T')[0]) // format for html input
-      setTime(store.gameInfo.gameTime)
-      setOpponent(store.gameInfo.opposingTeam)
-      setLocation(store.gameInfo.location)
-      setField(store.gameInfo.field)
-      setWeather(store.gameInfo.weather)
-    } else {
-      // Set defaults for a brand new draft
-      setDate(new Date().toISOString().split('T')[0])
-      setTime('18:00') // 6:00 PM default
-    }
-
-    // Fetch user's teams for the dropdown
     async function fetchTeams() {
       const { data } = await supabase.from('teams').select('id, name').order('created_at', { ascending: false })
+      
       if (data) {
         setTeams(data)
-        // Auto-select if they only have one team
-        if (data.length === 1 && !store.selectedTeamId) {
-          setTeamId(data[0].id)
+        
+        // SECURITY CHECK: Does the browser's saved Team ID actually exist in the DB?
+        const savedTeamExists = data.some(t => t.id === store.selectedTeamId)
+
+        if (store.selectedTeamId && savedTeamExists) {
+          // Valid draft exists, load it
+          setTeamId(store.selectedTeamId)
+        } else {
+          // The saved team was deleted or is invalid. Wipe it.
+          store.setSelectedTeamId(null)
+          if (data.length === 1) {
+            setTeamId(data[0].id) // Auto-select if they only have 1 valid team
+          } else {
+            setTeamId('') // Force them to pick if they have multiple
+          }
         }
       }
       setLoadingTeams(false)
     }
     
     fetchTeams()
+
+    // Load remaining draft data
+    if (store.gameInfo) {
+      setDate(store.gameInfo.gameDate.split('T')[0])
+      setTime(store.gameInfo.gameTime)
+      setOpponent(store.gameInfo.opposingTeam)
+      setLocation(store.gameInfo.location)
+      setField(store.gameInfo.field)
+      setWeather(store.gameInfo.weather)
+    } else {
+      setDate(new Date().toISOString().split('T')[0])
+      setTime('18:00')
+    }
   }, [])
 
-  // Handle the transition to Step 2
+  const handleClearDraft = () => {
+    if (window.confirm("Are you sure you want to clear your current draft and start fresh?")) {
+      store.resetDraft()
+      window.location.reload() // Force reload to completely wipe state
+    }
+  }
+
   const handleContinue = (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Save everything to the auto-persisting Zustand store
     store.setSelectedTeamId(teamId)
     store.setGameInfo({
       gameDate: new Date(date).toISOString(),
@@ -76,12 +89,9 @@ export default function GameDetailsStep1() {
       weather
     })
     store.setCurrentStep(1)
-
-    // Move to the Attendance step!
     router.push('/games/new/attendance')
   }
 
-  // Prevent hydration mismatch by returning null until Zustand mounts
   if (!mounted) return null
 
   return (
@@ -91,7 +101,15 @@ export default function GameDetailsStep1() {
           <ArrowLeft className="w-4 h-4 mr-1" />
           Cancel
         </Link>
-        <span className="text-sm font-bold text-gray-400">Step 1 of 4</span>
+        
+        {/* Added a button to explicitly wipe buggy local storage drafts */}
+        <button 
+          onClick={handleClearDraft}
+          className="inline-flex items-center text-sm font-bold text-red-500 hover:text-red-700 transition-colors bg-red-50 px-3 py-1.5 rounded-lg"
+        >
+          <RotateCcw className="w-4 h-4 mr-1.5" />
+          Start Fresh
+        </button>
       </div>
 
       <div className="mb-8">
@@ -101,22 +119,24 @@ export default function GameDetailsStep1() {
 
       <form onSubmit={handleContinue} className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 space-y-6">
         
-        {/* Team Selector */}
-        <div className="space-y-2 pb-6 border-b border-gray-100">
-          <label className="flex items-center gap-2 text-sm font-bold text-gray-900">
-            <Users className="w-4 h-4 text-gray-400" />
-            Select Your Team *
+        {/* Visually emphasized Team Selector */}
+        <div className="space-y-3 pb-6 border-b-2 border-gray-100">
+          <label className="flex items-center gap-2 text-base font-extrabold text-blue-900">
+            <Users className="w-5 h-5 text-blue-600" />
+            Which team is playing? *
           </label>
           {loadingTeams ? (
-            <div className="h-12 flex items-center text-gray-400 text-sm"><Loader2 className="w-4 h-4 animate-spin mr-2"/> Loading teams...</div>
+            <div className="h-12 flex items-center text-gray-400 text-sm">
+              <Loader2 className="w-4 h-4 animate-spin mr-2"/> Loading your teams...
+            </div>
           ) : (
             <select
               value={teamId}
               onChange={(e) => setTeamId(e.target.value)}
               required
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 outline-none transition-all text-gray-900 bg-white"
+              className="w-full px-4 py-4 rounded-xl border-2 border-blue-100 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none transition-all text-gray-900 bg-blue-50/30 font-bold text-lg"
             >
-              <option value="" disabled>Choose a team...</option>
+              <option value="" disabled>Tap to choose a team...</option>
               {teams.map(t => (
                 <option key={t.id} value={t.id}>{t.name}</option>
               ))}
@@ -127,8 +147,7 @@ export default function GameDetailsStep1() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-bold text-gray-900">
-              <Calendar className="w-4 h-4 text-gray-400" />
-              Game Date *
+              <Calendar className="w-4 h-4 text-gray-400" /> Game Date *
             </label>
             <input
               type="date"
@@ -141,8 +160,7 @@ export default function GameDetailsStep1() {
 
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-bold text-gray-900">
-              <Clock className="w-4 h-4 text-gray-400" />
-              Game Time *
+              <Clock className="w-4 h-4 text-gray-400" /> Game Time *
             </label>
             <input
               type="time"
@@ -156,8 +174,7 @@ export default function GameDetailsStep1() {
 
         <div className="space-y-2">
           <label className="flex items-center gap-2 text-sm font-bold text-gray-900">
-            <Users className="w-4 h-4 text-gray-400" />
-            Opposing Team
+            <Users className="w-4 h-4 text-gray-400" /> Opposing Team
           </label>
           <input
             type="text"
@@ -166,50 +183,6 @@ export default function GameDetailsStep1() {
             placeholder="e.g. The Blue Barracudas"
             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 outline-none transition-all text-gray-900"
           />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div className="space-y-2 sm:col-span-2">
-            <label className="flex items-center gap-2 text-sm font-bold text-gray-900">
-              <MapPin className="w-4 h-4 text-gray-400" />
-              Location
-            </label>
-            <input
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="e.g. Centennial Park"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 outline-none transition-all text-gray-900"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-bold text-gray-900">
-              <Flag className="w-4 h-4 text-gray-400" />
-              Field
-            </label>
-            <input
-              type="text"
-              value={field}
-              onChange={(e) => setField(e.target.value)}
-              placeholder="e.g. Field 3"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 outline-none transition-all text-gray-900"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-bold text-gray-900">
-              <Cloud className="w-4 h-4 text-gray-400" />
-              Weather
-            </label>
-            <input
-              type="text"
-              value={weather}
-              onChange={(e) => setWeather(e.target.value)}
-              placeholder="e.g. Sunny, 75°F"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 outline-none transition-all text-gray-900"
-            />
-          </div>
         </div>
 
         <div className="pt-6 border-t border-gray-100">
