@@ -122,7 +122,7 @@ export default async function GameLineupPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {orderedPlayers.map((player, idx) => (
+              {orderedPlayers.map((player: any, idx: number) => (
                 <tr key={player.id} className="hover:bg-blue-50/50 transition-colors group">
                   
                   {/* Order Number */}
