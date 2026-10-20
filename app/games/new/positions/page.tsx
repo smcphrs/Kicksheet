@@ -8,17 +8,17 @@ import { useSettingsStore } from '@/store/useSettingsStore'
 import Link from 'next/link'
 import { ArrowLeft, Loader2, Save, User, Sparkles, AlertTriangle } from 'lucide-react'
 
-const POSITIONS = ['Bench', 'P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF', 'EH']
-const FIELD_POSITIONS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF', 'EH']
+// REMOVED 'EH' from both lists
+const POSITIONS = ['Bench', 'P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF']
+const FIELD_POSITIONS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF']
 
 export default function PositionsStep4() {
   const router = useRouter()
   const supabase = createClient()
   const store = useDraftStore()
-  const { fairPlayEnabled, inningsCount } = useSettingsStore()
-
-  const INNINGS = Array.from({ length: inningsCount || 7 }, (_, i) => i + 1)
   
+  const { fairPlayEnabled, inningsCount } = useSettingsStore()
+  const INNINGS = Array.from({ length: inningsCount || 7 }, (_, i) => i + 1)
 
   const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -108,7 +108,7 @@ export default function PositionsStep4() {
     })
 
     Object.entries(assignments).forEach(([inningStr, inningAssignments]) => {
-      if (parseInt(inningStr) === activeInning) return // Skip current inning
+      if (parseInt(inningStr) === activeInning) return 
       Object.entries(inningAssignments).forEach(([playerId, pos]) => {
         if (pos === 'Bench') {
           historicalBenchCounts[playerId]++
@@ -122,21 +122,17 @@ export default function PositionsStep4() {
     const newInningAssignments: Record<string, string> = {}
     const availablePositions = [...FIELD_POSITIONS]
 
-    // 2. Bench Selection (Fair Play Logic)
     const numToBench = Math.max(0, players.length - FIELD_POSITIONS.length)
     if (numToBench > 0) {
       unassignedPlayers.sort((a, b) => {
-        // If Fair Play is ON, sort by who has sat out the LEAST
         if (fairPlayEnabled) {
           const aBenches = historicalBenchCounts[a.id]
           const bBenches = historicalBenchCounts[b.id]
           if (aBenches !== bBenches) return aBenches - bBenches
         }
-        // Tie-breaker 1: Subs sit out first
         if (a.isSub && !b.isSub) return -1
         if (!a.isSub && b.isSub) return 1
         
-        // Tie-breaker 2: Bottom of the kicking order sits out first
         const indexA = players.findIndex(p => p.id === a.id)
         const indexB = players.findIndex(p => p.id === b.id)
         return indexB - indexA 
@@ -146,7 +142,6 @@ export default function PositionsStep4() {
       benched.forEach(p => { newInningAssignments[p.id] = 'Bench' })
     }
 
-    // 3. Prioritize Picky Players
     unassignedPlayers.sort((a, b) => {
       const aPrefCount = a.preferred_positions?.length || 0
       const bPrefCount = b.preferred_positions?.length || 0
@@ -155,7 +150,6 @@ export default function PositionsStep4() {
       return aPrefCount - bPrefCount
     })
 
-    // 4. Assign Preferred Positions
     for (let i = unassignedPlayers.length - 1; i >= 0; i--) {
       const p = unassignedPlayers[i]
       const prefs = p.preferred_positions || []
@@ -174,7 +168,6 @@ export default function PositionsStep4() {
       }
     }
 
-    // 5. Fill Remaining Players
     unassignedPlayers.forEach(p => {
       availablePositions.sort((posA, posB) => {
         const countA = historicalPosCounts[p.id][posA] || 0
@@ -249,6 +242,10 @@ export default function PositionsStep4() {
     )
   }
 
+  // Identify which field positions have already been used in this inning
+  const currentInningAssignments = assignments[activeInning] || {}
+  const takenPositions = Object.values(currentInningAssignments).filter(pos => pos !== 'Bench')
+
   return (
     <div className="max-w-3xl mx-auto p-6 w-full pb-24">
       <div className="flex items-center justify-between mb-8">
@@ -299,7 +296,12 @@ export default function PositionsStep4() {
 
         <div className="p-2 sm:p-4 divide-y divide-gray-50">
           {players.map((player, idx) => {
-            const currentPosition = assignments[activeInning]?.[player.id] || 'Bench'
+            const currentPosition = currentInningAssignments[player.id] || 'Bench'
+            
+            // FILTER LOGIC: Keep 'Bench', keep their currently selected position, hide all others that are taken
+            const availableOptions = POSITIONS.filter(pos => 
+              pos === 'Bench' || pos === currentPosition || !takenPositions.includes(pos)
+            )
             
             const showFairPlayWarning = 
               fairPlayEnabled && 
@@ -336,7 +338,8 @@ export default function PositionsStep4() {
                           : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
                     }`}
                   >
-                    {POSITIONS.map(pos => (
+                    {/* Render the dynamically filtered options */}
+                    {availableOptions.map(pos => (
                       <option key={pos} value={pos}>{pos}</option>
                     ))}
                   </select>
