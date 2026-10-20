@@ -1,10 +1,10 @@
 'use client'
 
-import { useSettingsStore } from '@/store/useSettingsStore'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useDraftStore } from '@/store/useDraftStore'
+import { useSettingsStore } from '@/store/useSettingsStore'
 import Link from 'next/link'
 import { ArrowLeft, Loader2, Save, User, Sparkles, AlertTriangle } from 'lucide-react'
 
@@ -16,6 +16,7 @@ export default function PositionsStep4() {
   const router = useRouter()
   const supabase = createClient()
   const store = useDraftStore()
+  const { fairPlayEnabled } = useSettingsStore()
 
   const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -24,7 +25,7 @@ export default function PositionsStep4() {
   
   const [players, setPlayers] = useState<any[]>([])
   const [activeInning, setActiveInning] = useState(1)
-  const { fairPlayEnabled } = useSettingsStore()
+  
   const [assignments, setAssignments] = useState<Record<number, Record<string, string>>>({})
 
   useEffect(() => {
@@ -70,8 +71,8 @@ export default function PositionsStep4() {
     fetchPlayers()
   }, [])
 
-  // --- FAIR PLAY CALCULATION LOGIC ---
-  // Count how many total times each player is benched across ALL innings
+  // --- HISTORICAL DATA LOGIC ---
+  // Used for both the inline warnings and the AI algorithm
   const benchCounts: Record<string, number> = {}
   players.forEach(p => benchCounts[p.id] = 0)
   
@@ -83,9 +84,7 @@ export default function PositionsStep4() {
     })
   })
 
-  // Find players who haven't sat out a single inning yet
   const unbenchedPlayers = players.filter(p => benchCounts[p.id] === 0)
-  // -----------------------------------
 
   const handlePositionChange = (playerId: string, position: string) => {
     setAssignments(prev => ({
@@ -97,42 +96,97 @@ export default function PositionsStep4() {
     }))
   }
 
+  // --- SMART AI ALGORITHM ---
   const handleAutoSetInning = () => {
+    // 1. Gather historical data EXCEPT the current inning so we don't skew the math
+    const historicalBenchCounts: Record<string, number> = {}
+    const historicalPosCounts: Record<string, Record<string, number>> = {}
+    
+    players.forEach(p => {
+      historicalBenchCounts[p.id] = 0
+      historicalPosCounts[p.id] = {}
+    })
+
+    Object.entries(assignments).forEach(([inningStr, inningAssignments]) => {
+      if (parseInt(inningStr) === activeInning) return // Skip current inning
+      Object.entries(inningAssignments).forEach(([playerId, pos]) => {
+        if (pos === 'Bench') {
+          historicalBenchCounts[playerId]++
+        } else {
+          historicalPosCounts[playerId][pos] = (historicalPosCounts[playerId][pos] || 0) + 1
+        }
+      })
+    })
+
     let unassignedPlayers = [...players]
     const newInningAssignments: Record<string, string> = {}
     const availablePositions = [...FIELD_POSITIONS]
 
-    // Pass 1: Primary Preference (1st choice)
-    availablePositions.forEach(pos => {
-      const matchIdx = unassignedPlayers.findIndex(p => p.preferred_positions && p.preferred_positions[0] === pos)
-      if (matchIdx !== -1) {
-        newInningAssignments[unassignedPlayers[matchIdx].id] = pos
-        unassignedPlayers.splice(matchIdx, 1)
-      }
+    // 2. Bench Selection (Fair Play Logic)
+    const numToBench = Math.max(0, players.length - FIELD_POSITIONS.length)
+    if (numToBench > 0) {
+      unassignedPlayers.sort((a, b) => {
+        // If Fair Play is ON, sort by who has sat out the LEAST
+        if (fairPlayEnabled) {
+          const aBenches = historicalBenchCounts[a.id]
+          const bBenches = historicalBenchCounts[b.id]
+          if (aBenches !== bBenches) return aBenches - bBenches
+        }
+        // Tie-breaker: Subs sit out first
+        if (a.isSub && !b.isSub) return -1
+        if (!a.isSub && b.isSub) return 1
+        return 0
+      })
+
+      const benched = unassignedPlayers.splice(0, numToBench)
+      benched.forEach(p => { newInningAssignments[p.id] = 'Bench' })
+    }
+
+    // 3. Prioritize Picky Players
+    // Sort remaining fielding players so those with FEWEST preferences pick first
+    unassignedPlayers.sort((a, b) => {
+      const aPrefCount = a.preferred_positions?.length || 0
+      const bPrefCount = b.preferred_positions?.length || 0
+      if (aPrefCount === 0) return 1 // No preferences, put at the back of the line
+      if (bPrefCount === 0) return -1
+      return aPrefCount - bPrefCount
     })
 
-    // Pass 2: Any Backup Preference
-    availablePositions.forEach(pos => {
-      if (Object.values(newInningAssignments).includes(pos)) return
-      const matchIdx = unassignedPlayers.findIndex(p => p.preferred_positions && p.preferred_positions.includes(pos))
-      if (matchIdx !== -1) {
-        newInningAssignments[unassignedPlayers[matchIdx].id] = pos
-        unassignedPlayers.splice(matchIdx, 1)
-      }
-    })
+    // 4. Assign Preferred Positions (Pass 1)
+    for (let i = unassignedPlayers.length - 1; i >= 0; i--) {
+      const p = unassignedPlayers[i]
+      const prefs = p.preferred_positions || []
 
-    // Pass 3: Fill remaining empty field positions
-    availablePositions.forEach(pos => {
-      if (Object.values(newInningAssignments).includes(pos)) return
-      if (unassignedPlayers.length > 0) {
-        newInningAssignments[unassignedPlayers[0].id] = pos
-        unassignedPlayers.splice(0, 1)
-      }
-    })
+      // If they have multiple preferences, sort them by what they've played LEAST
+      const sortedPrefs = [...prefs].sort((posA, posB) => {
+        const countA = historicalPosCounts[p.id][posA] || 0
+        const countB = historicalPosCounts[p.id][posB] || 0
+        return countA - countB
+      })
 
-    // Pass 4: Everyone remaining gets benched
+      const chosenPos = sortedPrefs.find(pos => availablePositions.includes(pos))
+      if (chosenPos) {
+        newInningAssignments[p.id] = chosenPos
+        availablePositions.splice(availablePositions.indexOf(chosenPos), 1)
+        unassignedPlayers.splice(i, 1)
+      }
+    }
+
+    // 5. Fill Remaining Players into Open Positions (Pass 2)
     unassignedPlayers.forEach(p => {
-      newInningAssignments[p.id] = 'Bench'
+      // Sort remaining positions by what this player has played LEAST
+      availablePositions.sort((posA, posB) => {
+        const countA = historicalPosCounts[p.id][posA] || 0
+        const countB = historicalPosCounts[p.id][posB] || 0
+        return countA - countB
+      })
+
+      const pos = availablePositions.shift()
+      if (pos) {
+        newInningAssignments[p.id] = pos
+      } else {
+        newInningAssignments[p.id] = 'Bench' // Fallback
+      }
     })
 
     setAssignments(prev => ({
@@ -210,15 +264,13 @@ export default function PositionsStep4() {
           <p className="text-gray-500 mt-2">Assign field positions for each inning.</p>
         </div>
         
-        <div className="flex items-center gap-4">
-          <button
-            onClick={handleAutoSetInning}
-            className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-xl shadow-sm transition-all"
-          >
-            <Sparkles className="w-4 h-4 mr-2" />
-            Auto Set Inning
-          </button>
-        </div>
+        <button
+          onClick={handleAutoSetInning}
+          className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-xl shadow-sm transition-all"
+        >
+          <Sparkles className="w-4 h-4 mr-2" />
+          Auto Set Inning
+        </button>
       </div>
 
       {error && (
@@ -248,13 +300,13 @@ export default function PositionsStep4() {
           {players.map((player, idx) => {
             const currentPosition = assignments[activeInning]?.[player.id] || 'Bench'
             
-            // Fair Play Check: If rule is ON, they are benched NOW, they are benched MORE THAN ONCE total, and someone else has 0 bench time.
+            // Fair Play Check
             const showFairPlayWarning = 
               fairPlayEnabled && 
               currentPosition === 'Bench' && 
               benchCounts[player.id] > 1 && 
               unbenchedPlayers.length > 0 &&
-              !unbenchedPlayers.some(p => p.id === player.id) // Ensure we aren't suggesting they swap with themselves
+              !unbenchedPlayers.some(p => p.id === player.id)
             
             return (
               <div key={player.id} className="p-2 sm:p-3 hover:bg-gray-50 rounded-xl transition-colors">
@@ -280,7 +332,7 @@ export default function PositionsStep4() {
                       currentPosition !== 'Bench' 
                         ? 'bg-blue-50 border-blue-200 text-blue-700' 
                         : showFairPlayWarning 
-                          ? 'bg-amber-100 border-amber-300 text-amber-800' // Make the dropdown orange if warning
+                          ? 'bg-amber-100 border-amber-300 text-amber-800'
                           : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
                     }`}
                   >
@@ -290,7 +342,6 @@ export default function PositionsStep4() {
                   </select>
                 </div>
 
-                {/* Fair Play Warning Message */}
                 {showFairPlayWarning && (
                   <div className="mt-2 ml-9 flex items-start gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 p-2 rounded-lg border border-amber-100">
                     <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
