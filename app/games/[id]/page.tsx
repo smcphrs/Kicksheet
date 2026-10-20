@@ -53,7 +53,9 @@ export default async function GameLineupPage({
      return innData?.assignments?.[playerId] || 'Bench'
   }
 
-  const INNINGS = [1, 2, 3, 4, 5, 6, 7]
+// Dynamically check how many innings were actually saved in this game
+const numInnings = game.innings && game.innings.length > 0 ? game.innings.length : 7
+const INNINGS = Array.from({ length: numInnings }, (_, i) => i + 1)
   
   // Format dates safely
   const formattedDate = game.game_date 

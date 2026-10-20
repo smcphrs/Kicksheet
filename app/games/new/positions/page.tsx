@@ -10,13 +10,15 @@ import { ArrowLeft, Loader2, Save, User, Sparkles, AlertTriangle } from 'lucide-
 
 const POSITIONS = ['Bench', 'P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF', 'EH']
 const FIELD_POSITIONS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF', 'EH']
-const INNINGS = [1, 2, 3, 4, 5, 6, 7]
 
 export default function PositionsStep4() {
   const router = useRouter()
   const supabase = createClient()
   const store = useDraftStore()
-  const { fairPlayEnabled } = useSettingsStore()
+  const { fairPlayEnabled, inningsCount } = useSettingsStore()
+
+  const INNINGS = Array.from({ length: inningsCount || 7 }, (_, i) => i + 1)
+  
 
   const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(true)
