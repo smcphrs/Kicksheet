@@ -1,5 +1,6 @@
 'use client'
 
+import { useSettingsStore } from '@/store/useSettingsStore'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -23,8 +24,7 @@ export default function PositionsStep4() {
   
   const [players, setPlayers] = useState<any[]>([])
   const [activeInning, setActiveInning] = useState(1)
-  const [fairPlayEnabled, setFairPlayEnabled] = useState(true) // The new Fair Play Toggle
-  
+  const { fairPlayEnabled } = useSettingsStore()
   const [assignments, setAssignments] = useState<Record<number, Record<string, string>>>({})
 
   useEffect(() => {
@@ -211,17 +211,6 @@ export default function PositionsStep4() {
         </div>
         
         <div className="flex items-center gap-4">
-          {/* Fair Play Toggle */}
-          <label className="flex items-center gap-2 cursor-pointer bg-white border border-gray-200 px-3 py-2 rounded-xl shadow-sm">
-            <input 
-              type="checkbox" 
-              checked={fairPlayEnabled}
-              onChange={(e) => setFairPlayEnabled(e.target.checked)}
-              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
-            />
-            <span className="text-sm font-bold text-gray-700">Fair Play Rule</span>
-          </label>
-
           <button
             onClick={handleAutoSetInning}
             className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-xl shadow-sm transition-all"
