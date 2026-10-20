@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useDraftStore } from '@/store/useDraftStore'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, Save, User } from 'lucide-react'
+import { ArrowLeft, Loader2, Save, User, Sparkles } from 'lucide-react'
 
 const POSITIONS = ['Bench', 'P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF', 'EH']
+const FIELD_POSITIONS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF', 'EH']
 const INNINGS = [1, 2, 3, 4, 5, 6, 7]
 
 export default function PositionsStep4() {
@@ -47,16 +48,14 @@ export default function PositionsStep4() {
         if (data) fetchedRoster = data
       }
 
-      // Combine fetched roster with subs, then sort to match the exact kicking order from Step 3
       const combined = [
         ...fetchedRoster,
-        ...store.subs.map(sub => ({ ...sub, isSub: true }))
+        ...store.subs.map(sub => ({ ...sub, isSub: true, preferred_positions: [] }))
       ]
 
       combined.sort((a, b) => store.kickingOrder.indexOf(a.id) - store.kickingOrder.indexOf(b.id))
       setPlayers(combined)
 
-      // Load previous assignments if they exist in the draft, otherwise initialize empty
       if (store.innings && store.innings.length > 0) {
         const loadedAssignments: Record<number, Record<string, string>> = {}
         store.innings.forEach((inningObj: any) => {
@@ -81,6 +80,52 @@ export default function PositionsStep4() {
     }))
   }
 
+  // Smart "AI" Auto-Assign Algorithm
+  const handleAutoSetInning = () => {
+    let unassignedPlayers = [...players]
+    const newInningAssignments: Record<string, string> = {}
+    const availablePositions = [...FIELD_POSITIONS]
+
+    // Pass 1: Primary Preference (1st choice)
+    availablePositions.forEach(pos => {
+      const matchIdx = unassignedPlayers.findIndex(p => p.preferred_positions && p.preferred_positions[0] === pos)
+      if (matchIdx !== -1) {
+        newInningAssignments[unassignedPlayers[matchIdx].id] = pos
+        unassignedPlayers.splice(matchIdx, 1) // Remove from pool
+      }
+    })
+
+    // Pass 2: Any Backup Preference
+    availablePositions.forEach(pos => {
+      if (Object.values(newInningAssignments).includes(pos)) return // Position already filled
+      const matchIdx = unassignedPlayers.findIndex(p => p.preferred_positions && p.preferred_positions.includes(pos))
+      if (matchIdx !== -1) {
+        newInningAssignments[unassignedPlayers[matchIdx].id] = pos
+        unassignedPlayers.splice(matchIdx, 1)
+      }
+    })
+
+    // Pass 3: Fill remaining empty field positions with whoever is left
+    availablePositions.forEach(pos => {
+      if (Object.values(newInningAssignments).includes(pos)) return
+      if (unassignedPlayers.length > 0) {
+        newInningAssignments[unassignedPlayers[0].id] = pos
+        unassignedPlayers.splice(0, 1)
+      }
+    })
+
+    // Pass 4: Everyone remaining gets benched
+    unassignedPlayers.forEach(p => {
+      newInningAssignments[p.id] = 'Bench'
+    })
+
+    // Save the new assignments to the state
+    setAssignments(prev => ({
+      ...prev,
+      [activeInning]: newInningAssignments
+    }))
+  }
+
   const handleSaveGame = async () => {
     setSaving(true)
     setError(null)
@@ -89,13 +134,11 @@ export default function PositionsStep4() {
       const { data: { user }, error: userError } = await supabase.auth.getUser()
       if (userError || !user) throw new Error('You must be logged in to save a game.')
 
-      // Format the innings data for the database
       const formattedInnings = INNINGS.map(inningNum => ({
         inning: inningNum,
         assignments: assignments[inningNum] || {}
       }))
 
-      // Insert the massive final game payload!
       const { error: insertError } = await supabase
         .from('games')
         .insert([{
@@ -115,10 +158,7 @@ export default function PositionsStep4() {
 
       if (insertError) throw insertError
 
-      // Clear the draft store completely so the next game starts fresh
       store.resetDraft()
-
-      // Success! Redirect back to the dashboard or games list
       router.refresh()
       router.push('/dashboard')
 
@@ -149,9 +189,20 @@ export default function PositionsStep4() {
         <span className="text-sm font-bold text-gray-400">Step 4 of 4</span>
       </div>
 
-      <div className="mb-8">
-        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Field Positions</h1>
-        <p className="text-gray-500 mt-2">Assign field positions for each inning.</p>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Field Positions</h1>
+          <p className="text-gray-500 mt-2">Assign field positions for each inning.</p>
+        </div>
+        
+        {/* The new Auto Set button! */}
+        <button
+          onClick={handleAutoSetInning}
+          className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-xl shadow-sm transition-all"
+        >
+          <Sparkles className="w-4 h-4 mr-2" />
+          Auto Set Inning
+        </button>
       </div>
 
       {error && (
@@ -161,7 +212,6 @@ export default function PositionsStep4() {
       )}
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-        {/* Inning Tabs */}
         <div className="flex overflow-x-auto border-b border-gray-100 hide-scrollbar bg-gray-50">
           {INNINGS.map(inning => (
             <button
@@ -178,7 +228,6 @@ export default function PositionsStep4() {
           ))}
         </div>
 
-        {/* Position Assignments */}
         <div className="p-2 sm:p-4 divide-y divide-gray-50">
           {players.map((player, idx) => {
             const currentPosition = assignments[activeInning]?.[player.id] || 'Bench'
