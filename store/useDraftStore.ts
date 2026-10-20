@@ -1,102 +1,65 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { GameDraft, Position } from '@/types/models'
+import { Player } from '@/types/models'
 
-interface DraftState {
-  draft: GameDraft
-  setStep: (step: number) => void
-  setGameInfo: (info: GameDraft['gameInfo']) => void
-  toggleAttendance: (playerId: string) => void
+export interface GameInfo {
+  gameDate: string
+  gameTime: string
+  opposingTeam: string
+  location: string
+  field: string
+  weather: string
+}
+
+interface DraftStore {
+  gameInfo: GameInfo | null
+  attendingPlayers: string[]
+  subs: Player[]
+  kickingOrder: string[]
+  innings: any[] // Update this to InningAssignment once you port the type
+  currentStep: number
+  selectedTeamId: string | null
+  editingGameId: string | null
+
+  // Actions
+  setGameInfo: (info: GameInfo) => void
+  setAttendingPlayers: (ids: string[]) => void
+  setSubs: (subs: Player[]) => void
   setKickingOrder: (order: string[]) => void
-  updateInningAssignment: (inning: number, playerId: string, position: Position) => void
+  setInnings: (innings: any[]) => void
+  setCurrentStep: (step: number) => void
+  setSelectedTeamId: (id: string | null) => void
+  setEditingGameId: (id: string | null) => void
   resetDraft: () => void
 }
 
-const initialDraft: GameDraft = {
-  savedAt: new Date().toISOString(),
-  step: 1,
+const initialState = {
   gameInfo: null,
   attendingPlayers: [],
   subs: [],
   kickingOrder: [],
-  innings: []
+  innings: [],
+  currentStep: 0,
+  selectedTeamId: null,
+  editingGameId: null,
 }
 
-export const useDraftStore = create<DraftState>()(
+export const useDraftStore = create<DraftStore>()(
   persist(
     (set) => ({
-      draft: initialDraft,
-      
-      setStep: (step) => set((state) => ({ 
-        draft: { ...state.draft, step, savedAt: new Date().toISOString() } 
-      })),
-
-      setGameInfo: (gameInfo) => set((state) => ({ 
-        draft: { ...state.draft, gameInfo, savedAt: new Date().toISOString() } 
-      })),
-
-      toggleAttendance: (playerId) => set((state) => {
-        const isAttending = state.draft.attendingPlayers.includes(playerId)
-        
-        // If a player is marked as not attending, we filter them out.
-        // (In a full app, you might also want to filter them out of kickingOrder and innings here)
-        return {
-          draft: {
-            ...state.draft,
-            attendingPlayers: isAttending 
-              ? state.draft.attendingPlayers.filter(id => id !== playerId)
-              : [...state.draft.attendingPlayers, playerId],
-            savedAt: new Date().toISOString()
-          }
-        }
-      }),
-
-      setKickingOrder: (kickingOrder) => set((state) => ({
-        draft: { ...state.draft, kickingOrder, savedAt: new Date().toISOString() }
-      })),
-
-      updateInningAssignment: (inningNum, playerId, position) => set((state) => {
-        const newInnings = [...state.draft.innings]
-        const inningIndex = newInnings.findIndex(i => i.inningNumber === inningNum)
-        
-        // If the inning hasn't been created in state yet, initialize it
-        if (inningIndex === -1) {
-          if (playerId === '') return state // Nothing to remove
-          
-          newInnings.push({
-            inningNumber: inningNum,
-            assignments: [{ playerId, position }]
-          })
-          
-          return { draft: { ...state.draft, innings: newInnings, savedAt: new Date().toISOString() } }
-        }
-
-        // Clone the existing inning to mutate it
-        const currentInning = { ...newInnings[inningIndex] }
-        let assignments = [...currentInning.assignments]
-
-        // 1. Remove any existing assignment at this specific position
-        assignments = assignments.filter(a => a.position !== position)
-
-        if (playerId !== '') {
-          // 2. Remove this player from any OTHER position in this inning
-          // (a player cannot play 1B and CF at the same time)
-          assignments = assignments.filter(a => a.playerId !== playerId)
-          
-          // 3. Assign the player to the new position
-          assignments.push({ playerId, position })
-        }
-
-        currentInning.assignments = assignments
-        newInnings[inningIndex] = currentInning
-
-        return { draft: { ...state.draft, innings: newInnings, savedAt: new Date().toISOString() } }
-      }),
-
-      resetDraft: () => set({ draft: initialDraft })
+      ...initialState,
+      setGameInfo: (info) => set({ gameInfo: info }),
+      setAttendingPlayers: (ids) => set({ attendingPlayers: ids }),
+      setSubs: (subs) => set({ subs }),
+      setKickingOrder: (order) => set({ kickingOrder: order }),
+      setInnings: (innings) => set({ innings }),
+      setCurrentStep: (step) => set({ currentStep: step }),
+      setSelectedTeamId: (id) => set({ selectedTeamId: id }),
+      setEditingGameId: (id) => set({ editingGameId: id }),
+      resetDraft: () => set(initialState),
     }),
     {
-      name: 'kicksheet-game-draft', // localStorage key
+      name: 'kicksheet-draft-storage', // Instantly auto-saves to browser memory
     }
   )
 )
