@@ -72,7 +72,6 @@ export default function PositionsStep4() {
   }, [])
 
   // --- HISTORICAL DATA LOGIC ---
-  // Used for both the inline warnings and the AI algorithm
   const benchCounts: Record<string, number> = {}
   players.forEach(p => benchCounts[p.id] = 0)
   
@@ -98,7 +97,6 @@ export default function PositionsStep4() {
 
   // --- SMART AI ALGORITHM ---
   const handleAutoSetInning = () => {
-    // 1. Gather historical data EXCEPT the current inning so we don't skew the math
     const historicalBenchCounts: Record<string, number> = {}
     const historicalPosCounts: Record<string, Record<string, number>> = {}
     
@@ -132,10 +130,14 @@ export default function PositionsStep4() {
           const bBenches = historicalBenchCounts[b.id]
           if (aBenches !== bBenches) return aBenches - bBenches
         }
-        // Tie-breaker: Subs sit out first
+        // Tie-breaker 1: Subs sit out first
         if (a.isSub && !b.isSub) return -1
         if (!a.isSub && b.isSub) return 1
-        return 0
+        
+        // Tie-breaker 2: Bottom of the kicking order sits out first
+        const indexA = players.findIndex(p => p.id === a.id)
+        const indexB = players.findIndex(p => p.id === b.id)
+        return indexB - indexA 
       })
 
       const benched = unassignedPlayers.splice(0, numToBench)
@@ -143,21 +145,19 @@ export default function PositionsStep4() {
     }
 
     // 3. Prioritize Picky Players
-    // Sort remaining fielding players so those with FEWEST preferences pick first
     unassignedPlayers.sort((a, b) => {
       const aPrefCount = a.preferred_positions?.length || 0
       const bPrefCount = b.preferred_positions?.length || 0
-      if (aPrefCount === 0) return 1 // No preferences, put at the back of the line
+      if (aPrefCount === 0) return 1
       if (bPrefCount === 0) return -1
       return aPrefCount - bPrefCount
     })
 
-    // 4. Assign Preferred Positions (Pass 1)
+    // 4. Assign Preferred Positions
     for (let i = unassignedPlayers.length - 1; i >= 0; i--) {
       const p = unassignedPlayers[i]
       const prefs = p.preferred_positions || []
 
-      // If they have multiple preferences, sort them by what they've played LEAST
       const sortedPrefs = [...prefs].sort((posA, posB) => {
         const countA = historicalPosCounts[p.id][posA] || 0
         const countB = historicalPosCounts[p.id][posB] || 0
@@ -172,9 +172,8 @@ export default function PositionsStep4() {
       }
     }
 
-    // 5. Fill Remaining Players into Open Positions (Pass 2)
+    // 5. Fill Remaining Players
     unassignedPlayers.forEach(p => {
-      // Sort remaining positions by what this player has played LEAST
       availablePositions.sort((posA, posB) => {
         const countA = historicalPosCounts[p.id][posA] || 0
         const countB = historicalPosCounts[p.id][posB] || 0
@@ -185,7 +184,7 @@ export default function PositionsStep4() {
       if (pos) {
         newInningAssignments[p.id] = pos
       } else {
-        newInningAssignments[p.id] = 'Bench' // Fallback
+        newInningAssignments[p.id] = 'Bench'
       }
     })
 
@@ -300,7 +299,6 @@ export default function PositionsStep4() {
           {players.map((player, idx) => {
             const currentPosition = assignments[activeInning]?.[player.id] || 'Bench'
             
-            // Fair Play Check
             const showFairPlayWarning = 
               fairPlayEnabled && 
               currentPosition === 'Bench' && 
