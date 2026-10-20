@@ -1,169 +1,167 @@
 import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
-import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronLeft, MapPin, Clock, Calendar, CloudRain } from 'lucide-react'
-import { InningAssignment, Player } from '@/types/models'
-import ShareButton from '@/components/ShareButton'
+import { notFound } from 'next/navigation'
+import { ArrowLeft, Calendar, Clock, MapPin, Flag, Cloud, User } from 'lucide-react'
 
+// Block prerendering to ensure live database fetches
 export const instant = false
 
-
-export default async function GameDayView({ params }: { params: { id: string } }) {
+export default async function GameLineupPage({ 
+  params 
+}: { 
+  params: Promise<{ id: string }> 
+}) {
+  const { id } = await params
   const cookieStore = await cookies()
   const supabase = createClient(cookieStore)
 
-  const { data: { session } } = await supabase.auth.getSession()
-
-  if (!session) {
-    redirect('/login')
-  }
-
-  // Fetch the specific game
-  const { data: game, error: gameError } = await supabase
-    .from('game_lineups')
-    .select('*')
-    .eq('id', params.id)
+  // Fetch the game and join the team name
+  const { data: game, error } = await supabase
+    .from('games')
+    .select('*, teams (name)')
+    .eq('id', id)
     .single()
 
-  if (gameError || !game) {
+  if (error || !game) {
     notFound()
   }
 
-  // Fetch the roster for this team to map UUIDs to Player names
-  const { data: roster } = await supabase
-    .from('players')
-    .select('*')
-    .eq('team_id', game.team_id)
+  // Fetch the regular roster players that are in this game
+  const regularIds = (game.kicking_order || []).filter((pid: string) => !pid.startsWith('sub-'))
+  
+  let roster: any[] = []
+  if (regularIds.length > 0) {
+     const { data: players } = await supabase
+      .from('players')
+      .select('id, name, number')
+      .in('id', regularIds)
+     if (players) roster = players
+  }
 
-  const playerMap = new Map(roster?.map(p => [p.id, p]) || [])
+  // Reconstruct the exact kicking order by combining fetched players and temporary subs
+  const orderedPlayers = (game.kicking_order || []).map((pid: string) => {
+    if (pid.startsWith('sub-')) {
+       return (game.subs || []).find((s: any) => s.id === pid) || { id: pid, name: 'Unknown Sub', isSub: true }
+    }
+    return roster.find(p => p.id === pid) || { id: pid, name: 'Unknown Player' }
+  })
 
-  // Safely cast the JSONB innings to our TypeScript interface
-  const innings = (game.innings as unknown as InningAssignment[]) || []
+  // Helper to extract a player's position for a specific inning
+  const getPosition = (inning: number, playerId: string) => {
+     const innData = (game.innings || []).find((i: any) => i.inning === inning)
+     return innData?.assignments?.[playerId] || 'Bench'
+  }
+
+  const INNINGS = [1, 2, 3, 4, 5, 6, 7]
+  
+  // Format dates safely
+  const formattedDate = game.game_date 
+    ? new Date(game.game_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
+    : 'Unknown Date'
 
   return (
-    <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-6">
-      {/* Header & Navigation */}
-      <div className="flex justify-between items-center mb-2">
-        <div className="flex items-center gap-4">
-          <Link 
-            href="/games/past" 
-            className="p-2 bg-white border rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5 text-gray-600" />
-          </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
-            vs. {game.opposing_team || 'TBD'}
-          </h1>
+    <div className="max-w-5xl mx-auto p-6 w-full space-y-8 pb-24">
+      {/* Navigation */}
+      <Link href="/dashboard" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
+        <ArrowLeft className="w-4 h-4 mr-1" />
+        Back to Dashboard
+      </Link>
+
+      {/* Header Card */}
+      <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
+              {game.teams?.name} <span className="text-gray-400 font-medium mx-2">vs</span> {game.opposing_team || 'TBD'}
+            </h1>
+            <span className="inline-block mt-3 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold uppercase tracking-wider rounded-full">
+              Scheduled
+            </span>
+          </div>
         </div>
-        
-        {/* Share Button targeting the lineup container below */}
-        <ShareButton targetId="lineup-container" />
+
+        {/* Game Metadata Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-gray-100">
+          <div className="flex items-center gap-2 text-gray-600">
+            <Calendar className="w-4 h-4 text-blue-600 shrink-0" />
+            <span className="text-sm font-medium truncate">{formattedDate}</span>
+          </div>
+          <div className="flex items-center gap-2 text-gray-600">
+            <Clock className="w-4 h-4 text-blue-600 shrink-0" />
+            <span className="text-sm font-medium truncate">{game.game_time || 'TBD'}</span>
+          </div>
+          <div className="flex items-center gap-2 text-gray-600">
+            <MapPin className="w-4 h-4 text-blue-600 shrink-0" />
+            <span className="text-sm font-medium truncate">{game.location || 'No Location'}</span>
+          </div>
+          <div className="flex items-center gap-2 text-gray-600">
+            <Flag className="w-4 h-4 text-blue-600 shrink-0" />
+            <span className="text-sm font-medium truncate">{game.field || 'No Field'}</span>
+          </div>
+        </div>
       </div>
 
-      {/* Target Container for HTML2Canvas */}
-      <div id="lineup-container" className="space-y-6 bg-gray-50 p-4 -m-4 sm:p-0 sm:m-0 sm:bg-transparent rounded-xl">
-        
-        {/* Game Details Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="bg-white p-4 border rounded-xl shadow-sm flex items-center gap-3">
-            <Calendar className="w-5 h-5 text-blue-600" />
-            <div>
-              <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Date</p>
-              <p className="font-semibold text-gray-900">{new Date(game.game_date).toLocaleDateString()}</p>
-            </div>
-          </div>
-          <div className="bg-white p-4 border rounded-xl shadow-sm flex items-center gap-3">
-            <Clock className="w-5 h-5 text-blue-600" />
-            <div>
-              <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Time</p>
-              <p className="font-semibold text-gray-900">{game.game_time}</p>
-            </div>
-          </div>
-          <div className="bg-white p-4 border rounded-xl shadow-sm flex items-center gap-3">
-            <MapPin className="w-5 h-5 text-blue-600" />
-            <div className="truncate">
-              <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Location</p>
-              <p className="font-semibold text-gray-900 truncate">
-                {[game.location, game.field].filter(Boolean).join(' - ') || 'TBD'}
-              </p>
-            </div>
-          </div>
-          <div className="bg-white p-4 border rounded-xl shadow-sm flex items-center gap-3">
-            <CloudRain className="w-5 h-5 text-blue-600" />
-            <div className="truncate">
-              <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Weather</p>
-              <p className="font-semibold text-gray-900 truncate">{game.weather || 'Unknown'}</p>
-            </div>
-          </div>
+      {/* Master Lineup Matrix */}
+      <div>
+        <div className="flex items-center justify-between mb-4 px-1">
+          <h2 className="text-xl font-bold text-gray-900">Master Lineup</h2>
+          <span className="text-sm font-bold text-gray-500">{orderedPlayers.length} Players</span>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4">
-          {/* Kicking Order Column */}
-          <div className="lg:col-span-1 space-y-4">
-            <div className="bg-white border rounded-2xl shadow-sm overflow-hidden">
-              <div className="bg-gray-50 border-b px-5 py-4">
-                <h2 className="text-lg font-bold text-gray-900">Kicking Order</h2>
-              </div>
-              <div className="divide-y">
-                {game.kicking_order?.map((playerId: string, index: number) => {
-                  const player = playerMap.get(playerId)
-                  if (!player) return null
-                  return (
-                    <div key={`${playerId}-${index}`} className="px-5 py-3 flex items-center gap-4 hover:bg-gray-50 transition-colors bg-white">
-                      <span className="font-bold text-gray-400 w-6 text-right">{index + 1}.</span>
-                      <div>
-                        <p className="font-semibold text-gray-900">{player.name}</p>
-                        {player.number && <p className="text-xs text-gray-500">#{player.number}</p>}
-                      </div>
+        <div className="overflow-x-auto bg-white rounded-2xl shadow-sm border border-gray-100 hide-scrollbar">
+          <table className="w-full text-sm text-left border-collapse">
+            <thead className="bg-gray-50 text-gray-500 uppercase text-xs font-bold tracking-wider border-b border-gray-200">
+              <tr>
+                {/* Sticky columns for side-scrolling on mobile */}
+                <th className="px-4 py-4 sticky left-0 bg-gray-50 z-20 border-r border-gray-200">#</th>
+                <th className="px-4 py-4 sticky left-[48px] bg-gray-50 z-20 border-r border-gray-200 min-w-[140px] shadow-[4px_0_12px_rgba(0,0,0,0.03)]">Player</th>
+                {INNINGS.map(i => (
+                  <th key={i} className="px-4 py-4 text-center min-w-[80px]">Inn {i}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {orderedPlayers.map((player, idx) => (
+                <tr key={player.id} className="hover:bg-blue-50/50 transition-colors group">
+                  
+                  {/* Order Number */}
+                  <td className="px-4 py-3 font-bold text-gray-400 sticky left-0 bg-white group-hover:bg-blue-50/50 border-r border-gray-100 z-10 transition-colors">
+                    {idx + 1}
+                  </td>
+                  
+                  {/* Player Name */}
+                  <td className="px-4 py-3 font-bold text-gray-900 sticky left-[48px] bg-white group-hover:bg-blue-50/50 border-r border-gray-100 z-10 shadow-[4px_0_12px_rgba(0,0,0,0.03)] transition-colors whitespace-nowrap">
+                    <div className="flex items-center">
+                      {player.name}
+                      {player.isSub && (
+                        <span className="ml-2 text-[10px] uppercase bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-md flex items-center">
+                          <User className="w-3 h-3 mr-0.5" /> Sub
+                        </span>
+                      )}
                     </div>
-                  )
-                })}
-                {(!game.kicking_order || game.kicking_order.length === 0) && (
-                  <div className="p-8 text-center text-gray-500 bg-white">No kicking order set.</div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Field Positions by Inning */}
-          <div className="lg:col-span-2 space-y-4">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Field Assignments</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {innings.map((inning) => (
-                <div key={inning.inningNumber} className="bg-white border rounded-2xl shadow-sm overflow-hidden">
-                  <div className="bg-blue-50 border-b px-5 py-3">
-                    <h3 className="font-bold text-blue-900">Inning {inning.inningNumber}</h3>
-                  </div>
-                  <div className="p-4 grid grid-cols-2 gap-3 bg-white">
-                    {inning.assignments.map((assignment, idx) => {
-                      const player = playerMap.get(assignment.playerId)
-                      if (!player) return null
-                      return (
-                        <div key={idx} className="flex items-center gap-2">
-                          <span className="bg-gray-100 text-gray-700 text-xs font-bold px-2 py-1 rounded w-10 text-center">
-                            {assignment.position}
-                          </span>
-                          <span className="text-sm font-medium text-gray-900 truncate">
-                            {player.name}
-                          </span>
-                        </div>
-                      )
-                    })}
-                    {inning.assignments.length === 0 && (
-                      <div className="col-span-2 text-sm text-gray-500 italic">No players assigned.</div>
-                    )}
-                  </div>
-                </div>
+                  </td>
+                  
+                  {/* Innings */}
+                  {INNINGS.map(inning => {
+                     const pos = getPosition(inning, player.id);
+                     const isBench = pos === 'Bench';
+                     return (
+                       <td key={inning} className="px-4 py-3 text-center">
+                         <span className={`inline-flex items-center justify-center w-10 h-10 rounded-xl font-bold text-xs transition-colors ${
+                           isBench 
+                            ? 'bg-gray-50 text-gray-400' 
+                            : 'bg-blue-100 text-blue-800'
+                         }`}>
+                           {pos}
+                         </span>
+                       </td>
+                     )
+                  })}
+                </tr>
               ))}
-              {innings.length === 0 && (
-                <div className="col-span-full p-8 text-center bg-white border rounded-2xl text-gray-500">
-                  No field assignments saved for this game.
-                </div>
-              )}
-            </div>
-          </div>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
