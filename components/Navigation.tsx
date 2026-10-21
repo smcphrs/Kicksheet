@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Users, Calendar, Settings } from 'lucide-react'
+import { Home, Users, Calendar, Settings, Gauge } from 'lucide-react'
 
 export default function Navigation() {
   const pathname = usePathname()
@@ -13,9 +13,9 @@ export default function Navigation() {
   }
 
   const navItems = [
-    { name: 'Home', href: '/dashboard', icon: Home },
+    { name: 'Home', href: '/dashboard', icon: Gauge },
     { name: 'Teams', href: '/teams', icon: Users },
-    { name: 'Games', href: '/games/past', icon: Calendar },
+    { name: 'Games', href: '/games', icon: Calendar },
     { name: 'Settings', href: '/settings', icon: Settings },
   ]
 
