@@ -3,9 +3,6 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { Calendar, Clock, MapPin, ChevronRight, Plus } from 'lucide-react'
 
-// Force Next.js to fetch fresh data every time
-export const dynamic = 'force-dynamic'
-
 export default async function GamesPage() {
   const cookieStore = await cookies()
   const supabase = createClient(cookieStore)
