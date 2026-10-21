@@ -1,129 +1,147 @@
-import { createClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { Plus, Users, ChevronRight } from 'lucide-react'
+import { Users, Edit2, Trash2, Plus, Loader2, ArrowLeft } from 'lucide-react'
 
-// Block prerendering to ensure live database fetches
-export const instant = false
+export default function ManageTeamsPage() {
+  const supabase = createClient()
+  const [teams, setTeams] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-// Maintain your exact color hashing logic for the avatars
-function getTeamColor(name: string): string {
-  const colors = [
-    '#2D7A3A', '#1E88E5', '#8E24AA', '#E53935',
-    '#F4511E', '#039BE5', '#00897B', '#7CB342',
-    '#FB8C00', '#6D4C41',
-  ]
-  let hash = 0
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  useEffect(() => {
+    fetchTeams()
+  }, [])
+
+  async function fetchTeams() {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const { data, error } = await supabase
+      .from('teams')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+    
+    if (data) setTeams(data)
+    setLoading(false)
   }
-  return colors[Math.abs(hash) % colors.length]
-}
 
-export default async function TeamsPage() {
-  const cookieStore = await cookies()
-  const supabase = createClient(cookieStore)
+  async function handleDeleteTeam(id: string, name: string) {
+    if (!window.confirm(`Are you sure you want to delete "${name}"? This cannot be undone.`)) {
+      return
+    }
 
-  // Fetch teams directly from Supabase instead of local storage
-  const { data: teams, error } = await supabase
-    .from('teams')
-    .select(`*, players (*)`)
-    .order('created_at', { ascending: false })
+    setDeletingId(id)
+    setError(null)
 
-  const MAX_TEAMS = 8
-  const currentTeams = teams || []
-  const atTeamLimit = currentTeams.length >= MAX_TEAMS
+    try {
+      const { error: deleteError } = await supabase
+        .from('teams')
+        .delete()
+        .eq('id', id)
+
+      if (deleteError) {
+        // If the database blocks the delete due to foreign keys (e.g., players/games are attached)
+        if (deleteError.code === '23503') {
+          throw new Error(`Cannot delete ${name}. You must delete all players and games associated with this team first.`)
+        }
+        throw deleteError
+      }
+
+      // Remove the team from the UI instantly
+      setTeams(teams.filter(t => t.id !== id))
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete team.')
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 w-full space-y-6">
-      {/* Header */}
-      <header className="flex items-center justify-between">
-        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Teams</h1>
+    <div className="max-w-4xl mx-auto p-6 w-full space-y-8 pb-24">
+      <Link href="/dashboard" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
+        <ArrowLeft className="w-4 h-4 mr-1" />
+        Back to Dashboard
+      </Link>
+
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Manage Teams</h1>
+          <p className="text-gray-500 mt-1 font-medium">Edit or delete your existing teams.</p>
+        </div>
         
-        {atTeamLimit ? (
-          <button 
-            disabled
-            className="bg-gray-300 w-10 h-10 rounded-xl flex items-center justify-center cursor-not-allowed opacity-50"
-            title="Team limit reached"
-          >
-            <Plus className="w-6 h-6 text-white" />
-          </button>
-        ) : (
-          <Link 
-            href="/teams/new"
-            className="bg-blue-600 hover:bg-blue-700 transition-colors w-10 h-10 rounded-xl flex items-center justify-center shadow-sm"
-          >
-            <Plus className="w-6 h-6 text-white" />
-          </Link>
-        )}
+        <Link 
+          href="/teams/new"
+          className="w-full sm:w-auto text-center bg-blue-600 text-white px-5 py-3 rounded-xl hover:bg-blue-700 font-bold transition-colors inline-flex items-center justify-center gap-2 shadow-sm"
+        >
+          <Plus className="w-5 h-5" />
+          New Team
+        </Link>
       </header>
 
-      {/* Empty State */}
-      {(!currentTeams || currentTeams.length === 0) && (
-        <div className="flex flex-col items-center justify-center py-20 px-8 text-center bg-white rounded-3xl border border-gray-100 shadow-sm mt-8">
-          <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-6">
-            <Users className="w-10 h-10 text-blue-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">No teams yet</h2>
-          <p className="text-gray-500 mb-8 max-w-sm">
-            Create your first team to start managing players and building lineups.
-          </p>
-          <Link 
-            href="/teams/new"
-            className="bg-blue-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-700 transition-colors"
-          >
-            Create Team
-          </Link>
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm font-medium">
+          {error}
         </div>
       )}
 
-      {/* Teams List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {currentTeams.map((team) => {
-          const activeCount = team.players?.filter((p: any) => p.status === 'active').length || 0
-          const activeLabel = activeCount === 1 ? '1 active player' : `${activeCount} active players`
-          const hasThumbnail = !!team.thumbnailUri
-
-          return (
-            <Link
-              key={team.id}
-              href={`/teams/${team.id}`}
-              className="bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm border border-gray-100 hover:border-blue-100 hover:shadow-md transition-all group"
-            >
-              {/* Thumbnail / Avatar */}
-              {hasThumbnail ? (
-                <img
-                  src={team.thumbnailUri}
-                  alt={team.name}
-                  className="w-16 h-16 rounded-xl object-cover"
-                />
-              ) : (
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: getTeamColor(team.name) }}
-                >
-                  <span className="text-2xl font-extrabold text-white">
-                    {team.name.charAt(0).toUpperCase()}
-                  </span>
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        </div>
+      ) : teams.length === 0 ? (
+        <div className="bg-white p-10 text-center border-2 border-dashed border-gray-200 rounded-3xl">
+          <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-gray-900 mb-2">No teams found</h3>
+          <p className="text-gray-500 mb-6 max-w-sm mx-auto">You haven't created any teams yet.</p>
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {teams.map(team => (
+            <div key={team.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:border-blue-100 transition-all">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                  <Users className="w-6 h-6 text-blue-600" />
                 </div>
-              )}
-
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-bold text-gray-900 truncate">
-                  {team.name}
-                </h3>
-                <p className="text-sm text-gray-500 mt-0.5">
-                  {activeLabel}
-                </p>
+                <div>
+                  <h3 className="font-bold text-lg text-gray-900">{team.name}</h3>
+                  <p className="text-sm text-gray-500 font-medium">
+                    Created {new Date(team.created_at).toLocaleDateString()}
+                  </p>
+                </div>
               </div>
 
-              {/* Arrow */}
-              <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-blue-600 transition-colors shrink-0" />
-            </Link>
-          )
-        })}
-      </div>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <Link 
+                  href={`/teams/${team.id}/edit`}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold rounded-lg transition-colors border border-gray-200"
+                >
+                  <Edit2 className="w-4 h-4 mr-2" />
+                  Edit
+                </Link>
+                <button 
+                  onClick={() => handleDeleteTeam(team.id, team.name)}
+                  disabled={deletingId === team.id}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-lg transition-colors border border-red-100 disabled:opacity-50"
+                >
+                  {deletingId === team.id ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
