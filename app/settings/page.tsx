@@ -2,30 +2,33 @@
 
 import { SignOutButton } from '@/components/auth/SignOutButton'
 import { useSettingsStore } from '@/store/useSettingsStore'
+import { useTheme } from 'next-themes'
 import { useState, useEffect } from 'react'
+import { Moon, Sun, Monitor } from 'lucide-react'
 
 export default function SettingsPage() {
   const { fairPlayEnabled, setFairPlayEnabled, inningsCount, setInningsCount } = useSettingsStore()
+  const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => setMounted(true), [])
 
   return (
     <div className="max-w-3xl mx-auto p-6 w-full space-y-6">
-      <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 mb-8">Settings</h1>
+      <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-8">Settings</h1>
       
       {/* Game Preferences */}
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">Game Preferences</h2>
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Game Preferences</h2>
         
         {mounted && (
           <div className="space-y-4">
             {/* Fair Play Rule */}
-            <div className="flex items-center justify-between p-5 bg-gray-50 rounded-xl border border-gray-200">
-              <div className="pr-4">
-                <h3 className="font-bold text-gray-900">Fair Play Rule</h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  Show a warning during lineup creation if you assign a player to the bench who has already sat out while others haven't.
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 gap-4">
+              <div>
+                <h3 className="font-bold text-gray-900 dark:text-white">Fair Play Rule</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Warn when assigning a player to the bench who has already sat out while others haven't.
                 </p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer shrink-0">
@@ -40,17 +43,17 @@ export default function SettingsPage() {
             </div>
 
             {/* Innings Count */}
-            <div className="flex items-center justify-between p-5 bg-gray-50 rounded-xl border border-gray-200">
-              <div className="pr-4">
-                <h3 className="font-bold text-gray-900">Game Length</h3>
-                <p className="text-sm text-gray-500 mt-1">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 gap-4">
+              <div>
+                <h3 className="font-bold text-gray-900 dark:text-white">Game Length</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Set the default number of innings when creating a new game.
                 </p>
               </div>
               <select
                 value={inningsCount || 7}
                 onChange={(e) => setInningsCount(Number(e.target.value))}
-                className="px-4 py-2.5 rounded-xl border border-gray-200 font-bold text-gray-900 bg-white outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all shrink-0 cursor-pointer"
+                className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 font-bold text-gray-900 dark:text-white bg-white dark:bg-gray-800 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all shrink-0 cursor-pointer"
               >
                 <option value={5}>5 Innings</option>
                 <option value={6}>6 Innings</option>
@@ -61,11 +64,54 @@ export default function SettingsPage() {
         )}
       </div>
 
+      {/* App Preferences */}
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">App Preferences</h2>
+        
+        {mounted && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 gap-4">
+            <div>
+              <h3 className="font-bold text-gray-900 dark:text-white">Appearance</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Choose how the app looks on your device.
+              </p>
+            </div>
+            
+            <div className="flex p-1 bg-gray-200 dark:bg-gray-950 rounded-lg shrink-0 w-fit">
+              <button
+                onClick={() => setTheme('light')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-bold transition-all ${
+                  theme === 'light' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                <Sun className="w-4 h-4" /> Light
+              </button>
+              <button
+                onClick={() => setTheme('dark')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-bold transition-all ${
+                  theme === 'dark' ? 'bg-gray-800 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                <Moon className="w-4 h-4" /> Dark
+              </button>
+              <button
+                onClick={() => setTheme('system')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-bold transition-all ${
+                  theme === 'system' ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                <Monitor className="w-4 h-4" /> System
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Account Settings */}
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Account</h2>
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Account</h2>
         <div className="flex items-center justify-between">
-          <span className="font-medium text-gray-700">Logged in securely</span>
+          <span className="font-medium text-gray-700 dark:text-gray-300">Logged in securely</span>
           <SignOutButton />
         </div>
       </div>
