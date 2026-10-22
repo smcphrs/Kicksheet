@@ -20,8 +20,9 @@ export default async function DashboardPage() {
     { count: playersCount },
     { count: gamesCount }
   ] = await Promise.all([
-    supabase.from('teams').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-    supabase.from('players').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+    // CHANGE user_id to owner_id on the teams line below:
+    supabase.from('teams').select('id', { count: 'exact', head: true }).eq('owner_id', user.id),
+    supabase.from('players').select('id', { count: 'exact', head: true }).eq('user_id', user.id), // (leave this one as user_id unless players also uses owner_id!)
     supabase.from('games').select('id', { count: 'exact', head: true }).eq('user_id', user.id)
   ])
 

@@ -23,7 +23,8 @@ export default function ManageTeamsPage() {
     const { data, error } = await supabase
       .from('teams')
       .select('*')
-      .eq('user_id', user.id)
+      // CHANGE THIS LINE to owner_id:
+      .eq('owner_id', user.id)
       .order('created_at', { ascending: false })
     
     if (data) setTeams(data)
