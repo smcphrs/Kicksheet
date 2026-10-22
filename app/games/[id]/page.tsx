@@ -46,32 +46,37 @@ export default async function GameLineupPage({
      return innData?.assignments?.[playerId] || 'Bench'
   }
 
+  // NEW: Highly vibrant, drastically shaded color families
   const getPositionColors = (pos: string) => {
     switch (pos) {
-      case 'Bench': 
-        return 'bg-slate-600 text-white border border-slate-700'
+      // Battery (Vibrant Pinks/Reds)
       case 'P': 
-        return 'bg-rose-600 text-white border border-rose-700'
+        return 'bg-fuchsia-500 text-white'
       case 'C': 
-        return 'bg-rose-800 text-white border border-rose-900'
+        return 'bg-rose-500 text-white'
+      
+      // Infield (Bright Yellows to Deep Reds)
       case '1B': 
-        return 'bg-amber-600 text-white border border-amber-700'
+        return 'bg-yellow-400 text-yellow-950' // Dark text for contrast on bright yellow
       case '2B': 
-        return 'bg-amber-700 text-white border border-amber-800'
+        return 'bg-amber-500 text-white'
       case '3B': 
-        return 'bg-orange-600 text-white border border-orange-700'
+        return 'bg-orange-500 text-white'
       case 'SS': 
-        return 'bg-orange-800 text-white border border-orange-900'
+        return 'bg-red-500 text-white'
+      
+      // Outfield (Neon Limes to Deep Teals)
       case 'LF': 
-        return 'bg-emerald-600 text-white border border-emerald-700'
+        return 'bg-lime-400 text-lime-950' // Dark text for contrast on bright lime
       case 'LC': 
-        return 'bg-emerald-700 text-white border border-emerald-800'
+        return 'bg-green-500 text-white'
       case 'RC': 
-        return 'bg-teal-600 text-white border border-teal-700'
+        return 'bg-emerald-500 text-white'
       case 'RF': 
-        return 'bg-teal-800 text-white border border-teal-900'
+        return 'bg-teal-500 text-white'
+        
       default: 
-        return 'bg-blue-600 text-white border border-blue-700'
+        return 'bg-blue-500 text-white'
     }
   }
 
@@ -127,18 +132,15 @@ export default async function GameLineupPage({
           <span className="text-xs sm:text-sm font-bold text-gray-500">{orderedPlayers.length} Players</span>
         </div>
 
-        {/* Changed from overflow-x-auto to highly compact mobile tables */}
         <div className="overflow-x-auto bg-white rounded-2xl shadow-sm border border-gray-100">
           <table className="w-full text-left border-collapse">
             <thead className="bg-gray-50 text-gray-500 uppercase font-bold tracking-wider border-b border-gray-200">
               <tr>
-                {/* Combined # and Player column for space saving */}
                 <th className="pl-3 pr-2 sm:px-4 py-3 sticky left-0 bg-gray-50 z-20 border-r border-gray-200 w-[110px] sm:w-[180px] shadow-[2px_0_8px_rgba(0,0,0,0.03)] text-[10px] sm:text-xs">
                   Player
                 </th>
                 {INNINGS.map(i => (
                   <th key={i} className="p-1 sm:px-4 sm:py-3 text-center w-[34px] sm:w-auto">
-                    {/* Only show "1", "2" on mobile, "Inn 1" on desktop */}
                     <span className="text-[10px] sm:text-xs sm:hidden">{i}</span>
                     <span className="hidden sm:inline text-xs">Inn {i}</span>
                   </th>
@@ -149,7 +151,6 @@ export default async function GameLineupPage({
               {orderedPlayers.map((player: any, idx: number) => (
                 <tr key={player.id} className="hover:bg-blue-50/50 transition-colors group">
                   
-                  {/* Compact combined Name + Number column */}
                   <td className="pl-2 pr-1 sm:px-4 py-1.5 sm:py-3 sticky left-0 bg-white group-hover:bg-blue-50/50 border-r border-gray-100 z-10 shadow-[2px_0_8px_rgba(0,0,0,0.03)] transition-colors">
                     <div className="flex items-center gap-1.5 sm:gap-3 w-[100px] sm:w-[160px]">
                       <span className="text-[9px] sm:text-xs font-bold text-gray-400 w-3 sm:w-5 text-right shrink-0">
@@ -168,15 +169,23 @@ export default async function GameLineupPage({
                     </div>
                   </td>
                   
-                  {/* Compact Position Badges */}
                   {INNINGS.map(inning => {
                      const pos = getPosition(inning, player.id);
+                     const isBench = pos === 'Bench';
                      const colors = getPositionColors(pos);
+                     
+                     // Bench text is fully transparent, colored boxes get shadows and backgrounds
                      return (
-                       <td key={inning} className="p-0.5 sm:px-4 sm:py-3 text-center">
-                         <span className={`inline-flex items-center justify-center w-7 h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl font-bold text-[9px] sm:text-xs transition-colors shadow-sm tracking-tighter sm:tracking-normal ${colors}`}>
-                           {pos}
-                         </span>
+                       <td key={inning} className="p-0.5 sm:px-4 sm:py-3 text-center align-middle">
+                         {isBench ? (
+                           <span className="inline-flex items-center justify-center h-7 sm:h-10 text-gray-300 font-bold text-[9px] sm:text-xs tracking-tighter sm:tracking-normal">
+                             Bench
+                           </span>
+                         ) : (
+                           <span className={`inline-flex items-center justify-center w-7 h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl font-bold text-[9px] sm:text-xs shadow-sm transition-colors tracking-tighter sm:tracking-normal ${colors}`}>
+                             {pos}
+                           </span>
+                         )}
                        </td>
                      )
                   })}
