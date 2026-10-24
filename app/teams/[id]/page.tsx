@@ -4,6 +4,23 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, UserPlus, Edit2, Shield, Users } from 'lucide-react'
 
+// Use the exact same color logic from the lineup page
+const getPositionColors = (pos: string) => {
+  switch (pos) {
+    case 'P': return 'bg-fuchsia-500 text-white'
+    case 'C': return 'bg-rose-500 text-white'
+    case '1B': return 'bg-yellow-400 text-yellow-950'
+    case '2B': return 'bg-amber-500 text-white'
+    case '3B': return 'bg-orange-500 text-white'
+    case 'SS': return 'bg-red-500 text-white'
+    case 'LF': return 'bg-lime-400 text-lime-950'
+    case 'LC': return 'bg-green-500 text-white'
+    case 'RC': return 'bg-emerald-500 text-white'
+    case 'RF': return 'bg-teal-500 text-white'
+    default: return 'bg-blue-500 text-white'
+  }
+}
+
 export default async function TeamRosterPage({ 
   params 
 }: { 
@@ -95,13 +112,16 @@ export default async function TeamRosterPage({
                   </div>
                   <div>
                     <h3 className="font-bold text-lg text-gray-900 dark:text-white">{player.name}</h3>
-                    <div className="flex flex-wrap gap-1 mt-1">
+                    <div className="flex flex-wrap gap-1.5 mt-1.5">
                       {player.preferred_positions && player.preferred_positions.length > 0 ? (
-                        player.preferred_positions.map((pos: string) => (
-                          <span key={pos} className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-bold rounded-md">
-                            {pos}
-                          </span>
-                        ))
+                        player.preferred_positions.map((pos: string) => {
+                          const colors = getPositionColors(pos);
+                          return (
+                            <span key={pos} className={`inline-flex items-center justify-center px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold shadow-sm transition-colors uppercase tracking-wider ${colors}`}>
+                              {pos}
+                            </span>
+                          )
+                        })
                       ) : (
                         <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">No preferred positions</span>
                       )}
