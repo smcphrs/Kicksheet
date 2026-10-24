@@ -103,38 +103,40 @@ export default function ManageTeamsPage() {
       ) : (
         <div className="grid gap-4">
           {teams.map(team => (
-            <div key={team.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:border-blue-100 transition-all">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                  <Users className="w-6 h-6 text-blue-600" />
+            <div key={team.id} className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:border-blue-100 dark:hover:border-blue-900/50 transition-all">
+              
+              {/* Make the left side clickable to view the Roster! */}
+              <Link href={`/teams/${team.id}`} className="flex items-center gap-3 flex-1">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-gray-900">{team.name}</h3>
-                  <p className="text-sm text-gray-500 font-medium">
+                  <h3 className="font-bold text-lg text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{team.name}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
                     Created {new Date(team.created_at).toLocaleDateString()}
                   </p>
                 </div>
-              </div>
+              </Link>
 
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Link 
                   href={`/teams/${team.id}/edit`}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold rounded-lg transition-colors border border-gray-200"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-lg transition-colors border border-gray-200 dark:border-gray-700"
                 >
-                  <Edit2 className="w-4 h-4 mr-2" />
-                  Edit
+                  <Edit2 className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Settings</span>
                 </Link>
                 <button 
                   onClick={() => handleDeleteTeam(team.id, team.name)}
                   disabled={deletingId === team.id}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-lg transition-colors border border-red-100 disabled:opacity-50"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 font-bold rounded-lg transition-colors border border-red-100 dark:border-red-900/50 disabled:opacity-50"
                 >
                   {deletingId === team.id ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <>
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete
+                      <Trash2 className="w-4 h-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Delete</span>
                     </>
                   )}
                 </button>
