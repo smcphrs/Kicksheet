@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, Calendar, Clock, MapPin, Flag } from 'lucide-react'
+import { Calendar, Clock, MapPin, Users, Cloud } from 'lucide-react'
 
 export default async function GameLineupPage({ 
   params 
@@ -43,40 +43,25 @@ export default async function GameLineupPage({
 
   const getPosition = (inning: number, playerId: string) => {
      const innData = (game.innings || []).find((i: any) => i.inning === inning)
-     return innData?.assignments?.[playerId] || 'Bench'
+     return innData?.assignments?.[playerId] || 'OUT'
   }
 
-  // NEW: Highly vibrant, drastically shaded color families
+  // Exact color mapping from the reference image
   const getPositionColors = (pos: string) => {
     switch (pos) {
-      // Battery (Vibrant Pinks/Reds)
-      case 'P': 
-        return 'bg-fuchsia-500 text-white'
-      case 'C': 
-        return 'bg-rose-500 text-white'
-      
-      // Infield (Bright Yellows to Deep Reds)
-      case '1B': 
-        return 'bg-yellow-400 text-yellow-950' // Dark text for contrast on bright yellow
-      case '2B': 
-        return 'bg-amber-500 text-white'
-      case '3B': 
-        return 'bg-orange-500 text-white'
-      case 'SS': 
-        return 'bg-red-500 text-white'
-      
-      // Outfield (Neon Limes to Deep Teals)
-      case 'LF': 
-        return 'bg-lime-400 text-lime-950' // Dark text for contrast on bright lime
-      case 'LC': 
-        return 'bg-green-500 text-white'
-      case 'RC': 
-        return 'bg-emerald-500 text-white'
-      case 'RF': 
-        return 'bg-teal-500 text-white'
-        
-      default: 
-        return 'bg-blue-500 text-white'
+      case 'C': return 'bg-[#9c27b0] text-white' // Purple
+      case 'RF': return 'bg-[#5e35b1] text-white' // Deep Purple
+      case 'SS': return 'bg-[#43a047] text-white' // Green
+      case 'LC': return 'bg-[#00acc1] text-white' // Cyan
+      case 'LF': return 'bg-[#00acc1] text-white' // Cyan (using same as LC based on image)
+      case 'RC': return 'bg-[#3949ab] text-white' // Blue/Indigo
+      case 'P': return 'bg-[#f44336] text-white' // Red
+      case '1B': return 'bg-[#f4511e] text-white' // Red-Orange
+      case '2B': return 'bg-[#fb8c00] text-white' // Orange
+      case '3B': return 'bg-[#fdd835] text-gray-900' // Yellow
+      case 'Bench':
+      case 'OUT': return 'bg-[#757575] text-white' // Dark Gray
+      default: return 'bg-gray-400 text-white'
     }
   }
 
@@ -87,112 +72,125 @@ export default async function GameLineupPage({
     ? new Date(game.game_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
     : 'Unknown Date'
 
+  // Truncate player name for mobile (e.g. "Andres T.")
+  const formatName = (name: string) => {
+    const parts = name.split(' ');
+    if (parts.length > 1) {
+      return `${parts[0]} ${parts[parts.length - 1][0]}.`;
+    }
+    return name;
+  }
+
   return (
-    <div className="max-w-5xl mx-auto p-4 sm:p-6 w-full space-y-6 sm:space-y-8 pb-24">
-      <Link href="/games" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
-        <ArrowLeft className="w-4 h-4 mr-1" />
-        Back to Games
-      </Link>
+    <div className="max-w-4xl mx-auto w-full pb-24 bg-[#f8f9fa] min-h-screen font-sans">
+      
+      {/* Header Card */}
+      <div className="bg-[#2563eb] text-white p-6 sm:p-8 rounded-b-3xl sm:rounded-3xl sm:mt-6 shadow-md mb-8">
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4 flex items-center gap-2">
+          <span className="text-blue-200 text-2xl">vs</span> {game.opposing_team || 'TBD'}
+        </h1>
 
-      <div className="bg-white p-5 sm:p-8 rounded-3xl shadow-sm border border-gray-100">
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4 sm:mb-6">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
-              {game.teams?.name} <span className="text-gray-400 font-medium mx-1 sm:mx-2">vs</span> {game.opposing_team || 'TBD'}
-            </h1>
-            <span className="inline-block mt-2 px-3 py-1 bg-green-100 text-green-800 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-full">
-              Scheduled
-            </span>
+        <div className="space-y-2.5 text-blue-50 font-medium text-sm sm:text-base">
+          <div className="flex items-center gap-3">
+            <Calendar className="w-5 h-5 opacity-80" />
+            <span>{formattedDate}</span>
+            <Clock className="w-5 h-5 opacity-80 ml-2" />
+            <span>{game.game_time || 'TBD'}</span>
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-100">
-          <div className="flex items-center gap-2 text-gray-600">
-            <Calendar className="w-4 h-4 text-blue-600 shrink-0" />
-            <span className="text-xs sm:text-sm font-medium truncate">{formattedDate}</span>
+          <div className="flex items-center gap-3">
+            <MapPin className="w-5 h-5 opacity-80" />
+            <span>{game.location || 'Unknown'} • {game.field || 'TBD'}</span>
           </div>
-          <div className="flex items-center gap-2 text-gray-600">
-            <Clock className="w-4 h-4 text-blue-600 shrink-0" />
-            <span className="text-xs sm:text-sm font-medium truncate">{game.game_time || 'TBD'}</span>
+          <div className="flex items-center gap-3">
+            <Cloud className="w-5 h-5 opacity-80" />
+            <span>Sunny, Cool 55 F</span> {/* Static placeholder matching image */}
           </div>
-          <div className="flex items-center gap-2 text-gray-600">
-            <MapPin className="w-4 h-4 text-blue-600 shrink-0" />
-            <span className="text-xs sm:text-sm font-medium truncate">{game.location || 'No Location'}</span>
-          </div>
-          <div className="flex items-center gap-2 text-gray-600">
-            <Flag className="w-4 h-4 text-blue-600 shrink-0" />
-            <span className="text-xs sm:text-sm font-medium truncate">{game.field || 'No Field'}</span>
+          <div className="flex items-center gap-3">
+            <Users className="w-5 h-5 opacity-80" />
+            <span>{orderedPlayers.length} players</span>
           </div>
         </div>
       </div>
 
-      <div>
-        <div className="flex items-center justify-between mb-3 px-1">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900">Master Lineup</h2>
-          <span className="text-xs sm:text-sm font-bold text-gray-500">{orderedPlayers.length} Players</span>
-        </div>
+      <div className="px-4 sm:px-6">
+        <h2 className="text-2xl font-extrabold text-gray-900 mb-4">Lineup</h2>
 
-        <div className="overflow-x-auto bg-white rounded-2xl shadow-sm border border-gray-100">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-gray-50 text-gray-500 uppercase font-bold tracking-wider border-b border-gray-200">
+        <div className="overflow-x-auto bg-white rounded-2xl shadow-sm hide-scrollbar">
+          <table className="w-full text-left border-collapse whitespace-nowrap">
+            {/* Solid Blue Table Header */}
+            <thead className="bg-[#2563eb] text-white text-sm font-bold">
               <tr>
-                <th className="pl-3 pr-2 sm:px-4 py-3 sticky left-0 bg-gray-50 z-20 border-r border-gray-200 w-[110px] sm:w-[180px] shadow-[2px_0_8px_rgba(0,0,0,0.03)] text-[10px] sm:text-xs">
-                  Player
+                <th className="px-4 py-4 sticky left-0 bg-[#2563eb] z-20 w-[140px]">
+                  Order
                 </th>
                 {INNINGS.map(i => (
-                  <th key={i} className="p-1 sm:px-4 sm:py-3 text-center w-[34px] sm:w-auto">
-                    <span className="text-[10px] sm:text-xs sm:hidden">{i}</span>
-                    <span className="hidden sm:inline text-xs">Inn {i}</span>
+                  <th key={i} className="px-2 py-4 text-center min-w-[50px]">
+                    {i}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {orderedPlayers.map((player: any, idx: number) => (
-                <tr key={player.id} className="hover:bg-blue-50/50 transition-colors group">
-                  
-                  <td className="pl-2 pr-1 sm:px-4 py-1.5 sm:py-3 sticky left-0 bg-white group-hover:bg-blue-50/50 border-r border-gray-100 z-10 shadow-[2px_0_8px_rgba(0,0,0,0.03)] transition-colors">
-                    <div className="flex items-center gap-1.5 sm:gap-3 w-[100px] sm:w-[160px]">
-                      <span className="text-[9px] sm:text-xs font-bold text-gray-400 w-3 sm:w-5 text-right shrink-0">
-                        {idx + 1}
-                      </span>
-                      <div className="flex flex-col truncate">
-                        <span className="font-bold text-gray-900 text-xs sm:text-sm truncate leading-tight">
-                          {player.name}
-                        </span>
-                        {player.isSub && (
-                          <span className="mt-0.5 text-[8px] sm:text-[10px] uppercase bg-blue-100 text-blue-700 px-1 py-0.5 rounded flex items-center w-fit leading-none">
-                            Sub
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </td>
-                  
-                  {INNINGS.map(inning => {
-                     const pos = getPosition(inning, player.id);
-                     const isBench = pos === 'Bench';
-                     const colors = getPositionColors(pos);
-                     
-                     // Bench text is fully transparent, colored boxes get shadows and backgrounds
-                     return (
-                       <td key={inning} className="p-0.5 sm:px-4 sm:py-3 text-center align-middle">
-                         {isBench ? (
-                           <span className="inline-flex items-center justify-center h-7 sm:h-10 text-gray-300 font-bold text-[9px] sm:text-xs tracking-tighter sm:tracking-normal">
-                             Bench
-                           </span>
-                         ) : (
-                           <span className={`inline-flex items-center justify-center w-7 h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl font-bold text-[9px] sm:text-xs shadow-sm transition-colors tracking-tighter sm:tracking-normal ${colors}`}>
+            {/* Striped Table Body */}
+            <tbody className="text-sm font-bold text-gray-800">
+              {orderedPlayers.map((player: any, idx: number) => {
+                // Alternating background colors (white and very light gray/blue)
+                const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-[#f1f5f9]';
+                
+                return (
+                  <tr key={player.id} className={`${rowBg}`}>
+                    <td className={`px-4 py-3 sticky left-0 z-10 ${rowBg}`}>
+                      {formatName(player.name)}
+                    </td>
+                    
+                    {INNINGS.map(inning => {
+                       let pos = getPosition(inning, player.id);
+                       if (pos === 'Bench') pos = 'OUT';
+                       const colors = getPositionColors(pos);
+                       
+                       return (
+                         <td key={inning} className="px-2 py-3 text-center align-middle">
+                           <span className={`inline-flex items-center justify-center w-[42px] h-[28px] rounded-md text-[11px] uppercase tracking-wide shadow-sm ${colors}`}>
                              {pos}
                            </span>
-                         )}
-                       </td>
-                     )
-                  })}
-                </tr>
-              ))}
+                         </td>
+                       )
+                    })}
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
+        </div>
+
+        {/* Position Legend / Key */}
+        <div className="mt-8 mb-12">
+          <h3 className="text-sm font-bold text-gray-700 mb-3">Key</h3>
+          <div className="flex flex-wrap gap-4 text-xs font-semibold text-gray-600">
+            {[
+              { abbr: 'RC', name: 'Right Center' },
+              { abbr: 'P', name: 'Pitcher' },
+              { abbr: 'C', name: 'Catcher' },
+              { abbr: '1B', name: '1st Base' },
+              { abbr: 'SS', name: 'Shortstop' },
+              { abbr: 'RF', name: 'Right Field' },
+              { abbr: '3B', name: '3rd Base' },
+              { abbr: '2B', name: '2nd Base' },
+              { abbr: 'LF', name: 'Left Field' },
+              { abbr: 'LC', name: 'Left Center' },
+              { abbr: 'OUT', name: 'Out' },
+            ].map(item => (
+              <div key={item.abbr} className="flex items-center gap-2">
+                <span className={`inline-flex items-center justify-center w-[36px] h-[24px] rounded text-[10px] text-white shadow-sm ${getPositionColors(item.abbr)}`}>
+                  {item.abbr}
+                </span>
+                <span>{item.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="text-center text-xs font-medium text-gray-400 pb-8">
+          Created using Kicksheet
         </div>
       </div>
     </div>
