@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, use } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { Calendar, Clock, MapPin, Users, Cloud, ArrowLeft, Download, Loader2, Edit } from 'lucide-react'
-import html2canvas from 'html2canvas'
+import { toBlob } from 'html-to-image'
 
 export default function GameLineupPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -56,55 +56,44 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
     setDownloading(true)
     
     try {
-      const canvas = await html2canvas(captureRef.current, { 
-        scale: 2, 
-        useCORS: true, 
+      // Use modern html-to-image to bypass Safari SVG/Canvas crashes
+      const blob = await toBlob(captureRef.current, { 
+        quality: 1,
         backgroundColor: '#f8f9fa',
-        logging: false
+        pixelRatio: 2 // Retina resolution
       })
       
+      if (!blob) throw new Error("Failed to generate blob")
+
       const safeTeamName = game?.teams?.name ? game.teams.name.replace(/\s+/g, '_') : 'Team'
       const fileName = `${safeTeamName}_Lineup.png`
+      const file = new File([blob], fileName, { type: 'image/png' })
 
-      // Convert canvas to a true file blob
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          setDownloading(false)
-          alert("Failed to generate image.")
-          return
+      // 1. Try Native Mobile Share (iOS/Android Share Sheet)
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `${safeTeamName} Lineup`,
+          })
+        } catch (shareErr: any) {
+          console.log("User closed share sheet", shareErr)
         }
-
-        const file = new File([blob], fileName, { type: 'image/png' })
-
-        // 1. Try Native Mobile Share (iOS/Android)
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({
-              files: [file],
-              title: `${safeTeamName} Lineup`,
-            })
-          } catch (shareErr: any) {
-            // User simply closed the share sheet
-            console.log("Share sheet closed", shareErr)
-          }
-        } else {
-          // 2. Fallback for Desktop Browsers
-          const url = URL.createObjectURL(blob)
-          const link = document.createElement('a')
-          link.href = url
-          link.download = fileName
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
-          URL.revokeObjectURL(url)
-        }
-        
-        setDownloading(false)
-      }, 'image/png', 1.0)
-      
+      } else {
+        // 2. Fallback for Desktop Laptops
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = fileName
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+      }
     } catch (err) {
       console.error("Failed to capture image", err)
       alert("Failed to capture image. Please try again.")
+    } finally {
       setDownloading(false)
     }
   }
@@ -140,7 +129,6 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
     return name
   }
 
-  // NEW: Convert 24hr database time to 12hr AM/PM format
   const formatTime = (timeString: string) => {
     if (!timeString) return 'TBD'
     const [hourString, minute] = timeString.split(':')
