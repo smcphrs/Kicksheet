@@ -46,6 +46,15 @@ export default async function DashboardPage() {
     .order('game_date', { ascending: false })
     .limit(3)
 
+    const formatTime = (timeString: string) => {
+  if (!timeString) return 'TBD'
+  const [hourString, minute] = timeString.split(':')
+  const hour = parseInt(hourString, 10)
+  const ampm = hour >= 12 ? 'PM' : 'AM'
+  const formattedHour = hour % 12 || 12
+  return `${formattedHour}:${minute} ${ampm}`
+}
+
   return (
     <div className="max-w-5xl mx-auto p-4 sm:p-6 w-full space-y-6 sm:space-y-8 pb-24">
       
@@ -125,7 +134,7 @@ export default async function DashboardPage() {
                   </div>
                   <div className="flex items-center text-gray-300 text-sm font-medium">
                     <Clock className="w-4 h-4 mr-3 text-gray-500" />
-                    {formatTime(game.game_time)}
+                    <span>{formatTime(nextGame?.game_time)}</span>
                   </div>
                   {nextGame.field && (
                     <div className="flex items-center text-gray-300 text-sm font-medium">
