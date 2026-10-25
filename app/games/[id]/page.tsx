@@ -57,30 +57,54 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
     
     try {
       const canvas = await html2canvas(captureRef.current, { 
-        scale: 2, // Dropped to 2: Still Retina quality, but prevents iOS Safari from crashing due to memory limits
+        scale: 2, 
         useCORS: true, 
-        backgroundColor: '#f8f9fa' 
+        backgroundColor: '#f8f9fa',
+        logging: false
       })
       
-      const image = canvas.toDataURL('image/png', 1.0)
-      const link = document.createElement('a')
-      link.href = image
-      
-      // FIX 1: Safely handle the team name to prevent invisible crashes
-      const safeTeamName = game?.teams?.name 
-        ? game.teams.name.replace(/\s+/g, '_') 
-        : 'Team'
-      link.download = `${safeTeamName}_Lineup.png`
-      
-      // FIX 2: Browsers require the link to actually exist on the page to allow a download
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const safeTeamName = game?.teams?.name ? game.teams.name.replace(/\s+/g, '_') : 'Team'
+      const fileName = `${safeTeamName}_Lineup.png`
+
+      // Convert canvas to a true file blob
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          setDownloading(false)
+          alert("Failed to generate image.")
+          return
+        }
+
+        const file = new File([blob], fileName, { type: 'image/png' })
+
+        // 1. Try Native Mobile Share (iOS/Android)
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: `${safeTeamName} Lineup`,
+            })
+          } catch (shareErr: any) {
+            // User simply closed the share sheet
+            console.log("Share sheet closed", shareErr)
+          }
+        } else {
+          // 2. Fallback for Desktop Browsers
+          const url = URL.createObjectURL(blob)
+          const link = document.createElement('a')
+          link.href = url
+          link.download = fileName
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+          URL.revokeObjectURL(url)
+        }
+        
+        setDownloading(false)
+      }, 'image/png', 1.0)
       
     } catch (err) {
       console.error("Failed to capture image", err)
-      alert("Failed to save image. Please try again.")
-    } finally {
+      alert("Failed to capture image. Please try again.")
       setDownloading(false)
     }
   }
