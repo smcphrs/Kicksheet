@@ -65,7 +65,14 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
       if (!blob) throw new Error("Failed to generate blob")
 
       const safeTeamName = game?.teams?.name ? game.teams.name.replace(/\s+/g, '_') : 'Team'
-      const fileName = `${safeTeamName}_Lineup.png` const file = new File([blob], fileName, { type: 'image/png' })  if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: `${safeTeamName} Lineup`,
+      const fileName = `${safeTeamName}_Lineup.png`
+      const file = new File([blob], fileName, { type: 'image/png' })
+
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `${safeTeamName} Lineup`,
           })
         } catch (shareErr: any) {
           console.log("User closed share sheet", shareErr)
@@ -114,7 +121,7 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
   const formatName = (name: string) => {
     const parts = name.split(' ')
     if (parts.length > 1) {
-      return `${parts[0]}${parts[parts.length - 1][0]}.`
+      return `${parts[0]} ${parts[parts.length - 1][0]}.`
     }
     return name
   }
@@ -125,7 +132,29 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
     const hour = parseInt(hourString, 10)
     const ampm = hour >= 12 ? 'PM' : 'AM'
     const formattedHour = hour % 12 || 12
-    return `${formattedHour}:${minute} ${ampm}` }  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#f8f9fa]"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>  const numInnings = game.innings && game.innings.length > 0 ? game.innings.length : 7 const INNINGS = Array.from({ length: numInnings }, (_, i) => i + 1)  const formattedDate = game.game_date ? new Date(game.game_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown Date'  return ( <div className="bg-[#f8f9fa] min-h-[100dvh] font-sans pb-10">  {/* Action Bar */} <div className="max-w-4xl mx-auto w-full flex justify-between items-center px-4 py-3 bg-white border-b border-gray-200"> <div className="flex gap-4"> <Link href="/games" className="inline-flex items-center text-xs font-bold text-gray-500 hover:text-gray-900"> <ArrowLeft className="w-4 h-4 mr-1" /> Back </Link> <Link href={`/games/${game.id}/edit`} className="inline-flex items-center text-xs font-bold text-blue-600 hover:text-blue-800">
+    return `${formattedHour}:${minute} ${ampm}`
+  }
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#f8f9fa]"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>
+
+  const numInnings = game.innings && game.innings.length > 0 ? game.innings.length : 7
+  const INNINGS = Array.from({ length: numInnings }, (_, i) => i + 1)
+  
+  const formattedDate = game.game_date 
+    ? new Date(game.game_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
+    : 'Unknown Date'
+
+  return (
+    <div className="bg-[#f8f9fa] min-h-[100dvh] font-sans pb-10">
+      
+      {/* Action Bar */}
+      <div className="max-w-4xl mx-auto w-full flex justify-between items-center px-4 py-3 bg-white border-b border-gray-200">
+        <div className="flex gap-4">
+          <Link href="/games" className="inline-flex items-center text-xs font-bold text-gray-500 hover:text-gray-900">
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Back
+          </Link>
+          <Link href={`/games/${game.id}/edit`} className="inline-flex items-center text-xs font-bold text-blue-600 hover:text-blue-800">
             <Edit className="w-4 h-4 mr-1" />
             Edit
           </Link>
@@ -160,7 +189,46 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
               </div>
               <div className="flex items-center gap-2 sm:gap-3">
                 <MapPin className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80" />
-                <span>{game.location || 'Unknown'} {game.field ? `• ${game.field}` : ''}</span> </div> {game.weather && ( <div className="flex items-center gap-2 sm:gap-3"> <Cloud className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80" /> <span>{game.weather}</span> </div> )} <div className="flex items-center gap-2 sm:gap-3"> <Users className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80" /> <span>{orderedPlayers.length} players</span> </div> </div> </div>  {/* Tightly packed Master Lineup */} <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900 mb-2 sm:mb-4 pl-1">Lineup</h2>  {/* Table Wrapper - Shadows Removed */} <div className="bg-white rounded-xl sm:rounded-2xl overflow-hidden"> <table className="w-full text-left border-collapse"> <thead className="bg-[#2563eb] text-white text-[10px] sm:text-sm font-bold"> <tr> <th className="px-2 sm:px-4 py-2 sm:py-4 w-[80px] sm:w-[140px]"> Order </th> {INNINGS.map(i => ( <th key={i} className="px-0.5 sm:px-2 py-2 sm:py-4 text-center min-w-[28px] sm:min-w-[50px]"> {i} </th> ))} </tr> </thead> <tbody className="text-[10px] sm:text-sm font-bold text-gray-800"> {orderedPlayers.map((player: any, idx: number) => { const rowBg = idx \% 2 === 0 ? 'bg-white' : 'bg-[#f1f5f9]'  return ( <tr key={player.id} className={rowBg}> <td className={`px-2 sm:px-4 py-1.5 sm:py-3 ${rowBg} truncate max-w-[80px] sm:max-w-none`}>
+                <span>{game.location || 'Unknown'} {game.field ? `• ${game.field}` : ''}</span>
+              </div>
+              {game.weather && (
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <Cloud className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80" />
+                  <span>{game.weather}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Users className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80" />
+                <span>{orderedPlayers.length} players</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Tightly packed Master Lineup */}
+          <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900 mb-2 sm:mb-4 pl-1">Lineup</h2>
+
+          {/* Table Wrapper - Shadows Removed */}
+          <div className="bg-white rounded-xl sm:rounded-2xl overflow-hidden">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-[#2563eb] text-white text-[10px] sm:text-sm font-bold">
+                <tr>
+                  <th className="px-2 sm:px-4 py-2 sm:py-4 w-[80px] sm:w-[140px]">
+                    Order
+                  </th>
+                  {INNINGS.map(i => (
+                    <th key={i} className="px-0.5 sm:px-2 py-2 sm:py-4 text-center min-w-[28px] sm:min-w-[50px]">
+                      {i}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="text-[10px] sm:text-sm font-bold text-gray-800">
+                {orderedPlayers.map((player: any, idx: number) => {
+                  const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-[#f1f5f9]'
+                  
+                  return (
+                    <tr key={player.id} className={rowBg}>
+                      <td className={`px-2 sm:px-4 py-1.5 sm:py-3 ${rowBg} truncate max-w-[80px] sm:max-w-none`}>
                         {formatName(player.name)}
                       </td>
                       
@@ -197,4 +265,21 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
               ].map(item => (
                 <div key={item.abbr} className="flex items-center gap-1 sm:gap-2">
                   {/* Shadows Removed */}
-                  <span className={`inline-flex items-center justify-center w-[22px] h-[14px] sm:w-[36px] sm:h-[24px] rounded text-[7px] sm
+                  <span className={`inline-flex items-center justify-center w-[22px] h-[14px] sm:w-[36px] sm:h-[24px] rounded text-[7px] sm:text-[10px] text-white ${getPositionColors(item.abbr)}`}>
+                    {item.abbr}
+                  </span>
+                  <span>{item.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="text-center text-[9px] sm:text-xs font-medium text-gray-400 pb-2 sm:pb-8">
+            Created using Kicksheet
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  )
+}
