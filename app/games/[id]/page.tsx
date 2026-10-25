@@ -102,9 +102,18 @@ export default async function GameLineupPage({
             <span>{game.location || 'Unknown'} • {game.field || 'TBD'}</span>
           </div>
           <div className="flex items-center gap-3">
-            <Cloud className="w-5 h-5 opacity-80" />
-            <span>Sunny, Cool 55 F</span> {/* Static placeholder matching image */}
+            <MapPin className="w-5 h-5 opacity-80" />
+            <span>{game.location || 'Unknown'} {game.field ? `• ${game.field}` : ''}</span>
           </div>
+          
+          {/* Only show the weather row if they entered weather data! */}
+          {game.weather && (
+            <div className="flex items-center gap-3">
+              <Cloud className="w-5 h-5 opacity-80" />
+              <span>{game.weather}</span>
+            </div>
+          )}
+          
           <div className="flex items-center gap-3">
             <Users className="w-5 h-5 opacity-80" />
             <span>{orderedPlayers.length} players</span>
