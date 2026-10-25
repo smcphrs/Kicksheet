@@ -57,7 +57,7 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
     
     try {
       const canvas = await html2canvas(captureRef.current, { 
-        scale: 3,
+        scale: 2, // Dropped to 2: Still Retina quality, but prevents iOS Safari from crashing due to memory limits
         useCORS: true, 
         backgroundColor: '#f8f9fa' 
       })
@@ -65,10 +65,21 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
       const image = canvas.toDataURL('image/png', 1.0)
       const link = document.createElement('a')
       link.href = image
-      link.download = `${game?.teams?.name.replace(/\s+/g, '_') || 'Team'}_Lineup.png`
+      
+      // FIX 1: Safely handle the team name to prevent invisible crashes
+      const safeTeamName = game?.teams?.name 
+        ? game.teams.name.replace(/\s+/g, '_') 
+        : 'Team'
+      link.download = `${safeTeamName}_Lineup.png`
+      
+      // FIX 2: Browsers require the link to actually exist on the page to allow a download
+      document.body.appendChild(link)
       link.click()
+      document.body.removeChild(link)
+      
     } catch (err) {
       console.error("Failed to capture image", err)
+      alert("Failed to save image. Please try again.")
     } finally {
       setDownloading(false)
     }
