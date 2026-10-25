@@ -165,7 +165,7 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
                 <Calendar className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80" />
                 <span>{formattedDate}</span>
                 <Clock className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80 ml-1 sm:ml-2" />
-                <span>{game.game_time || 'TBD'}</span>
+                <span>{formatTime(game.game_time)}</span>
               </div>
               <div className="flex items-center gap-2 sm:gap-3">
                 <MapPin className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80" />
