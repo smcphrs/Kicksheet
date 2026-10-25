@@ -216,7 +216,7 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
                     Order
                   </th>
                   {INNINGS.map(i => (
-                        <th key={i} className="px-0.5 sm:px-2 py-2 sm:py-4 text-center min-w-[28px] sm:min-w-[50px]">
+                    <th key={i} className="px-0.5 sm:px-2 py-2 sm:py-4 text-center min-w-[28px] sm:min-w-[50px]">
                       {i}
                     </th>
                   ))}
@@ -228,4 +228,56 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
                   
                   return (
                     <tr key={player.id} className={rowBg}>
-                      <td className
+                      <td className={`px-2 sm:px-4 py-1.5 sm:py-3 ${rowBg} truncate max-w-[80px] sm:max-w-none`}>
+                        {formatName(player.name)}
+                      </td>
+                      
+                      {INNINGS.map(inning => {
+                         let pos = getPosition(inning, player.id)
+                         if (pos === 'Bench') pos = 'OUT'
+                         const colors = getPositionColors(pos)
+                         
+                         return (
+                           <td key={inning} className="px-0.5 sm:px-2 py-1 sm:py-3 text-center align-middle">
+                             <span className={`inline-flex items-center justify-center w-[28px] h-[18px] sm:w-[42px] sm:h-[28px] rounded sm:rounded-md text-[9px] sm:text-xs uppercase tracking-tighter sm:tracking-wide ${colors}`}>
+                               {pos}
+                             </span>
+                           </td>
+                         )
+                      })}
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Extremely Compact Key */}
+          <div className="mt-4 sm:mt-8 mb-4 sm:mb-12 px-1">
+            <h3 className="text-[11px] sm:text-sm font-bold text-gray-700 mb-1.5 sm:mb-3">Key</h3>
+            <div className="flex flex-wrap gap-x-3 gap-y-1.5 sm:gap-4 text-[10px] sm:text-xs font-semibold text-gray-600">
+              {[
+                { abbr: 'RC', name: 'Right Center' }, { abbr: 'P', name: 'Pitcher' }, { abbr: 'C', name: 'Catcher' },
+                { abbr: '1B', name: '1st Base' }, { abbr: 'SS', name: 'Shortstop' }, { abbr: 'RF', name: 'Right Field' },
+                { abbr: '3B', name: '3rd Base' }, { abbr: '2B', name: '2nd Base' }, { abbr: 'LF', name: 'Left Field' },
+                { abbr: 'LC', name: 'Left Center' }, { abbr: 'OUT', name: 'Out' },
+              ].map(item => (
+                <div key={item.abbr} className="flex items-center gap-1 sm:gap-2">
+                  <span className={`inline-flex items-center justify-center w-[22px] h-[14px] sm:w-[36px] h-[24px] rounded text-[8px] sm:text-[11px] text-white ${getPositionColors(item.abbr)}`}>
+                    {item.abbr}
+                  </span>
+                  <span>{item.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="text-center text-[10px] sm:text-xs font-medium text-gray-400 pb-2 sm:pb-8">
+            Created using Kicksheet
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  )
+}
