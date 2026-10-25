@@ -125,7 +125,7 @@ export default async function DashboardPage() {
                   </div>
                   <div className="flex items-center text-gray-300 text-sm font-medium">
                     <Clock className="w-4 h-4 mr-3 text-gray-500" />
-                    {nextGame.game_time || 'Time TBD'}
+                    {formatTime(game.game_time)}
                   </div>
                   {nextGame.field && (
                     <div className="flex items-center text-gray-300 text-sm font-medium">
