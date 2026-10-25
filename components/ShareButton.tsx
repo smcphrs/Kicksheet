@@ -1,62 +1,73 @@
 'use client'
 
 import { useState } from 'react'
-import { Share, Loader2 } from 'lucide-react'
-import html2canvas from 'html2canvas'
+import { Download, Loader2 } from 'lucide-react'
+import { toBlob } from 'html-to-image'
 
-export default function ShareButton({ targetId }: { targetId: string }) {
-  const [isSharing, setIsSharing] = useState(false)
+export default function ShareButton({ 
+  targetRef, 
+  fileName = 'Lineup.png' 
+}: { 
+  targetRef: React.RefObject<HTMLElement | null>, 
+  fileName?: string 
+}) {
+  const [downloading, setDownloading] = useState(false)
 
-  const handleShare = async () => {
-    const element = document.getElementById(targetId)
-    if (!element) return
-
-    setIsSharing(true)
+  const handleDownload = async () => {
+    if (!targetRef.current) return
+    setDownloading(true)
+    
     try {
-      // Capture the DOM element as an image
-      const canvas = await html2canvas(element, { 
-        scale: 2, // Higher resolution
-        useCORS: true,
-        backgroundColor: '#f9fafb' // Match gray-50 background
+      const blob = await toBlob(targetRef.current, { 
+        quality: 1,
+        backgroundColor: '#f8f9fa',
+        pixelRatio: 2
       })
       
-      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'))
-      if (!blob) throw new Error('Failed to generate image')
+      if (!blob) throw new Error("Failed to generate blob")
 
-      const file = new File([blob], 'kicksheet-lineup.png', { type: 'image/png' })
+      const file = new File([blob], fileName, { type: 'image/png' })
 
-      // Check if the device supports the native Web Share API with files
+      // Try Mobile Share Sheet first, fallback to Desktop download
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          title: 'Game Lineup',
-          text: 'Here is the lineup for our upcoming game!',
-          files: [file]
-        })
+        try {
+          await navigator.share({
+            files: [file],
+            title: fileName,
+          })
+        } catch (shareErr) {
+          console.log("User closed share sheet")
+        }
       } else {
-        // Fallback: Download the image for desktop users
         const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = 'kicksheet-lineup.png'
-        a.click()
+        const link = document.createElement('a')
+        link.href = url
+        link.download = fileName
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
         URL.revokeObjectURL(url)
       }
-    } catch (error) {
-      console.error('Error sharing lineup:', error)
-      alert('Failed to generate lineup image.')
+    } catch (err) {
+      console.error("Failed to capture image", err)
+      alert("Failed to capture image. Please try again.")
     } finally {
-      setIsSharing(false)
+      setDownloading(false)
     }
   }
 
   return (
-    <button
-      onClick={handleShare}
-      disabled={isSharing}
-      className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-70 shadow-sm"
+    <button 
+      onClick={handleDownload}
+      disabled={downloading}
+      className="inline-flex items-center px-4 py-2 text-xs font-bold text-white bg-blue-600 rounded-full shadow-sm hover:bg-blue-700 transition-all disabled:opacity-50"
     >
-      {isSharing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Share className="w-4 h-4" />}
-      {isSharing ? 'Generating...' : 'Share Lineup'}
+      {downloading ? (
+        <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+      ) : (
+        <Download className="w-4 h-4 mr-1.5" />
+      )}
+      Save Image
     </button>
   )
 }
