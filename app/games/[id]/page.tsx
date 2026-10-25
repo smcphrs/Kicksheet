@@ -105,6 +105,16 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
     return name
   }
 
+  // NEW: Convert 24hr database time to 12hr AM/PM format
+  const formatTime = (timeString: string) => {
+    if (!timeString) return 'TBD'
+    const [hourString, minute] = timeString.split(':')
+    const hour = parseInt(hourString, 10)
+    const ampm = hour >= 12 ? 'PM' : 'AM'
+    const formattedHour = hour % 12 || 12
+    return `${formattedHour}:${minute} ${ampm}`
+  }
+
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#f8f9fa]"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>
 
   const numInnings = game.innings && game.innings.length > 0 ? game.innings.length : 7
