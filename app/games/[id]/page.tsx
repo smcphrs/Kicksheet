@@ -82,7 +82,29 @@ export default async function GameLineupPage({
   }
 
   return (
-    <div className="max-w-4xl mx-auto w-full pb-24 bg-[#f8f9fa] min-h-screen font-sans">
+    <div className="max-w-4xl mx-auto w-// 1. Add 'Edit' to your lucide-react imports at the top:
+import { Calendar, Clock, MapPin, Users, Cloud, Edit } from 'lucide-react'
+
+// 2. Replace the simple "Back to Games" link with this flex container:
+return (
+  <div className="max-w-4xl mx-auto w-full pb-24 bg-[#f8f9fa] min-h-screen font-sans">
+    
+    {/* Navigation Bar */}
+    <div className="flex justify-between items-center px-4 sm:px-0 pt-4 sm:pt-6">
+      <Link href="/games" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
+        <ArrowLeft className="w-4 h-4 mr-1" />
+        Back to Games
+      </Link>
+      
+      <Link 
+        href={`/games/${game.id}/edit`}
+        className="inline-flex items-center px-3 py-1.5 text-sm font-bold text-[#2563eb] bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+      >
+        <Edit className="w-4 h-4 mr-1.5" />
+        Edit Game
+      </Link>
+    </div>
+
       
       {/* Header Card */}
       <div className="bg-[#2563eb] text-white p-6 sm:p-8 rounded-b-3xl sm:rounded-3xl sm:mt-6 shadow-md mb-8">
