@@ -4,7 +4,23 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, UserPlus, Edit2, Shield, Users } from 'lucide-react'
 
-// Use the exact same color logic from the lineup page
+// Translate full database names to abbreviations
+const getPosAbbr = (pos: string) => {
+  const map: Record<string, string> = {
+    'Pitcher': 'P',
+    'Catcher': 'C',
+    'First Base': '1B',
+    'Second Base': '2B',
+    'Third Base': '3B',
+    'Shortstop': 'SS',
+    'Left Field': 'LF',
+    'Left Center': 'LC',
+    'Right Center': 'RC',
+    'Right Field': 'RF',
+  }
+  return map[pos] || pos
+}
+
 const getPositionColors = (pos: string) => {
   switch (pos) {
     case 'P': return 'bg-fuchsia-500 text-white'
@@ -30,7 +46,6 @@ export default async function TeamRosterPage({
   const cookieStore = await cookies()
   const supabase = createClient(cookieStore)
 
-  // Fetch the team details
   const { data: team, error: teamError } = await supabase
     .from('teams')
     .select('*')
@@ -41,7 +56,6 @@ export default async function TeamRosterPage({
     notFound()
   }
 
-  // Fetch the players on this team
   const { data: players } = await supabase
     .from('players')
     .select('*')
@@ -114,11 +128,12 @@ export default async function TeamRosterPage({
                     <h3 className="font-bold text-lg text-gray-900 dark:text-white">{player.name}</h3>
                     <div className="flex flex-wrap gap-1.5 mt-1.5">
                       {player.preferred_positions && player.preferred_positions.length > 0 ? (
-                        player.preferred_positions.map((pos: string) => {
-                          const colors = getPositionColors(pos);
+                        player.preferred_positions.map((rawPos: string) => {
+                          const abbr = getPosAbbr(rawPos);
+                          const colors = getPositionColors(abbr);
                           return (
-                            <span key={pos} className={`inline-flex items-center justify-center px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold shadow-sm transition-colors uppercase tracking-wider ${colors}`}>
-                              {pos}
+                            <span key={rawPos} className={`inline-flex items-center justify-center w-8 h-8 rounded-lg text-xs font-bold shadow-sm transition-colors uppercase tracking-wider ${colors}`}>
+                              {abbr}
                             </span>
                           )
                         })
