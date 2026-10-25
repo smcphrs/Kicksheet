@@ -56,31 +56,21 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
     setDownloading(true)
     
     try {
-      // Use modern html-to-image to bypass Safari SVG/Canvas crashes
       const blob = await toBlob(captureRef.current, { 
         quality: 1,
         backgroundColor: '#f8f9fa',
-        pixelRatio: 2 // Retina resolution
+        pixelRatio: 2 
       })
       
       if (!blob) throw new Error("Failed to generate blob")
 
       const safeTeamName = game?.teams?.name ? game.teams.name.replace(/\s+/g, '_') : 'Team'
-      const fileName = `${safeTeamName}_Lineup.png`
-      const file = new File([blob], fileName, { type: 'image/png' })
-
-      // 1. Try Native Mobile Share (iOS/Android Share Sheet)
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: `${safeTeamName} Lineup`,
+      const fileName = `${safeTeamName}_Lineup.png` const file = new File([blob], fileName, { type: 'image/png' })  if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: `${safeTeamName} Lineup`,
           })
         } catch (shareErr: any) {
           console.log("User closed share sheet", shareErr)
         }
       } else {
-        // 2. Fallback for Desktop Laptops
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
@@ -124,7 +114,7 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
   const formatName = (name: string) => {
     const parts = name.split(' ')
     if (parts.length > 1) {
-      return `${parts[0]} ${parts[parts.length - 1][0]}.`
+      return `${parts[0]}${parts[parts.length - 1][0]}.`
     }
     return name
   }
@@ -135,29 +125,7 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
     const hour = parseInt(hourString, 10)
     const ampm = hour >= 12 ? 'PM' : 'AM'
     const formattedHour = hour % 12 || 12
-    return `${formattedHour}:${minute} ${ampm}`
-  }
-
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#f8f9fa]"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>
-
-  const numInnings = game.innings && game.innings.length > 0 ? game.innings.length : 7
-  const INNINGS = Array.from({ length: numInnings }, (_, i) => i + 1)
-  
-  const formattedDate = game.game_date 
-    ? new Date(game.game_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
-    : 'Unknown Date'
-
-  return (
-    <div className="bg-[#f8f9fa] min-h-[100dvh] font-sans pb-10">
-      
-      {/* Action Bar (Not included in the downloaded image) */}
-      <div className="max-w-4xl mx-auto w-full flex justify-between items-center px-4 py-3 bg-white border-b border-gray-200">
-        <div className="flex gap-4">
-          <Link href="/games" className="inline-flex items-center text-xs font-bold text-gray-500 hover:text-gray-900">
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            Back
-          </Link>
-          <Link href={`/games/${game.id}/edit`} className="inline-flex items-center text-xs font-bold text-blue-600 hover:text-blue-800">
+    return `${formattedHour}:${minute} ${ampm}` }  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#f8f9fa]"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>  const numInnings = game.innings && game.innings.length > 0 ? game.innings.length : 7 const INNINGS = Array.from({ length: numInnings }, (_, i) => i + 1)  const formattedDate = game.game_date ? new Date(game.game_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown Date'  return ( <div className="bg-[#f8f9fa] min-h-[100dvh] font-sans pb-10">  {/* Action Bar */} <div className="max-w-4xl mx-auto w-full flex justify-between items-center px-4 py-3 bg-white border-b border-gray-200"> <div className="flex gap-4"> <Link href="/games" className="inline-flex items-center text-xs font-bold text-gray-500 hover:text-gray-900"> <ArrowLeft className="w-4 h-4 mr-1" /> Back </Link> <Link href={`/games/${game.id}/edit`} className="inline-flex items-center text-xs font-bold text-blue-600 hover:text-blue-800">
             <Edit className="w-4 h-4 mr-1" />
             Edit
           </Link>
@@ -166,7 +134,7 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
         <button 
           onClick={handleDownload}
           disabled={downloading}
-          className="inline-flex items-center px-4 py-2 text-xs font-bold text-white bg-blue-600 rounded-full shadow-sm hover:bg-blue-700 transition-all disabled:opacity-50"
+          className="inline-flex items-center px-4 py-2 text-xs font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all disabled:opacity-50"
         >
           {downloading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Download className="w-4 h-4 mr-1.5" />}
           Save Image
@@ -177,8 +145,8 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
       <div className="max-w-4xl mx-auto w-full" ref={captureRef}>
         
         <div className="px-2 sm:px-6 pt-2 sm:pt-6">
-          {/* Solid Blue Header */}
-          <div className="bg-[#2563eb] text-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-sm mb-4 sm:mb-8">
+          {/* Solid Blue Header - Shadows Removed */}
+          <div className="bg-[#2563eb] text-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl mb-4 sm:mb-8">
             <h1 className="text-xl sm:text-4xl font-extrabold tracking-tight mb-2 sm:mb-4 flex items-center gap-1.5 sm:gap-2">
               <span className="text-blue-200 text-lg sm:text-2xl">vs</span> {game.opposing_team || 'TBD'}
             </h1>
@@ -192,45 +160,7 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
               </div>
               <div className="flex items-center gap-2 sm:gap-3">
                 <MapPin className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80" />
-                <span>{game.location || 'Unknown'} {game.field ? `• ${game.field}` : ''}</span>
-              </div>
-              {game.weather && (
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <Cloud className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80" />
-                  <span>{game.weather}</span>
-                </div>
-              )}
-              <div className="flex items-center gap-2 sm:gap-3">
-                <Users className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80" />
-                <span>{orderedPlayers.length} players</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Tightly packed Master Lineup */}
-          <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900 mb-2 sm:mb-4 pl-1">Lineup</h2>
-
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm overflow-hidden">
-            <table className="w-full text-left border-collapse">
-              <thead className="bg-[#2563eb] text-white text-[10px] sm:text-sm font-bold">
-                <tr>
-                  <th className="px-2 sm:px-4 py-2 sm:py-4 w-[80px] sm:w-[140px]">
-                    Order
-                  </th>
-                  {INNINGS.map(i => (
-                    <th key={i} className="px-0.5 sm:px-2 py-2 sm:py-4 text-center min-w-[28px] sm:min-w-[50px]">
-                      {i}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="text-[10px] sm:text-sm font-bold text-gray-800">
-                {orderedPlayers.map((player: any, idx: number) => {
-                  const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-[#f1f5f9]'
-                  
-                  return (
-                    <tr key={player.id} className={rowBg}>
-                      <td className={`px-2 sm:px-4 py-1.5 sm:py-3 ${rowBg} truncate max-w-[80px] sm:max-w-none`}>
+                <span>{game.location || 'Unknown'} {game.field ? `• ${game.field}` : ''}</span> </div> {game.weather && ( <div className="flex items-center gap-2 sm:gap-3"> <Cloud className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80" /> <span>{game.weather}</span> </div> )} <div className="flex items-center gap-2 sm:gap-3"> <Users className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80" /> <span>{orderedPlayers.length} players</span> </div> </div> </div>  {/* Tightly packed Master Lineup */} <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900 mb-2 sm:mb-4 pl-1">Lineup</h2>  {/* Table Wrapper - Shadows Removed */} <div className="bg-white rounded-xl sm:rounded-2xl overflow-hidden"> <table className="w-full text-left border-collapse"> <thead className="bg-[#2563eb] text-white text-[10px] sm:text-sm font-bold"> <tr> <th className="px-2 sm:px-4 py-2 sm:py-4 w-[80px] sm:w-[140px]"> Order </th> {INNINGS.map(i => ( <th key={i} className="px-0.5 sm:px-2 py-2 sm:py-4 text-center min-w-[28px] sm:min-w-[50px]"> {i} </th> ))} </tr> </thead> <tbody className="text-[10px] sm:text-sm font-bold text-gray-800"> {orderedPlayers.map((player: any, idx: number) => { const rowBg = idx \% 2 === 0 ? 'bg-white' : 'bg-[#f1f5f9]'  return ( <tr key={player.id} className={rowBg}> <td className={`px-2 sm:px-4 py-1.5 sm:py-3 ${rowBg} truncate max-w-[80px] sm:max-w-none`}>
                         {formatName(player.name)}
                       </td>
                       
@@ -241,7 +171,8 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
                          
                          return (
                            <td key={inning} className="px-0.5 sm:px-2 py-1 sm:py-3 text-center align-middle">
-                             <span className={`inline-flex items-center justify-center w-[28px] h-[18px] sm:w-[42px] sm:h-[28px] rounded sm:rounded-md text-[8px] sm:text-[11px] uppercase tracking-tighter sm:tracking-wide shadow-sm ${colors}`}>
+                             {/* Shadows Removed */}
+                             <span className={`inline-flex items-center justify-center w-[28px] h-[18px] sm:w-[42px] sm:h-[28px] rounded sm:rounded-md text-[8px] sm:text-[11px] uppercase tracking-tighter sm:tracking-wide ${colors}`}>
                                {pos}
                              </span>
                            </td>
@@ -265,21 +196,5 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
                 { abbr: 'LC', name: 'Left Center' }, { abbr: 'OUT', name: 'Out' },
               ].map(item => (
                 <div key={item.abbr} className="flex items-center gap-1 sm:gap-2">
-                  <span className={`inline-flex items-center justify-center w-[22px] h-[14px] sm:w-[36px] sm:h-[24px] rounded text-[7px] sm:text-[10px] text-white shadow-sm ${getPositionColors(item.abbr)}`}>
-                    {item.abbr}
-                  </span>
-                  <span>{item.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="text-center text-[9px] sm:text-xs font-medium text-gray-400 pb-2 sm:pb-8">
-            Created using Kicksheet
-          </div>
-        </div>
-        
-      </div>
-    </div>
-  )
-}
+                  {/* Shadows Removed */}
+                  <span className={`inline-flex items-center justify-center w-[22px] h-[14px] sm:w-[36px] sm:h-[24px] rounded text-[7px] sm
