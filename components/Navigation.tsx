@@ -13,7 +13,7 @@ export default function Navigation() {
   }
 
   const navItems = [
-    { name: 'Home', href: '/dashboard', icon: Gauge },
+    { name: 'Dashboard', href: '/dashboard', icon: Gauge },
     { name: 'Teams', href: '/teams', icon: Users },
     { name: 'Games', href: '/games', icon: Calendar },
     { name: 'Settings', href: '/settings', icon: Settings },
