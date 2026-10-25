@@ -1,131 +1,192 @@
-import { createClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { Calendar, Clock, MapPin, ChevronRight, Plus } from 'lucide-react'
+import { Calendar, Clock, MapPin, Trash2, Plus, ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
 
-export default async function GamesPage() {
-  const cookieStore = await cookies()
-  const supabase = createClient(cookieStore)
+export default function GamesPage() {
+  const supabase = createClient()
+  const [games, setGames] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  
+  // Modal State
+  const [gameToDelete, setGameToDelete] = useState<any>(null) 
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  // 1. Get the logged-in user
-  const { data: { user } } = await supabase.auth.getUser()
+  useEffect(() => {
+    async function fetchGames() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
 
-  // 2. Fetch all games owned by this user, ordered by date
-  let games: any[] = []
-  if (user) {
-    const { data, error } = await supabase
+      const { data } = await supabase
+        .from('games')
+        .select('*, teams(name)')
+        .eq('user_id', user.id)
+        .order('game_date', { ascending: false })
+
+      if (data) setGames(data)
+      setLoading(false)
+    }
+    fetchGames()
+  }, [supabase])
+
+  const handleDelete = async () => {
+    if (!gameToDelete) return
+    setDeletingId(gameToDelete.id)
+
+    const { error } = await supabase
       .from('games')
-      .select('*, teams(name)')
-      .eq('user_id', user.id)
-      .order('game_date', { ascending: false })
+      .delete()
+      .eq('id', gameToDelete.id)
 
-    if (error) console.error('Error fetching games:', error)
-    if (data) games = data
+    if (!error) {
+      // Optimistically remove it from the UI instantly
+      setGames(games.filter(g => g.id !== gameToDelete.id))
+      setGameToDelete(null)
+    } else {
+      console.error(error)
+      alert('Failed to delete game.')
+    }
+    setDeletingId(null)
   }
 
-  // Separate into Upcoming and Past games
-  const today = new Date().toISOString().split('T')[0]
-  const upcomingGames = games.filter(g => g.game_date >= today)
-  const pastGames = games.filter(g => g.game_date < today)
+  const formatTime = (timeString: string) => {
+    if (!timeString) return 'TBD'
+    const [hourString, minute] = timeString.split(':')
+    const hour = parseInt(hourString, 10)
+    const ampm = hour >= 12 ? 'PM' : 'AM'
+    const formattedHour = hour % 12 || 12
+    return `${formattedHour}:${minute} ${ampm}`
+  }
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#f8f9fa]"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>
 
   return (
-    <div className="max-w-4xl mx-auto p-6 w-full space-y-8 pb-24">
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+    <div className="max-w-4xl mx-auto p-4 sm:p-6 w-full pb-24 bg-[#f8f9fa] min-h-screen font-sans">
+      <Link href="/dashboard" className="inline-flex items-center text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors mb-6">
+        <ArrowLeft className="w-4 h-4 mr-1" />
+        Back to Dashboard
+      </Link>
+
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Games</h1>
-          <p className="text-gray-500 mt-1 font-medium">Manage your lineups and history</p>
+          <p className="text-gray-500 font-medium mt-1">Manage your schedule and lineups</p>
         </div>
-        
         <Link 
           href="/games/new"
-          className="w-full sm:w-auto text-center bg-blue-600 text-white px-5 py-3 rounded-xl hover:bg-blue-700 font-bold transition-colors inline-flex items-center justify-center gap-2 shadow-sm"
+          className="inline-flex items-center justify-center px-5 py-3 bg-[#2563eb] hover:bg-blue-700 text-white font-bold rounded-xl transition-colors w-full sm:w-auto"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-5 h-5 mr-2" />
           New Game
         </Link>
       </header>
 
       {games.length === 0 ? (
         <div className="bg-white p-10 text-center border-2 border-dashed border-gray-200 rounded-3xl">
+          <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h3 className="text-xl font-bold text-gray-900 mb-2">No games yet</h3>
-          <p className="text-gray-500 mb-6 max-w-sm mx-auto">Create your first game to generate a lineup, track attendance, and assign field positions.</p>
+          <p className="text-gray-500 mb-6 max-w-sm mx-auto">Create your first game to start building your lineup.</p>
           <Link 
             href="/games/new"
-            className="inline-flex bg-white text-blue-600 border border-gray-200 px-6 py-3 rounded-xl font-bold shadow-sm hover:bg-gray-50 transition-colors"
+            className="inline-flex bg-white text-[#2563eb] border border-gray-200 px-6 py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors"
           >
             Create First Game
           </Link>
         </div>
       ) : (
-        <div className="space-y-8">
-          {/* Upcoming Games */}
-          {upcomingGames.length > 0 && (
-            <section>
-              <h2 className="text-xl font-bold text-gray-900 mb-4 px-1">Upcoming Games</h2>
-              <div className="grid gap-4">
-                {upcomingGames.map(game => (
-                  <GameCard key={game.id} game={game} />
-                ))}
-              </div>
-            </section>
-          )}
+        <div className="grid gap-4">
+          {games.map(game => {
+            const formattedDate = game.game_date 
+              ? new Date(game.game_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
+              : 'Unknown Date'
 
-          {/* Past Games */}
-          {pastGames.length > 0 && (
-            <section>
-              <h2 className="text-xl font-bold text-gray-900 mb-4 px-1 mt-8">Past Games</h2>
-              <div className="grid gap-4 opacity-80">
-                {pastGames.map(game => (
-                  <GameCard key={game.id} game={game} />
-                ))}
+            return (
+              <div key={game.id} className="bg-white p-5 rounded-2xl border border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:border-blue-200 transition-all">
+                
+                <Link href={`/games/${game.id}`} className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-bold px-2 py-1 bg-blue-50 text-blue-700 rounded-md uppercase tracking-wider">
+                      {game.teams?.name || 'Team'}
+                    </span>
+                    <span className="text-gray-400 font-bold text-sm">vs</span>
+                    <span className="text-lg font-extrabold text-gray-900">{game.opposing_team || 'TBD'}</span>
+                  </div>
+                  
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-sm font-medium text-gray-500">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      {formattedDate}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-4 h-4 text-gray-400" />
+                      {formatTime(game.game_time)}
+                    </div>
+                    {(game.location || game.field) && (
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="w-4 h-4 text-gray-400" />
+                        {game.location} {game.field ? `• ${game.field}` : ''}
+                      </div>
+                    )}
+                  </div>
+                </Link>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto pt-4 sm:pt-0 border-t sm:border-0 border-gray-100">
+                  <Link 
+                    href={`/games/${game.id}`}
+                    className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold rounded-xl transition-colors border border-gray-200"
+                  >
+                    Lineup
+                  </Link>
+                  <button 
+                    onClick={() => setGameToDelete(game)}
+                    className="inline-flex items-center justify-center p-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-colors border border-red-100"
+                    title="Delete Game"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
-            </section>
-          )}
+            )
+          })}
+        </div>
+      )}
+
+      {/* Custom Flat UI Modal */}
+      {gameToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full border border-gray-100">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center mb-5">
+              <AlertCircle className="w-6 h-6 text-red-600" />
+            </div>
+            <h2 className="text-xl font-extrabold text-gray-900 mb-2">Delete Game?</h2>
+            <p className="text-gray-500 font-medium mb-8">
+              Are you sure you want to delete the game against <strong className="text-gray-700">{gameToDelete.opposing_team || 'TBD'}</strong>? This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setGameToDelete(null)}
+                disabled={deletingId !== null}
+                className="flex-1 py-3 px-4 bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold rounded-xl transition-colors border border-gray-200 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleDelete}
+                disabled={deletingId !== null}
+                className="flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center disabled:opacity-50"
+              >
+                {deletingId === gameToDelete.id ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  'Delete'
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
-  )
-}
-
-// Helper component for the game cards
-function GameCard({ game }: { game: any }) {
-  const formattedDate = game.game_date 
-    ? new Date(game.game_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
-    : 'TBD'
-
-  return (
-    <Link 
-      href={`/games/${game.id}`}
-      className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-100 transition-all group flex items-center justify-between"
-    >
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <span className="font-extrabold text-lg text-gray-900">{game.teams?.name}</span>
-          <span className="text-gray-400 font-medium text-sm">vs</span>
-          <span className="font-bold text-gray-700">{game.opposing_team || 'TBA'}</span>
-        </div>
-        
-        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 font-medium">
-          <div className="flex items-center gap-1.5">
-            <Calendar className="w-4 h-4 text-blue-600" />
-            {formattedDate}
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Clock className="w-4 h-4 text-blue-600" />
-            {game.game_time || 'TBD'}
-          </div>
-          {game.field && (
-            <div className="flex items-center gap-1.5 hidden sm:flex">
-              <MapPin className="w-4 h-4 text-blue-600" />
-              {game.location ? `${game.location} (${game.field})` : game.field}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="w-10 h-10 rounded-full bg-gray-50 group-hover:bg-blue-50 flex items-center justify-center transition-colors shrink-0">
-        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
-      </div>
-    </Link>
   )
 }
