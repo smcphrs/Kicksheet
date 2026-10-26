@@ -5,14 +5,14 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { ArrowLeft, Loader2, Archive, UserCheck } from 'lucide-react'
+import { Suspense } from 'react'
+import { useParams } from 'next/navigation'
 
 const POSITIONS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF']
 
-export default function EditPlayerPage({ 
-  params 
-}: { 
-  params: Promise<{ id: string }> 
-}) {
+function EditPlayerContent() {
+  const params = useParams()
+  const id = params.id as string 
   const router = useRouter()
   const supabase = createClient()
   
@@ -251,5 +251,16 @@ export default function EditPlayerPage({
         </div>
       </form>
     </div>
+  )
+}
+export default function EditPlayerPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#f8f9fa] dark:bg-gray-950">
+        <div className="w-8 h-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+      </div>
+    }>
+      <EditPlayerContent />
+    </Suspense>
   )
 }
