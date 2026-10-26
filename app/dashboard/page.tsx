@@ -229,4 +229,74 @@ export default async function DashboardPage() {
             </div>
             
             {teams && teams.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4"></div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                {teams.map(team => (
+                  <Link key={team.id} href={`/teams/${team.id}`} className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-500 transition-colors group text-center flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mb-3 group-hover:bg-[#2563eb] transition-all duration-300">
+                      <span className="text-2xl font-black text-[#2563eb] dark:text-blue-400 group-hover:text-white transition-colors uppercase">
+                        {team.name ? team.name.charAt(0) : '?'}
+                      </span>
+                    </div>
+                    
+                    <h3 className="font-extrabold text-gray-900 dark:text-white truncate w-full px-2">{team.name}</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">Manage Roster</p>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 text-center">
+                <p className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-3">You haven't created any teams yet.</p>
+                <Link href="/teams/new" className="text-blue-600 dark:text-blue-400 font-bold hover:underline text-sm">
+                  Create your first team
+                </Link>
+              </div>
+            )}
+          </section>
+
+        </div>
+
+        {/* Right Column: Recent Games */}
+        <div className="space-y-4 lg:pl-4">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">Recent Games</h2>
+            <Link href="/games" className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline">
+              View All
+            </Link>
+          </div>
+
+          {recentGames && recentGames.length > 0 ? (
+            <div className="space-y-3">
+              {recentGames.map((game: any) => (
+                <Link 
+                  key={game.id} 
+                  href={`/games/${game.id}`}
+                  className="flex flex-col bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:border-gray-300 dark:hover:border-gray-600 transition-colors group"
+                >
+                  <div className="flex justify-between items-start w-full mb-2">
+                    <span className="text-xs font-bold px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-md uppercase tracking-wider">
+                      {new Date(game.game_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
+                  </div>
+                  
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="font-extrabold text-gray-900 dark:text-white truncate">{game.teams?.name}</span>
+                    <span className="text-xs font-bold text-gray-400">vs</span>
+                    <span className="text-sm font-semibold text-gray-600 dark:text-gray-400 truncate">
+                      {game.opposing_team || 'TBD'}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-800 text-center flex flex-col items-center justify-center min-h-[250px]">
+              <p className="text-gray-500 dark:text-gray-400 font-medium">No past games yet.</p>
+            </div>
+          )}
+        </div>
+        
+      </div>
+    </div>
+  )
+}
