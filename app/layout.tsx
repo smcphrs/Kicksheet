@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import { LogOut } from 'lucide-react'
 import Navigation from '@/components/Navigation'
+import { Suspense } from 'react'
 
 
 export const instant = false
@@ -32,7 +33,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <Suspense fallback={<div className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800" />}>
           <Navigation />
+          </Suspense>
           <main>
     {children}
     </main>
