@@ -124,7 +124,7 @@ export default function ManageTeamsPage() {
                   className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-lg transition-colors border border-gray-200 dark:border-gray-700"
                 >
                   <Edit2 className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Settings</span>
+                  <span className="hidden sm:inline">Rename</span>
                 </Link>
                 <button 
                   onClick={() => handleDeleteTeam(team.id, team.name)}
