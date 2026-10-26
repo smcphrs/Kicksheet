@@ -185,7 +185,7 @@ function PublicLineupContent() {
     : 'Unknown Date'
 
   return (
-    <div className="bg-[#f8f9fa] dark:bg-gray-950 min-h-[100dvh] font-sans pb-10 transition-colors">
+    <div className="bg-[#f8f9fa] dark:bg-gray-950 min-h-[100dvh] font-sans pb-10 transition-colors sm:pt-16">
       
       {/* Public Action Bar */}
       <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row justify-between items-center px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors gap-3 sm:gap-0">

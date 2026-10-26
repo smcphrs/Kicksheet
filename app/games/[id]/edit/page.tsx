@@ -77,7 +77,7 @@ function EditGameContent() {
   if (loading) return <div className="p-8 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-600" /></div>
 
   return (
-    <div className="max-w-2xl mx-auto p-4 sm:p-6 w-full pb-24">
+    <div className="max-w-2xl mx-auto p-4 sm:p-6 w-full pb-24 sm:pt-16">
       <Link href={`/games/${id}`} className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors mb-6">
         <ArrowLeft className="w-4 h-4 mr-1" />
         Back to Lineup
