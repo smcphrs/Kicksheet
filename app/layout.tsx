@@ -16,7 +16,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Kicksheet',
-  description: 'Manage your kickball team, roster, and field positions.',
+  description: 'Easily manage your kickball teams and game lineups',
 }
 
 export default function RootLayout({
