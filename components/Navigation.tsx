@@ -44,7 +44,7 @@ export default function Navigation() {
       {/* Desktop Top Navigation Bar */}
       <nav className="hidden sm:block fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="font-bold text-xl text-blue-600 tracking-tight"><img src="/public/assets/kicksheet-logo.png"></div>
+          <div className="font-bold text-xl text-blue-600 tracking-tight"><img src="/assets/kicksheet-logo.png" alt="Logo" className="h-8" /></div>
           <div className="flex space-x-8">
             {navItems.map((item) => {
               const isActive = pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')
