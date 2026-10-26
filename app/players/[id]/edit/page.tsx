@@ -16,8 +16,6 @@ function EditPlayerContent() {
   const router = useRouter()
   const supabase = createClient()
   
-  // Unwrap the params Promise (Next.js 15+ requirement)
-  const { id } = use(params)
   
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
