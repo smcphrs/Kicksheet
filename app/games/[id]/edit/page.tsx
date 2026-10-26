@@ -1,13 +1,15 @@
 'use client'
 
 import { useState, useEffect, use } from 'react'
+import { Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, Clock, MapPin, Cloud, Flag, Shield, Save, Loader2 } from 'lucide-react'
 
-export default function EditGamePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+function EditGameContent() {
+  const params = useParams()
+  const id = params.id as string
   const router = useRouter()
   const supabase = createClient()
   
@@ -139,5 +141,16 @@ export default function EditGamePage({ params }: { params: Promise<{ id: string 
         </button>
       </form>
     </div>
+  )
+}
+export default function EditGamePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#f8f9fa] dark:bg-gray-950">
+        <div className="w-8 h-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+      </div>
+    }>
+      <EditGameContent />
+    </Suspense>
   )
 }
