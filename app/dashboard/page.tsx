@@ -46,17 +46,18 @@ export default async function DashboardPage() {
     .order('game_date', { ascending: false })
     .limit(3)
 
-    const formatTime = (timeString: string) => {
-  if (!timeString) return 'TBD'
-  const [hourString, minute] = timeString.split(':')
-  const hour = parseInt(hourString, 10)
-  const ampm = hour >= 12 ? 'PM' : 'AM'
-  const formattedHour = hour % 12 || 12
-  return `${formattedHour}:${minute} ${ampm}`
-}
+  const formatTime = (timeString: string) => {
+    if (!timeString) return 'TBD'
+    const [hourString, minute] = timeString.split(':')
+    const hour = parseInt(hourString, 10)
+    const ampm = hour >= 12 ? 'PM' : 'AM'
+    const formattedHour = hour % 12 || 12
+    return `${formattedHour}:${minute} ${ampm}`
+  }
 
   return (
-    <div className="max-w-5xl mx-auto p-4 sm:p-6 w-full space-y-6 sm:space-y-8 pb-24">
+    // 👇 Added pt-24 (mobile) and sm:pt-28 (desktop) right here to clear the navbar
+    <div className="max-w-5xl mx-auto px-4 pt-24 pb-24 sm:px-6 sm:pt-28 w-full space-y-6 sm:space-y-8">
       
       {/* Mobile-Only Welcome Header (Hidden on Desktop) */}
       <div className="md:hidden bg-green-600 dark:bg-green-700 p-6 rounded-3xl text-white shadow-sm">
