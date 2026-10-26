@@ -181,7 +181,7 @@ function PublicLineupContent() {
   const INNINGS = Array.from({ length: numInnings }, (_, i) => i + 1)
   
   const formattedDate = game.game_date 
-    ? new Date(game.game_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
+    ? new Date(game.game_date).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
     : 'Unknown Date'
 
   return (
