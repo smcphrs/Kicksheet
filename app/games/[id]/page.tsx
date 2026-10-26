@@ -1,14 +1,18 @@
 'use client'
 
-import { useEffect, useState, useRef, use } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { Calendar, Clock, MapPin, Users, Cloud, ArrowLeft, Download, Loader2, Edit } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
 
-export default function GameLineupPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function GameLineupPage() {
+  // Use the Next.js client hook instead of unwrapping a promise
+  const params = useParams()
+  const id = params.id as string
+
   const supabase = createClient()
   const { resolvedTheme } = useTheme()
   
@@ -20,6 +24,8 @@ export default function GameLineupPage({ params }: { params: Promise<{ id: strin
   const captureRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    if (!id) return // Ensure ID is ready
+    
     async function fetchGame() {
       const { data: gameData, error } = await supabase
         .from('games')
