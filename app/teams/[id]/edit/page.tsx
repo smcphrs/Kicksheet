@@ -6,9 +6,12 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { ArrowLeft, Save, Loader2, Users } from 'lucide-react'
 import { use } from 'react'
+import { Suspense } from 'react'
+import { useParams } from 'next/navigation'
 
-export default function EditTeamPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+function EditTeamContent() {
+  const params = useParams()
+  const id = params.id as string
   const router = useRouter()
   const supabase = createClient()
   
@@ -122,5 +125,16 @@ export default function EditTeamPage({ params }: { params: Promise<{ id: string 
         </div>
       </form>
     </div>
+  )
+}
+export default function EditTeamPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#f8f9fa] dark:bg-gray-950">
+        <div className="w-8 h-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+      </div>
+    }>
+      <EditTeamContent />
+    </Suspense>
   )
 }
