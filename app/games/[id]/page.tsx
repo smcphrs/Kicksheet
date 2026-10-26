@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { Suspense, useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -8,8 +8,8 @@ import { Calendar, Clock, MapPin, Users, Cloud, ArrowLeft, Download, Loader2, Ed
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
 
-export default function GameLineupPage() {
-  // Use the Next.js client hook instead of unwrapping a promise
+// 1. The actual dynamic content component
+function LineupContent() {
   const params = useParams()
   const id = params.id as string
 
@@ -24,7 +24,7 @@ export default function GameLineupPage() {
   const captureRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!id) return // Ensure ID is ready
+    if (!id) return
     
     async function fetchGame() {
       const { data: gameData, error } = await supabase
@@ -154,7 +154,6 @@ export default function GameLineupPage() {
 
   return (
     <div className="bg-[#f8f9fa] dark:bg-gray-950 min-h-[100dvh] font-sans pb-10 transition-colors">
-      
       <div className="max-w-4xl mx-auto w-full flex justify-between items-center px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors">
         <div className="flex gap-4">
           <Link href="/games" className="inline-flex items-center text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
@@ -275,5 +274,14 @@ export default function GameLineupPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// 2. The default export that safely wraps the content in Suspense
+export default function GameLineupPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#f8f9fa] dark:bg-gray-950"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>}>
+      <LineupContent />
+    </Suspense>
   )
 }
