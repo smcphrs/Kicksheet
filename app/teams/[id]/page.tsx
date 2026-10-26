@@ -74,7 +74,7 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
             href={`/teams/${team.id}/edit`}
             className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-colors"
           >
-            Team Settings
+            Rename
           </Link>
           <Link 
             href={`/players/new?team_id=${team.id}`}
