@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, Clock, MapPin, Cloud, Flag, Shield, Save, Loader2 } from 'lucide-react'
+import { useParams } from 'next/navigation'
 
 function EditGameContent() {
   const params = useParams()
