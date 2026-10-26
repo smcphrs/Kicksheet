@@ -1,4 +1,4 @@
-import Navigation from '@/components/Navigation'
+import { ThemeProvider } from '@/components/ThemeProvider'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import { LogOut } from 'lucide-react'
-import { ThemeProvider } from '@/components/ThemeProvider'
+import Navigation from '@/components/Navigation'
 
 
 export const instant = false
