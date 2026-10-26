@@ -61,16 +61,16 @@ export default async function DashboardPage() {
     <div className="max-w-6xl mx-auto px-4 pt-24 pb-24 sm:px-6 sm:pt-28 w-full space-y-8 sm:space-y-10 transition-colors">
       
       {/* Branded Logo Banner */}
-      <div className="bg-gradient-to-r from-[#2563eb] to-blue-800 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-        <img 
-          src="/assets/kicksheet-logo-white.png" 
-          alt="Kicksheet" 
-          className="h-10 sm:h-12 w-auto object-contain" 
-        />
-        <p className="text-blue-100 font-medium text-sm sm:text-base">
-          Manage your lineups like a pro.
-        </p>
-      </div>
+      <div className="sm:hidden bg-gradient-to-r from-[#2563eb] to-blue-800 rounded-3xl p-6 flex flex-col items-start gap-3 shadow-sm">
+  <img 
+    src="/assets/kicksheet-logo-white.png" 
+    alt="Kicksheet" 
+    className="h-9 w-auto object-contain" 
+  />
+  <p className="text-blue-100 font-medium text-sm">
+   Kickball Line-Up Creator.
+  </p>
+</div>
 
       {/* Header & Main Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
