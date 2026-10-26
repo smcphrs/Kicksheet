@@ -232,9 +232,41 @@ export default async function DashboardPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                 {teams.map(team => (
                   <Link key={team.id} href={`/teams/${team.id}`} className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-500 transition-colors group text-center flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center mb-3 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-colors">
-                      <Shield className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
-                    </div>
+                    {/* Teams Thumbnails Hub */}
+<section>
+  <div className="flex items-center justify-between mb-4 px-1">
+    <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">Your Teams</h2>
+  </div>
+  
+  {teams && teams.length > 0 ? (
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+      {teams.map(team => (
+        <Link key={team.id} href={`/teams/${team.id}`} className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-500 transition-colors group text-center flex flex-col items-center">
+          
+         
+          <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mb-3 group-hover:bg-[#2563eb] transition-all duration-300">
+            <span className="text-2xl font-black text-[#2563eb] dark:text-blue-400 group-hover:text-white transition-colors uppercase">
+              {team.name ? team.name.charAt(0) : '?'}
+            </span>
+          </div>
+              {team.name ? team.name.charAt(0) : '?'}
+            </span>
+          </div>
+          
+          <h3 className="font-extrabold text-gray-900 dark:text-white truncate w-full px-2">{team.name}</h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">Manage Roster</p>
+        </Link>
+      ))}
+    </div>
+  ) : (
+    <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800 text-center">
+      <p className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-3">You haven't created any teams yet.</p>
+      <Link href="/teams/new" className="text-blue-600 dark:text-blue-400 font-bold hover:underline text-sm">
+        Create your first team
+      </Link>
+    </div>
+  )}
+</section>
                     <h3 className="font-extrabold text-gray-900 dark:text-white truncate w-full px-2">{team.name}</h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">Manage Roster</p>
                   </Link>
