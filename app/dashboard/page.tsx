@@ -60,11 +60,23 @@ export default async function DashboardPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 pt-24 pb-24 sm:px-6 sm:pt-28 w-full space-y-8 sm:space-y-10 transition-colors">
       
+      {/* Branded Logo Banner */}
+      <div className="bg-gradient-to-r from-[#2563eb] to-blue-800 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+        <img 
+          src="/assets/kicksheet-logo-white.png" 
+          alt="Kicksheet" 
+          className="h-10 sm:h-12 w-auto object-contain" 
+        />
+        <p className="text-blue-100 font-medium text-sm sm:text-base">
+          Manage your lineups like a pro.
+        </p>
+      </div>
+
       {/* Header & Main Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">Dashboard</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg"></p>
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">Command Center</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg">Your teams, stats, and upcoming schedule.</p>
         </div>
         
         <div className="flex flex-wrap gap-3 w-full sm:w-auto">
