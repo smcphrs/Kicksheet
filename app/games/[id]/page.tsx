@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { Calendar, Clock, MapPin, Users, Cloud, ArrowLeft, Download, Loader2, Edit, Map, X } from 'lucide-react'
+import { Calendar, Clock, MapPin, Users, Cloud, ArrowLeft, Download, Loader2, Edit, Map, X, Share2 } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
 
@@ -154,8 +154,8 @@ function LineupContent() {
 
   return (
     <div className="bg-[#f8f9fa] dark:bg-gray-950 min-h-[100dvh] font-sans pb-10 transition-colors sm:pt-16">
-      <div className="max-w-4xl mx-auto w-full flex justify-between items-center px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors">
-        <div className="flex gap-4">
+      <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors gap-3 sm:gap-0">
+        <div className="flex flex-wrap gap-2 sm:gap-4">
           <Link href="/games" className="inline-flex items-center text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back
@@ -164,12 +164,16 @@ function LineupContent() {
             <Edit className="w-4 h-4 mr-1" />
             Edit
           </Link>
+          <Link href={`/share/${game.id}`} target="_blank" className="inline-flex items-center text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+            <Share2 className="w-3.5 h-3.5 mr-1.5" />
+            Public Link
+          </Link>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <button 
             onClick={() => setShowFieldMap(true)}
-            className="inline-flex items-center px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
           >
             <Map className="w-4 h-4 sm:mr-1.5" />
             <span className="hidden sm:inline">Field Map</span>
@@ -178,7 +182,7 @@ function LineupContent() {
           <button 
             onClick={handleDownload}
             disabled={downloading}
-            className="inline-flex items-center px-4 py-2 text-xs font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all disabled:opacity-50"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all disabled:opacity-50"
           >
             {downloading ? <Loader2 className="w-4 h-4 sm:mr-1.5 animate-spin" /> : <Download className="w-4 h-4 sm:mr-1.5" />}
             <span className="hidden sm:inline">Save Image</span>
@@ -189,9 +193,15 @@ function LineupContent() {
       <div className="max-w-4xl mx-auto w-full" ref={captureRef}>
         <div className="px-2 sm:px-6 pt-2 sm:pt-6">
           
+          {/* UPDATED BLUE HEADER */}
           <div className="bg-[#2563eb] text-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl mb-4 sm:mb-8">
-            <h1 className="text-xl sm:text-4xl font-extrabold tracking-tight mb-2 sm:mb-4 flex items-center gap-1.5 sm:gap-2">
-              <span className="text-blue-200 text-lg sm:text-2xl">vs</span> {game.opposing_team || 'TBD'}
+            <div className="inline-flex items-center px-3 py-1 bg-white/20 text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-full mb-3 sm:mb-4 border border-white/30 shadow-sm">
+              {game?.teams?.name || 'Your Team'}
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight mb-4 sm:mb-6 flex items-baseline gap-2 sm:gap-3">
+              <span className="text-blue-200 text-2xl sm:text-4xl">vs</span> 
+              {game.opposing_team || 'TBD'}
             </h1>
 
             <div className="space-y-1 sm:space-y-2.5 text-blue-50 font-medium text-[11px] sm:text-base">
