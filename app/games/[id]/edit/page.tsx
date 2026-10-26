@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, Clock, MapPin, Cloud, Flag, Shield, Save, Loader2 } from 'lucide-react'
 import { useParams } from 'next/navigation'
+import { Map, X } from 'lucide-react'
 
 function EditGameContent() {
   const params = useParams()
@@ -24,6 +25,7 @@ function EditGameContent() {
   const [location, setLocation] = useState('')
   const [field, setField] = useState('')
   const [weather, setWeather] = useState('')
+  const [showFieldMap, setShowFieldMap] = useState(false)
 
   useEffect(() => {
     async function fetchGame() {
@@ -82,6 +84,14 @@ function EditGameContent() {
       </Link>
 
       <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 mb-8">Edit Game</h1>
+      <button 
+  type="button"
+  onClick={() => setShowFieldMap(true)}
+  className="inline-flex items-center px-4 py-2 text-sm font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all"
+>
+  <Map className="w-4 h-4 mr-2" />
+  Field Map
+</button>
 
       <form onSubmit={handleSave} className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 space-y-6">
         <div className="grid sm:grid-cols-2 gap-6">
@@ -141,6 +151,35 @@ function EditGameContent() {
           {saving ? 'Saving Changes...' : 'Save Changes'}
         </button>
       </form>
+
+      {showFieldMap && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 dark:bg-black/80 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-900 rounded-3xl p-4 sm:p-6 max-w-2xl w-full border border-gray-100 dark:border-gray-800 relative shadow-2xl">
+            <button
+              onClick={() => setShowFieldMap(false)}
+              className="absolute top-4 right-4 p-2 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-full transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-xl font-extrabold text-gray-900 dark:text-white mb-4 pr-10">Field Positions</h2>
+            
+            <div className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-2">
+              <img 
+                src="/assets/kicksheet_positions.jpg" 
+                alt="Kickball Field Positions Diagram" 
+                className="w-full h-auto rounded-xl"
+              />
+            </div>
+            
+            <button
+              onClick={() => setShowFieldMap(false)}
+              className="mt-6 w-full py-3 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-xl transition-colors"
+            >
+              Close Map
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

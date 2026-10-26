@@ -4,11 +4,10 @@ import { Suspense, useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { Calendar, Clock, MapPin, Users, Cloud, ArrowLeft, Download, Loader2, Edit } from 'lucide-react'
+import { Calendar, Clock, MapPin, Users, Cloud, ArrowLeft, Download, Loader2, Edit, Map, X } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
 
-// 1. The actual dynamic content component
 function LineupContent() {
   const params = useParams()
   const id = params.id as string
@@ -20,6 +19,7 @@ function LineupContent() {
   const [orderedPlayers, setOrderedPlayers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [downloading, setDownloading] = useState(false)
+  const [showFieldMap, setShowFieldMap] = useState(false) // Modal state
   
   const captureRef = useRef<HTMLDivElement>(null)
 
@@ -166,14 +166,24 @@ function LineupContent() {
           </Link>
         </div>
         
-        <button 
-          onClick={handleDownload}
-          disabled={downloading}
-          className="inline-flex items-center px-4 py-2 text-xs font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all disabled:opacity-50"
-        >
-          {downloading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Download className="w-4 h-4 mr-1.5" />}
-          Save Image
-        </button>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => setShowFieldMap(true)}
+            className="inline-flex items-center px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+          >
+            <Map className="w-4 h-4 sm:mr-1.5" />
+            <span className="hidden sm:inline">Field Map</span>
+          </button>
+
+          <button 
+            onClick={handleDownload}
+            disabled={downloading}
+            className="inline-flex items-center px-4 py-2 text-xs font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all disabled:opacity-50"
+          >
+            {downloading ? <Loader2 className="w-4 h-4 sm:mr-1.5 animate-spin" /> : <Download className="w-4 h-4 sm:mr-1.5" />}
+            <span className="hidden sm:inline">Save Image</span>
+          </button>
+        </div>
       </div>
 
       <div className="max-w-4xl mx-auto w-full" ref={captureRef}>
@@ -273,11 +283,40 @@ function LineupContent() {
           </div>
         </div>
       </div>
+
+      {/* Field Map Modal */}
+      {showFieldMap && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 dark:bg-black/80 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-900 rounded-3xl p-4 sm:p-6 max-w-2xl w-full border border-gray-100 dark:border-gray-800 relative shadow-2xl">
+            <button
+              onClick={() => setShowFieldMap(false)}
+              className="absolute top-4 right-4 p-2 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-full transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-xl font-extrabold text-gray-900 dark:text-white mb-4 pr-10">Field Positions</h2>
+            
+            <div className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-2">
+              <img 
+                src="/assets/kicksheet_positions.jpg" 
+                alt="Kickball Field Positions Diagram" 
+                className="w-full h-auto rounded-xl"
+              />
+            </div>
+            
+            <button
+              onClick={() => setShowFieldMap(false)}
+              className="mt-6 w-full py-3 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-xl transition-colors"
+            >
+              Close Map
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
-// 2. The default export that safely wraps the content in Suspense
 export default function GameLineupPage() {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#f8f9fa] dark:bg-gray-950"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>}>
