@@ -173,9 +173,13 @@ function LineupContent() {
             <Edit className="w-4 h-4 mr-1" />
             Edit
           </Link>
-          <Link href={`/share/${game.id}`} target="_blank" className="inline-flex items-center text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-            <Share2 className="w-3.5 h-3.5 mr-1.5" />
-            Player Link
+          <Link 
+            href={`/share/${game.id}`} 
+            target="_blank" 
+            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 rounded-full hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all"
+          >
+            <Share2 className="w-4 h-4 sm:mr-1.5" />
+            <span className="hidden sm:inline">Public Link</span>
           </Link>
         </div>
         
