@@ -205,33 +205,24 @@ function PublicLineupContent() {
         </div>
         
         {/* RIGHT SIDE: Share, Map, Save Buttons */}
+        {/* RIGHT SIDE: Share and Save Buttons (Wider) */}
         <div className="flex items-center justify-center gap-2 w-full sm:w-auto">
-          
           <button 
             onClick={handleShareLink}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center px-2 sm:px-4 py-2 text-[11px] sm:text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 rounded-full hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 sm:px-6 py-2 text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 rounded-full hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all"
           >
-            {copied ? <Check className="w-3.5 h-3.5 mr-1.5 sm:w-4 sm:h-4 text-green-600" /> : <Share2 className="w-3.5 h-3.5 mr-1.5 sm:w-4 sm:h-4" />}
+            {copied ? <Check className="w-4 h-4 mr-2 text-green-600" /> : <Share2 className="w-4 h-4 mr-2" />}
             <span>{copied ? 'Copied' : 'Share'}</span>
-          </button>
-
-          <button 
-            onClick={() => setShowFieldMap(true)}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center px-2 sm:px-4 py-2 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
-          >
-            <Map className="w-3.5 h-3.5 mr-1.5 sm:w-4 sm:h-4" />
-            <span>Field</span>
           </button>
 
           <button 
             onClick={handleDownload}
             disabled={downloading}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center px-2 sm:px-4 py-2 text-[11px] sm:text-xs font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all disabled:opacity-50"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 sm:px-6 py-2 text-xs font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all disabled:opacity-50"
           >
-            {downloading ? <Loader2 className="w-3.5 h-3.5 mr-1.5 sm:w-4 sm:h-4 animate-spin" /> : <Download className="w-3.5 h-3.5 mr-1.5 sm:w-4 sm:h-4" />}
+            {downloading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
             <span>{downloading ? 'Saving' : 'Save'}</span>
           </button>
-          
         </div>
       </div>
 
@@ -290,6 +281,19 @@ function PublicLineupContent() {
               </div>
             </div>
           )}
+          <div className="flex items-center justify-between mb-2 sm:mb-4 px-1">
+            <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900 dark:text-white">
+               
+            </h2>
+            
+            <button 
+              onClick={() => setShowFieldMap(true)}
+              className="inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all shadow-sm"
+            >
+              <Map className="w-3.5 h-3.5 mr-1.5 sm:w-4 sm:h-4" />
+              <span>Field Map</span>
+            </button>
+          </div>
 
           <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900 dark:text-white mb-2 sm:mb-4 pl-1">Lineup</h2>
 
