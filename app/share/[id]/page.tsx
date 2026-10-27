@@ -204,31 +204,34 @@ function PublicLineupContent() {
           <img src="/assets/kicksheet-logo-white.png" alt="Logo" className="h-6 hidden dark:block" />
         </div>
         
+        {/* RIGHT SIDE: Share, Map, Save Buttons */}
         <div className="flex items-center justify-center gap-2 w-full sm:w-auto">
+          
           <button 
             onClick={handleShareLink}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 rounded-full hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center px-2 sm:px-4 py-2 text-[11px] sm:text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 rounded-full hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all"
           >
-            {copied ? <Check className="w-4 h-4 sm:mr-1.5 text-green-600" /> : <Share2 className="w-4 h-4 sm:mr-1.5" />}
-            <span className="hidden sm:inline">{copied ? 'Copied!' : 'Share Link'}</span>
+            {copied ? <Check className="w-3.5 h-3.5 mr-1.5 sm:w-4 sm:h-4 text-green-600" /> : <Share2 className="w-3.5 h-3.5 mr-1.5 sm:w-4 sm:h-4" />}
+            <span>{copied ? 'Copied' : 'Share'}</span>
           </button>
 
           <button 
             onClick={() => setShowFieldMap(true)}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center px-2 sm:px-4 py-2 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
           >
-            <Map className="w-4 h-4 sm:mr-1.5" />
-            <span className="hidden sm:inline">Field Map</span>
+            <Map className="w-3.5 h-3.5 mr-1.5 sm:w-4 sm:h-4" />
+            <span>Map</span>
           </button>
 
           <button 
             onClick={handleDownload}
             disabled={downloading}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all disabled:opacity-50"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center px-2 sm:px-4 py-2 text-[11px] sm:text-xs font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all disabled:opacity-50"
           >
-            {downloading ? <Loader2 className="w-4 h-4 sm:mr-1.5 animate-spin" /> : <Download className="w-4 h-4 sm:mr-1.5" />}
-            <span className="hidden sm:inline">Save Image</span>
+            {downloading ? <Loader2 className="w-3.5 h-3.5 mr-1.5 sm:w-4 sm:h-4 animate-spin" /> : <Download className="w-3.5 h-3.5 mr-1.5 sm:w-4 sm:h-4" />}
+            <span>{downloading ? 'Saving' : 'Save'}</span>
           </button>
+          
         </div>
       </div>
 
