@@ -8,17 +8,9 @@ import { usePathname } from 'next/navigation'
 
 export default function Navigation() {
   const pathname = usePathname()
-
   // Hide navigation on auth pages
-  if (pathname === '/login' || pathname === '/' || pathname === '/signup') {
-    return null
-  }
-  
-export default function Navigation() {
-  const pathname = usePathname()
-
-  // 🚨 ADD THIS BLOCK: Turn off the navbar on the public share page!
-  if (pathname?.startsWith('/share')) {
+  if (pathname === '/login' || pathname === '/' || pathname === '/share' || pathname === '/signup') {
+    return null || pathname === '/' || pathname === '/signup') {
     return null
   }
 
