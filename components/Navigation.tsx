@@ -3,12 +3,22 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, Users, Calendar, Settings, Gauge } from 'lucide-react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 export default function Navigation() {
   const pathname = usePathname()
 
   // Hide navigation on auth pages
   if (pathname === '/login' || pathname === '/' || pathname === '/signup') {
+    return null
+  }
+  
+export default function Navigation() {
+  const pathname = usePathname()
+
+  // 🚨 ADD THIS BLOCK: Turn off the navbar on the public share page!
+  if (pathname?.startsWith('/share')) {
     return null
   }
 
