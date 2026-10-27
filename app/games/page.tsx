@@ -97,7 +97,7 @@ export default function GamesPage() {
         <div className="grid gap-4">
           {games.map(game => {
             const formattedDate = game.game_date 
-              ? new Date(game.game_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
+              ? new Date(game.game_date).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
               : 'Unknown Date'
 
             return (
