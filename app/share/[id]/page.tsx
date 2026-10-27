@@ -2,7 +2,6 @@
 
 import { Suspense, useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useParams } from 'next/navigation'
 import { Calendar, Clock, MapPin, Users, Cloud, Download, Loader2, Map, X, Share2, Check } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
