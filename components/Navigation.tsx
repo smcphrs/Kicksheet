@@ -9,8 +9,16 @@ import { usePathname } from 'next/navigation'
 export default function Navigation() {
   const pathname = usePathname()
   // Hide navigation on auth pages
-  if (pathname === '/login' || pathname === '/' || pathname === '/share' || pathname === '/signup') {
-    return null || pathname === '/' || pathname === '/signup') {
+  export default function Navigation() {
+  const pathname = usePathname()
+
+  // 🚨 Hide navigation on auth pages, landing page, and public share links
+  if (
+    pathname === '/login' || 
+    pathname === '/signup' || 
+    pathname === '/' || 
+    pathname?.startsWith('/share')
+  ) {
     return null
   }
 
