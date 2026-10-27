@@ -272,7 +272,7 @@ function PublicLineupContent() {
           {game.notes && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 mb-4 sm:mb-8 flex items-start gap-3 sm:gap-4 shadow-sm">
               <div className="bg-red-100 dark:bg-red-900/50 p-2 rounded-full shrink-0">
-                <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
+            ,  <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
               </div>
               <div className="pt-0.5">
                 <p className="text-red-800 dark:text-red-200 text-sm sm:text-base font-medium whitespace-pre-wrap leading-relaxed">
@@ -281,9 +281,10 @@ function PublicLineupContent() {
               </div>
             </div>
           )}
+          {/* LINEUP HEADER WITH INLINE FIELD MAP BUTTON */}
           <div className="flex items-center justify-between mb-2 sm:mb-4 px-1">
             <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900 dark:text-white">
-               
+              Lineup
             </h2>
             
             <button 
@@ -291,7 +292,29 @@ function PublicLineupContent() {
               className="inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all shadow-sm"
             >
               <Map className="w-3.5 h-3.5 mr-1.5 sm:w-4 sm:h-4" />
+              <span>Field</span>
+            </button>
+          </div>
+          <div className="flex items-center justify-between mb-2 sm:mb-4 px-1">
+            <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900 dark:text-white">
+              <div className="flex items-center justify-between mb-2 sm:mb-4 px-1">
+            <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900 dark:text-white">
+            <button 
+              onClick={() => setShowFieldMap(true)}
+              className="inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all shadow-sm"
+            >
+              <Map className="w-3.5 h-3.5 mr-1.5 sm:w-4 sm:h-4" />
               <span>Field Map</span>
+            </button>
+          </div>
+            </h2>
+            
+            <button 
+              onClick={() => setShowFieldMap(true)}
+              className="inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all shadow-sm"
+            >
+              <Map className="w-3.5 h-3.5 mr-1.5 sm:w-4 sm:h-4" />
+              <span>Field</span>
             </button>
           </div>
 
