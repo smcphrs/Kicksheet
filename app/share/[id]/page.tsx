@@ -202,7 +202,6 @@ function PublicLineupContent() {
         <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 font-bold text-sm w-full sm:w-auto justify-center sm:justify-start">
           <img src="/assets/kicksheet-logo.png" alt="Logo" className="h-6 dark:hidden" />
           <img src="/assets/kicksheet-logo-white.png" alt="Logo" className="h-6 hidden dark:block" />
-          <span>Lineup</span>
         </div>
         
         <div className="flex items-center justify-center gap-2 w-full sm:w-auto">
@@ -277,9 +276,6 @@ function PublicLineupContent() {
                 <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
               </div>
               <div className="pt-0.5">
-                <h3 className="text-xs sm:text-sm font-extrabold text-red-900 dark:text-red-300 uppercase tracking-wider mb-1">
-                  Team Announcement
-                </h3>
                 <p className="text-red-800 dark:text-red-200 text-sm sm:text-base font-medium whitespace-pre-wrap leading-relaxed">
                   {game.notes}
                 </p>
