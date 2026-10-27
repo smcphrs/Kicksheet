@@ -6,6 +6,16 @@ import { useParams } from 'next/navigation'
 import { Calendar, Clock, MapPin, Users, Cloud, Download, Loader2, Map, X, Share2, Check } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+
+export default function Navigation() {
+  const pathname = usePathname()
+
+  // 🚨 NEW: Hide navigation completely on public share pages
+  if (pathname?.startsWith('/share')) {
+    return null
+  }
 
 function PublicLineupContent() {
   const params = useParams()
@@ -138,7 +148,7 @@ function PublicLineupContent() {
       case 'RF': return 'bg-[#5e35b1] text-white' 
       case 'SS': return 'bg-[#43a047] text-white' 
       case 'LC': return 'bg-[#00acc1] text-white' 
-      case 'LF': return 'bg-[#00acc1] text-white' 
+      case 'LF': return 'bg-[#00ae9c] text-white' 
       case 'RC': return 'bg-[#3949ab] text-white' 
       case 'P': return 'bg-[#f44336] text-white' 
       case '1B': return 'bg-[#f4511e] text-white' 
@@ -185,7 +195,7 @@ function PublicLineupContent() {
     : 'Unknown Date'
 
   return (
-    <div className="bg-[#f8f9fa] dark:bg-gray-950 min-h-[100dvh] font-sans pb-10 transition-colors sm:pt-16">
+    <div className="bg-[#f8f9fa] dark:bg-gray-950 min-h-[100dvh] font-sans pb-10 transition-colors">
       
       {/* Public Action Bar */}
       <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row justify-between items-center px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors gap-3 sm:gap-0">
