@@ -27,6 +27,8 @@ function EditGameContent() {
   const [weather, setWeather] = useState('')
   const [showFieldMap, setShowFieldMap] = useState(false)
 
+  const [notes, setNotes] = useState('')
+
   useEffect(() => {
     async function fetchGame() {
       const { data, error } = await supabase
@@ -60,7 +62,8 @@ function EditGameContent() {
         game_time: time,
         location: location,
         field: field,
-        weather: weather
+        weather: weather,
+        notes: notes,
       })
       .eq('id', id)
 
@@ -149,13 +152,14 @@ function EditGameContent() {
   <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
     Team Announcement / Notes <span className="text-gray-400 font-normal">(Optional)</span>
   </label>
-  <textarea
-    name="notes"
-    rows={3}
-    placeholder="e.g. Wear the red jerseys today! Post-game drinks at the pub."
-    className="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-y"
-    /* If using controlled state, add: value={notes} onChange={(e) => setNotes(e.target.value)} */
-  />
+<textarea
+  name="notes"
+  rows={3}
+  placeholder="e.g. Wear the red jerseys today! Post-game drinks at the pub."
+  className="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-y"
+  value={notes}
+  onChange={(e) => setNotes(e.target.value)}
+/>
 </div>
 
         <button type="submit" disabled={saving || !date} className="w-full py-4 mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 text-lg shadow-sm">
