@@ -22,7 +22,8 @@ export default function NewGamePage() {
   const [location, setLocation] = useState('')
   const [field, setField] = useState('')
   const [weather, setWeather] = useState('')
-
+  
+  // NEW: Team Announcement Notes
   const [notes, setNotes] = useState('')
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function NewGamePage() {
       setLoading(false)
     }
     fetchTeams()
-  }, [])
+  }, [supabase])
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -63,14 +64,14 @@ export default function NewGamePage() {
         location: location,
         field: field,
         weather: weather,
-        notes: notes,
+        notes: notes, // Saves the new announcement box!
       }])
       .select()
       .single()
 
     if (!error && data) {
-      // Send them right to the lineup generator for this game
-      router.push(`/games/${data.id}`)
+      // FIXED: Send them to the first step of the wizard (Attendance) instead of the final view!
+      router.push(`/games/new/attendance?id=${data.id}`)
     } else {
       console.error(error)
       setSaving(false)
@@ -149,19 +150,20 @@ export default function NewGamePage() {
             <input type="text" value={weather} onChange={(e) => setWeather(e.target.value)} placeholder="e.g. Sunny, Cool 55 F" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-600/20 font-medium transition-all" />
           </div>
         </div>
+
         <div>
-  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-    Team Announcement / Notes <span className="text-gray-400 font-normal">(Optional)</span>
-  </label>
-  <textarea
-  name="notes"
-  rows={3}
-  placeholder="e.g. Wear the red jerseys today! Post-game drinks at the pub."
-  className="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-y"
-  value={notes}
-  onChange={(e) => setNotes(e.target.value)}
-/>
-</div>
+          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+            Team Announcement / Notes <span className="text-gray-400 font-normal">(Optional)</span>
+          </label>
+          <textarea
+            name="notes"
+            rows={3}
+            placeholder="e.g. Wear the red jerseys today! Post-game drinks at the pub."
+            className="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-y"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
+        </div>
 
         <button type="submit" disabled={saving || !teamId || !date} className="w-full py-4 mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 text-lg shadow-sm">
           {saving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
