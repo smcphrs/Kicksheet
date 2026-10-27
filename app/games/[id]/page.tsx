@@ -202,35 +202,40 @@ function LineupContent() {
       <div className="max-w-4xl mx-auto w-full" ref={captureRef}>
         <div className="px-2 sm:px-6 pt-2 sm:pt-6">
           
-          <div className="bg-[#2563eb] text-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl mb-4 sm:mb-8">
-            <div className="inline-flex items-center px-3 py-1 bg-white/20 text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-full mb-3 sm:mb-4 border border-white/30 shadow-sm">
+          {/* NEW TIGHTER BLUE HEADER */}
+          <div className="bg-[#2563eb] text-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 shadow-sm">
+            <div className="inline-flex items-center px-3 py-1 bg-white/20 text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-full mb-2.5 border border-white/30 shadow-sm">
               {game?.teams?.name || 'Your Team'}
             </div>
 
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight mb-4 sm:mb-6 flex items-baseline gap-2 sm:gap-3">
-              <span className="text-blue-200 text-2xl sm:text-4xl">vs</span> 
+            {/* Reduced size for the opponent header */}
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight mb-4 flex items-baseline gap-1.5 sm:gap-2">
+              <span className="text-blue-200 text-xl sm:text-2xl">vs</span> 
               {game.opposing_team || 'TBD'}
             </h1>
 
-            <div className="space-y-1 sm:space-y-2.5 text-blue-50 font-medium text-[11px] sm:text-base">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <Calendar className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80" />
+            {/* Increased text size, inline flex-wrap for details */}
+            <div className="flex flex-wrap items-center gap-x-4 sm:gap-x-6 gap-y-2.5 text-blue-50 font-medium text-xs sm:text-sm">
+              <div className="flex items-center gap-1.5">
+                <Calendar className="w-4 h-4 opacity-80" />
                 <span>{formattedDate}</span>
-                <Clock className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80 ml-1 sm:ml-2" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Clock className="w-4 h-4 opacity-80" />
                 <span>{formatTime(game.game_time)}</span>
               </div>
-              <div className="flex items-center gap-2 sm:gap-3">
-                <MapPin className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80" />
+              <div className="flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 opacity-80" />
                 <span>{game.location || 'Unknown'} {game.field ? `• ${game.field}` : ''}</span>
               </div>
               {game.weather && (
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <Cloud className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80" />
+                <div className="flex items-center gap-1.5">
+                  <Cloud className="w-4 h-4 opacity-80" />
                   <span>{game.weather}</span>
                 </div>
               )}
-              <div className="flex items-center gap-2 sm:gap-3">
-                <Users className="w-3.5 h-3.5 sm:w-5 sm:h-5 opacity-80" />
+              <div className="flex items-center gap-1.5">
+                <Users className="w-4 h-4 opacity-80" />
                 <span>{orderedPlayers.length} players</span>
               </div>
             </div>
