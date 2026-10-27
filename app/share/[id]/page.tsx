@@ -220,7 +220,7 @@ function PublicLineupContent() {
             className="flex-1 sm:flex-none inline-flex items-center justify-center px-2 sm:px-4 py-2 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
           >
             <Map className="w-3.5 h-3.5 mr-1.5 sm:w-4 sm:h-4" />
-            <span>Map</span>
+            <span>Field</span>
           </button>
 
           <button 
