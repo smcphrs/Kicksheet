@@ -21,7 +21,6 @@ export default function Navigation() {
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Teams', href: '/teams', icon: Shield },
     { name: 'Games', href: '/games', icon: Calendar },
-    { name: 'Players', href: '/players', icon: Users },
     { name: 'Settings', href: '/settings', icon: Settings },
   ]
 
