@@ -76,17 +76,18 @@ function PublicLineupContent() {
       
       if (!blob) throw new Error("Failed to generate blob")
 
-      const safeTeamName = game?.teams?.name ? game.teams.name.replace(/\s+/g, '_') : 'Team'
-      const fileName = `${safeTeamName}_Lineup.png`
-      const file = new File([blob], fileName, { type: 'image/png' })
+      const opponent = game?.opposing_team ? game.opposing_team.replace(/\s+/g, '_') : 'TBD'
+const gameDate = game?.game_date || 'Unknown_Date'
+const fileName = `vs_${opponent}_${gameDate}.png`
+const file = new File([blob], fileName, { type: 'image/png' })
 
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: `${safeTeamName} Lineup`,
-          })
-        } catch (shareErr: any) {
+if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+  try {
+    await navigator.share({
+      files: [file],
+      title: `vs ${game?.opposing_team || 'TBD'} Lineup`,
+    })
+  } catch (shareErr: any) {
           console.log("User closed share sheet", shareErr)
         }
       } else {
