@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useParams } from 'next/navigation' // <-- Add this back!
-import { Calendar, Clock, MapPin, Users, Cloud, Download, Loader2, Map, X, Share2, Check } from 'lucide-react'
+import { Calendar, Clock, MapPin, Users, Cloud, Download, Loader2, Map, X, Share2, Check, Megaphone } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
 
@@ -259,6 +259,22 @@ if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] 
               </div>
             </div>
           </div>
+          {/* OPTIONAL RED ANNOUNCEMENT BOX */}
+      {game.notes && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 mb-4 sm:mb-8 flex items-start gap-3 sm:gap-4 shadow-sm">
+          <div className="bg-red-100 dark:bg-red-900/50 p-2 rounded-full shrink-0">
+            <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
+          </div>
+          <div className="pt-0.5">
+            <h3 className="text-xs sm:text-sm font-extrabold text-red-900 dark:text-red-300 uppercase tracking-wider mb-1">
+              Team Announcement
+            </h3>
+            <p className="text-red-800 dark:text-red-200 text-sm sm:text-base font-medium whitespace-pre-wrap leading-relaxed">
+              {game.notes}
+            </p>
+          </div>
+        </div>
+      )}
 
           <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900 dark:text-white mb-2 sm:mb-4 pl-1">Lineup</h2>
 
