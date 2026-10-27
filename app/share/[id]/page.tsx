@@ -6,16 +6,6 @@ import { useParams } from 'next/navigation'
 import { Calendar, Clock, MapPin, Users, Cloud, Download, Loader2, Map, X, Share2, Check } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-
-export default function Navigation() {
-  const pathname = usePathname()
-
-  // 🚨 NEW: Hide navigation completely on public share pages
-  if (pathname?.startsWith('/share')) {
-    return null
-  }
 
 function PublicLineupContent() {
   const params = useParams()
@@ -37,7 +27,6 @@ function PublicLineupContent() {
     if (!id) return
     
     async function fetchGame() {
-      // Fetch without requiring an active user session
       const { data: gameData, error } = await supabase
         .from('games')
         .select('*, teams (name)')
@@ -148,7 +137,7 @@ function PublicLineupContent() {
       case 'RF': return 'bg-[#5e35b1] text-white' 
       case 'SS': return 'bg-[#43a047] text-white' 
       case 'LC': return 'bg-[#00acc1] text-white' 
-      case 'LF': return 'bg-[#00ae9c] text-white' 
+      case 'LF': return 'bg-[#00acc1] text-white' 
       case 'RC': return 'bg-[#3949ab] text-white' 
       case 'P': return 'bg-[#f44336] text-white' 
       case '1B': return 'bg-[#f4511e] text-white' 
@@ -238,8 +227,13 @@ function PublicLineupContent() {
         <div className="px-2 sm:px-6 pt-2 sm:pt-6">
           
           <div className="bg-[#2563eb] text-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl mb-4 sm:mb-8">
-            <h1 className="text-xl sm:text-4xl font-extrabold tracking-tight mb-2 sm:mb-4 flex items-center gap-1.5 sm:gap-2">
-              <span className="text-blue-200 text-lg sm:text-2xl">vs</span> {game.opposing_team || 'TBD'}
+            <div className="inline-flex items-center px-3 py-1 bg-white/20 text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-full mb-3 sm:mb-4 border border-white/30 shadow-sm">
+              {game?.teams?.name || 'Your Team'}
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight mb-4 sm:mb-6 flex items-baseline gap-2 sm:gap-3">
+              <span className="text-blue-200 text-2xl sm:text-4xl">vs</span> 
+              {game.opposing_team || 'TBD'}
             </h1>
 
             <div className="space-y-1 sm:space-y-2.5 text-blue-50 font-medium text-[11px] sm:text-base">
