@@ -22,7 +22,7 @@ const getPositionColors = (pos: string) => {
     case 'RF': return 'bg-[#5e35b1] text-white' 
     case 'SS': return 'bg-[#43a047] text-white' 
     case 'LC': return 'bg-[#00acc1] text-white' 
-    case 'LF': return 'bg-[#00acc1] text-white' 
+    case 'LF': return 'bg-[#04aaaa] text-white' 
     case 'RC': return 'bg-[#3949ab] text-white' 
     case 'P': return 'bg-[#f44336] text-white' 
     case '1B': return 'bg-[#f4511e] text-white' 
