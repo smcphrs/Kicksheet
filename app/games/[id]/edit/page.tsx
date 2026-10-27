@@ -26,6 +26,7 @@ function EditGameContent() {
   const [field, setField] = useState('')
   const [weather, setWeather] = useState('')
   const [showFieldMap, setShowFieldMap] = useState(false)
+  const [highlightedPlayer, setHighlightedPlayer] = useState<string | null>(null)
 
   const [notes, setNotes] = useState('')
 
@@ -44,6 +45,7 @@ function EditGameContent() {
         setLocation(data.location || '')
         setField(data.field || '')
         setWeather(data.weather || '')
+        setNotes(data.notes || '')
       }
       setLoading(false)
     }

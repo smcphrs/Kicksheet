@@ -20,6 +20,7 @@ function PublicLineupContent() {
   const [downloading, setDownloading] = useState(false)
   const [showFieldMap, setShowFieldMap] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [highlightedPlayer, setHighlightedPlayer] = useState<string | null>(null)
   
   const captureRef = useRef<HTMLDivElement>(null)
 
@@ -290,30 +291,23 @@ if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] 
               </thead>
               <tbody className="text-[11px] sm:text-sm font-bold text-gray-800 dark:text-gray-200">
                 {orderedPlayers.map((player: any, idx: number) => {
-                  const isEven = idx % 2 === 0
-                  const rowBg = isEven ? 'bg-white dark:bg-gray-900' : 'bg-[#f1f5f9] dark:bg-gray-800/50'
-                  
-                  return (
-                    <tr key={player.id} className={`${rowBg} transition-colors`}>
-                      <td className={`px-2 sm:px-4 py-1.5 sm:py-3 ${rowBg} truncate max-w-[80px] sm:max-w-none`}>
-                        {formatName(player.name)}
-                      </td>
-                      {INNINGS.map(inning => {
-                         let pos = getPosition(inning, player.id)
-                         if (pos === 'Bench') pos = 'OUT'
-                         const colors = getPositionColors(pos)
-                         
-                         return (
-                           <td key={inning} className="px-0.5 sm:px-2 py-1 sm:py-3 text-center align-middle">
-                             <span className={`inline-flex items-center justify-center w-[28px] h-[18px] sm:w-[42px] sm:h-[28px] rounded sm:rounded-md text-[9px] sm:text-xs uppercase tracking-tighter sm:tracking-wide ${colors}`}>
-                               {pos}
-                             </span>
-                           </td>
-                         )
-                      })}
-                    </tr>
-                  )
-                })}
+  const isEven = idx % 2 === 0
+  const rowBg = isEven ? 'bg-white dark:bg-gray-900' : 'bg-[#f1f5f9] dark:bg-gray-800/50'
+  
+  // Check if another player is selected so we can dim this row
+  const isDimmed = highlightedPlayer !== null && highlightedPlayer !== player.id
+  
+  return (
+    <tr 
+      key={player.id} 
+      onClick={() => setHighlightedPlayer(prev => prev === player.id ? null : player.id)}
+      className={`${rowBg} transition-all duration-300 cursor-pointer ${
+        isDimmed ? 'opacity-25 grayscale' : 'opacity-100 shadow-sm'
+      }`}
+    >
+      <td className={`px-2 sm:px-4 py-1.5 sm:py-3 ${rowBg} truncate max-w-[80px] sm:max-w-none transition-all duration-300`}>
+        {formatName(player.name)}
+      </td>
               </tbody>
             </table>
           </div>
