@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useParams } from 'next/navigation' // <-- Add this back!
+import { useParams } from 'next/navigation'
 import { Calendar, Clock, MapPin, Users, Cloud, Download, Loader2, Map, X, Share2, Check, Megaphone } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
@@ -69,26 +69,35 @@ function PublicLineupContent() {
     setDownloading(true)
     
     try {
+      // Temporarily un-highlight before download so the image saves the full lineup
+      const prevHighlight = highlightedPlayer;
+      setHighlightedPlayer(null);
+      
+      // Small delay to let React re-render without highlights before capturing
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const blob = await toBlob(captureRef.current, { 
         quality: 1,
         backgroundColor: resolvedTheme === 'dark' ? '#030712' : '#f8f9fa',
         pixelRatio: 2 
       })
       
+      setHighlightedPlayer(prevHighlight); // Restore highlight
+      
       if (!blob) throw new Error("Failed to generate blob")
 
       const opponent = game?.opposing_team ? game.opposing_team.replace(/\s+/g, '_') : 'TBD'
-const gameDate = game?.game_date || 'Unknown_Date'
-const fileName = `vs_${opponent}_${gameDate}.png`
-const file = new File([blob], fileName, { type: 'image/png' })
+      const gameDate = game?.game_date || 'Unknown_Date'
+      const fileName = `vs_${opponent}_${gameDate}.png`
+      const file = new File([blob], fileName, { type: 'image/png' })
 
-if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-  try {
-    await navigator.share({
-      files: [file],
-      title: `vs ${game?.opposing_team || 'TBD'} Lineup`,
-    })
-  } catch (shareErr: any) {
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `vs ${game?.opposing_team || 'TBD'} Lineup`,
+          })
+        } catch (shareErr: any) {
           console.log("User closed share sheet", shareErr)
         }
       } else {
@@ -138,7 +147,7 @@ if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] 
       case 'C': return 'bg-[#9c27b0] text-white' 
       case 'RF': return 'bg-[#5e35b1] text-white' 
       case 'SS': return 'bg-[#43a047] text-white' 
-      case 'LC': return 'bg-[#00ae9c] text-white' 
+      case 'LC': return 'bg-[#00acc1] text-white' 
       case 'LF': return 'bg-[#00acc1] text-white' 
       case 'RC': return 'bg-[#3949ab] text-white' 
       case 'P': return 'bg-[#f44336] text-white' 
@@ -190,10 +199,10 @@ if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] 
       
       {/* Public Action Bar */}
       <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row justify-between items-center px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors gap-3 sm:gap-0">
-        
         <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 font-bold text-sm w-full sm:w-auto justify-center sm:justify-start">
           <img src="/assets/kicksheet-logo.png" alt="Logo" className="h-6 dark:hidden" />
           <img src="/assets/kicksheet-logo-white.png" alt="Logo" className="h-6 hidden dark:block" />
+          <span>Lineup</span>
         </div>
         
         <div className="flex items-center justify-center gap-2 w-full sm:w-auto">
@@ -260,22 +269,23 @@ if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] 
               </div>
             </div>
           </div>
-          {/* OPTIONAL RED ANNOUNCEMENT BOX */}
-      {game.notes && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 mb-4 sm:mb-8 flex items-start gap-3 sm:gap-4 shadow-sm">
-          <div className="bg-red-100 dark:bg-red-900/50 p-2 rounded-full shrink-0">
-            <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
-          </div>
-          <div className="pt-0.5">
-            <h3 className="text-xs sm:text-sm font-extrabold text-red-900 dark:text-red-300 uppercase tracking-wider mb-1">
-              Team Announcement
-            </h3>
-            <p className="text-red-800 dark:text-red-200 text-sm sm:text-base font-medium whitespace-pre-wrap leading-relaxed">
-              {game.notes}
-            </p>
-          </div>
-        </div>
-      )}
+
+          {/* RED ANNOUNCEMENT BOX */}
+          {game.notes && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 mb-4 sm:mb-8 flex items-start gap-3 sm:gap-4 shadow-sm">
+              <div className="bg-red-100 dark:bg-red-900/50 p-2 rounded-full shrink-0">
+                <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
+              </div>
+              <div className="pt-0.5">
+                <h3 className="text-xs sm:text-sm font-extrabold text-red-900 dark:text-red-300 uppercase tracking-wider mb-1">
+                  Team Announcement
+                </h3>
+                <p className="text-red-800 dark:text-red-200 text-sm sm:text-base font-medium whitespace-pre-wrap leading-relaxed">
+                  {game.notes}
+                </p>
+              </div>
+            </div>
+          )}
 
           <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900 dark:text-white mb-2 sm:mb-4 pl-1">Lineup</h2>
 
@@ -291,23 +301,39 @@ if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] 
               </thead>
               <tbody className="text-[11px] sm:text-sm font-bold text-gray-800 dark:text-gray-200">
                 {orderedPlayers.map((player: any, idx: number) => {
-  const isEven = idx % 2 === 0
-  const rowBg = isEven ? 'bg-white dark:bg-gray-900' : 'bg-[#f1f5f9] dark:bg-gray-800/50'
-  
-  // Check if another player is selected so we can dim this row
-  const isDimmed = highlightedPlayer !== null && highlightedPlayer !== player.id
-  
-  return (
-    <tr 
-      key={player.id} 
-      onClick={() => setHighlightedPlayer(prev => prev === player.id ? null : player.id)}
-      className={`${rowBg} transition-all duration-300 cursor-pointer ${
-        isDimmed ? 'opacity-25 grayscale' : 'opacity-100 shadow-sm'
-      }`}
-    >
-      <td className={`px-2 sm:px-4 py-1.5 sm:py-3 ${rowBg} truncate max-w-[80px] sm:max-w-none transition-all duration-300`}>
-        {formatName(player.name)}
-      </td>
+                  const isEven = idx % 2 === 0
+                  const rowBg = isEven ? 'bg-white dark:bg-gray-900' : 'bg-[#f1f5f9] dark:bg-gray-800/50'
+                  
+                  // Check if another player is selected so we can dim this row
+                  const isDimmed = highlightedPlayer !== null && highlightedPlayer !== player.id
+                  
+                  return (
+                    <tr 
+                      key={player.id}
+                      onClick={() => setHighlightedPlayer(prev => prev === player.id ? null : player.id)}
+                      className={`${rowBg} transition-all duration-300 cursor-pointer ${
+                        isDimmed ? 'opacity-25 grayscale' : 'opacity-100 shadow-sm'
+                      }`}
+                    >
+                      <td className={`px-2 sm:px-4 py-1.5 sm:py-3 ${rowBg} truncate max-w-[80px] sm:max-w-none transition-all duration-300`}>
+                        {formatName(player.name)}
+                      </td>
+                      {INNINGS.map(inning => {
+                         let pos = getPosition(inning, player.id)
+                         if (pos === 'Bench') pos = 'OUT'
+                         const colors = getPositionColors(pos)
+                         
+                         return (
+                           <td key={inning} className="px-0.5 sm:px-2 py-1 sm:py-3 text-center align-middle transition-all duration-300">
+                             <span className={`inline-flex items-center justify-center w-[28px] h-[18px] sm:w-[42px] sm:h-[28px] rounded sm:rounded-md text-[9px] sm:text-xs uppercase tracking-tighter sm:tracking-wide ${colors}`}>
+                               {pos}
+                             </span>
+                           </td>
+                         )
+                      })}
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
