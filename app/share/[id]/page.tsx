@@ -193,7 +193,6 @@ if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] 
         <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 font-bold text-sm w-full sm:w-auto justify-center sm:justify-start">
           <img src="/assets/kicksheet-logo.png" alt="Logo" className="h-6 dark:hidden" />
           <img src="/assets/kicksheet-logo-white.png" alt="Logo" className="h-6 hidden dark:block" />
-          <span>Lineup</span>
         </div>
         
         <div className="flex items-center justify-center gap-2 w-full sm:w-auto">
