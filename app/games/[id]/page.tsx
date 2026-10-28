@@ -20,7 +20,9 @@ function LineupContent() {
   const [loading, setLoading] = useState(true)
   const [downloading, setDownloading] = useState(false)
   const [showFieldMap, setShowFieldMap] = useState(false)
-  const [highlightedPlayer, setHighlightedPlayer] = useState<string | null>(null)
+  
+  // NEW: Advanced Highlight State (handles rows and columns)
+  const [highlight, setHighlight] = useState<string | null>(null)
   
   const captureRef = useRef<HTMLDivElement>(null)
 
@@ -65,8 +67,9 @@ function LineupContent() {
     setDownloading(true)
     
     try {
-      const prevHighlight = highlightedPlayer
-      setHighlightedPlayer(null)
+      // Temporarily remove highlights so the saved image is clean
+      const prevHighlight = highlight
+      setHighlight(null)
       
       await new Promise(resolve => setTimeout(resolve, 100))
 
@@ -76,7 +79,7 @@ function LineupContent() {
         pixelRatio: 2 
       })
       
-      setHighlightedPlayer(prevHighlight)
+      setHighlight(prevHighlight)
 
       if (!blob) throw new Error("Failed to generate blob")
 
@@ -123,7 +126,7 @@ function LineupContent() {
       case 'RF': return 'bg-[#5e35b1] text-white' 
       case 'SS': return 'bg-[#43a047] text-white' 
       case 'LC': return 'bg-[#00acc1] text-white' 
-      case 'LF': return 'bg-[#00ae9c] text-white' 
+      case 'LF': return 'bg-[#04aaaa] text-white' 
       case 'RC': return 'bg-[#3949ab] text-white' 
       case 'P': return 'bg-[#f44336] text-white' 
       case '1B': return 'bg-[#f4511e] text-white' 
@@ -172,13 +175,11 @@ function LineupContent() {
           
           <div className="w-px h-4 bg-gray-300 dark:bg-gray-700 hidden sm:block"></div>
           
-          {/* Edits the Game Details (Time, Location, Notes) */}
           <Link href={`/games/${game.id}/edit`} className="inline-flex items-center text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors">
             <Edit className="w-4 h-4 mr-1" />
             Details
           </Link>
           
-          {/* Edits the Lineup by dropping you back into the wizard! */}
           <Link href={`/games/new/attendance?id=${game.id}`} className="inline-flex items-center text-xs font-bold text-blue-600 hover:text-blue-500 transition-colors">
             <Users className="w-4 h-4 mr-1" />
             Lineup
@@ -186,16 +187,7 @@ function LineupContent() {
 
           <Link href={`/share/${game.id}`} target="_blank" className="inline-flex items-center text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ml-1">
             <Share2 className="w-3.5 h-3.5 mr-1.5" />
-            Public Link
-          </Link>
-        
-          <Link 
-            href={`/share/${game.id}`} 
-            target="_blank" 
-            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 rounded-full hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all"
-          >
-            <Share2 className="w-4 h-4 sm:mr-1.5" />
-            <span className="hidden sm:inline">Player Link</span>
+          Player Link
           </Link>
         </div>
         
@@ -222,19 +214,16 @@ function LineupContent() {
       <div className="max-w-4xl mx-auto w-full" ref={captureRef}>
         <div className="px-2 sm:px-6 pt-2 sm:pt-6">
           
-          {/* NEW TIGHTER BLUE HEADER */}
           <div className="bg-[#2563eb] text-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 shadow-sm">
             <div className="inline-flex items-center px-3 py-1 bg-white/20 text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-full mb-2.5 border border-white/30 shadow-sm">
               {game?.teams?.name || 'Your Team'}
             </div>
 
-            {/* Reduced size for the opponent header */}
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight mb-4 flex items-baseline gap-1.5 sm:gap-2">
               <span className="text-blue-200 text-xl sm:text-2xl">vs</span> 
               {game.opposing_team || 'TBD'}
             </h1>
 
-            {/* Increased text size, inline flex-wrap for details */}
             <div className="flex flex-wrap items-center gap-x-4 sm:gap-x-6 gap-y-2.5 text-blue-50 font-medium text-xs sm:text-sm">
               <div className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 opacity-80" />
@@ -276,13 +265,24 @@ function LineupContent() {
 
           <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900 dark:text-white mb-2 sm:mb-4 pl-1">Lineup</h2>
 
-          <div className="bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-colors">
+          <div className="bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-colors shadow-sm">
             <table className="w-full text-left border-collapse">
               <thead className="bg-[#2563eb] text-white text-[11px] sm:text-sm font-bold">
                 <tr>
-                  <th className="px-2 sm:px-4 py-2 sm:py-4 w-[80px] sm:w-[140px]">Order</th>
+                  <th 
+                    onClick={() => setHighlight(prev => prev === 'col_order' ? null : 'col_order')}
+                    className={`px-2 sm:px-4 py-2 sm:py-4 w-[80px] sm:w-[140px] cursor-pointer select-none transition-colors ${highlight === 'col_order' ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
+                  >
+                    Order
+                  </th>
                   {INNINGS.map(i => (
-                    <th key={i} className="px-0.5 sm:px-2 py-2 sm:py-4 text-center min-w-[28px] sm:min-w-[50px]">{i}</th>
+                    <th 
+                      key={i} 
+                      onClick={() => setHighlight(prev => prev === `col_${i}` ? null : `col_${i}`)}
+                      className={`px-0.5 sm:px-2 py-2 sm:py-4 text-center min-w-[28px] sm:min-w-[50px] cursor-pointer select-none transition-colors ${highlight === `col_${i}` ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
+                    >
+                      {i}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -291,26 +291,33 @@ function LineupContent() {
                   const isEven = idx % 2 === 0
                   const rowBg = isEven ? 'bg-white dark:bg-gray-900' : 'bg-[#f1f5f9] dark:bg-gray-800/50'
                   
-                  const isDimmed = highlightedPlayer !== null && highlightedPlayer !== player.id
+                  // 1. Is this row dimmed by a player selection?
+                  const isRowDimmed = highlight?.startsWith('player_') && highlight !== `player_${player.id}`
                   
                   return (
                     <tr 
                       key={player.id} 
-                      onClick={() => setHighlightedPlayer(prev => prev === player.id ? null : player.id)}
+                      onClick={() => setHighlight(prev => prev === `player_${player.id}` ? null : `player_${player.id}`)}
                       className={`${rowBg} transition-all duration-300 cursor-pointer ${
-                        isDimmed ? 'opacity-25 grayscale' : 'opacity-100 shadow-sm'
+                        isRowDimmed ? 'opacity-25 grayscale' : 'opacity-100'
                       }`}
                     >
+                      {/* Names are only dimmed if another PLAYER row is selected. They are never dimmed by column taps. */}
                       <td className={`px-2 sm:px-4 py-1.5 sm:py-3 ${rowBg} truncate max-w-[80px] sm:max-w-none transition-all duration-300`}>
                         {formatName(player.name)}
                       </td>
+                      
                       {INNINGS.map(inning => {
                          let pos = getPosition(inning, player.id)
                          if (pos === 'Bench') pos = 'OUT'
                          const colors = getPositionColors(pos)
                          
+                         // 2. Is this specific cell dimmed by a column selection?
+                         // It dims if 'Order' is tapped, OR if an inning is tapped that isn't this one.
+                         const isCellDimmedByCol = highlight === 'col_order' || (highlight?.startsWith('col_') && highlight !== 'col_order' && highlight !== `col_${inning}`)
+                         
                          return (
-                           <td key={inning} className="px-0.5 sm:px-2 py-1 sm:py-3 text-center align-middle transition-all duration-300">
+                           <td key={inning} className={`px-0.5 sm:px-2 py-1 sm:py-3 text-center align-middle transition-all duration-300 ${isCellDimmedByCol ? 'opacity-25 grayscale' : 'opacity-100'}`}>
                              <span className={`inline-flex items-center justify-center w-[28px] h-[18px] sm:w-[42px] sm:h-[28px] rounded sm:rounded-md text-[9px] sm:text-xs uppercase tracking-tighter sm:tracking-wide ${colors}`}>
                                {pos}
                              </span>
@@ -348,7 +355,6 @@ function LineupContent() {
         </div>
       </div>
 
-      {/* Field Map Modal */}
       {showFieldMap && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 dark:bg-black/80 backdrop-blur-sm">
           <div className="bg-white dark:bg-gray-900 rounded-3xl p-4 sm:p-6 max-w-2xl w-full border border-gray-100 dark:border-gray-800 relative shadow-2xl">

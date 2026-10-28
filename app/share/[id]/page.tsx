@@ -20,7 +20,9 @@ function PublicLineupContent() {
   const [downloading, setDownloading] = useState(false)
   const [showFieldMap, setShowFieldMap] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [highlightedPlayer, setHighlightedPlayer] = useState<string | null>(null)
+  
+  // NEW: Advanced Highlight State
+  const [highlight, setHighlight] = useState<string | null>(null)
   
   const captureRef = useRef<HTMLDivElement>(null)
 
@@ -69,8 +71,9 @@ function PublicLineupContent() {
     setDownloading(true)
     
     try {
-      const prevHighlight = highlightedPlayer
-      setHighlightedPlayer(null)
+      // Temporarily un-highlight before export
+      const prevHighlight = highlight
+      setHighlight(null)
       
       await new Promise(resolve => setTimeout(resolve, 100))
 
@@ -80,7 +83,7 @@ function PublicLineupContent() {
         pixelRatio: 2 
       })
       
-      setHighlightedPlayer(prevHighlight)
+      setHighlight(prevHighlight)
 
       if (!blob) throw new Error("Failed to generate blob")
 
@@ -126,7 +129,7 @@ function PublicLineupContent() {
           url: url
         })
       } catch (err) {
-        // User cancelled native share
+        // Cancelled
       }
     } else {
       await navigator.clipboard.writeText(url)
@@ -146,7 +149,7 @@ function PublicLineupContent() {
       case 'RF': return 'bg-[#5e35b1] text-white' 
       case 'SS': return 'bg-[#43a047] text-white' 
       case 'LC': return 'bg-[#00acc1] text-white' 
-      case 'LF': return 'bg-[#019b8c] text-white' 
+      case 'LF': return 'bg-[#04aaaa] text-white' 
       case 'RC': return 'bg-[#3949ab] text-white' 
       case 'P': return 'bg-[#f44336] text-white' 
       case '1B': return 'bg-[#f4511e] text-white' 
@@ -195,14 +198,13 @@ function PublicLineupContent() {
   return (
     <div className="bg-[#f8f9fa] dark:bg-gray-950 min-h-[100dvh] font-sans pb-10 transition-colors">
       
-      {/* Public Action Bar */}
       <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row justify-between items-center px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors gap-3 sm:gap-0">
         <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 font-bold text-sm w-full sm:w-auto justify-center sm:justify-start">
           <img src="/assets/kicksheet-logo.png" alt="Logo" className="h-6 dark:hidden" />
           <img src="/assets/kicksheet-logo-white.png" alt="Logo" className="h-6 hidden dark:block" />
+          <span>Lineup</span>
         </div>
         
-        {/* RIGHT SIDE: Share and Save Buttons (Wider) */}
         <div className="flex items-center justify-center gap-2 w-full sm:w-auto">
           <button 
             onClick={handleShareLink}
@@ -226,7 +228,6 @@ function PublicLineupContent() {
       <div className="max-w-4xl mx-auto w-full" ref={captureRef}>
         <div className="px-2 sm:px-6 pt-2 sm:pt-6">
           
-          {/* NEW TIGHTER BLUE HEADER */}
           <div className="bg-[#2563eb] text-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 shadow-sm">
             <div className="inline-flex items-center px-3 py-1 bg-white/20 text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-full mb-2.5 border border-white/30 shadow-sm">
               {game?.teams?.name || 'Your Team'}
@@ -263,7 +264,6 @@ function PublicLineupContent() {
             </div>
           </div>
 
-          {/* RED ANNOUNCEMENT BOX */}
           {game.notes && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 mb-4 sm:mb-8 flex items-start gap-3 sm:gap-4 shadow-sm">
               <div className="bg-red-100 dark:bg-red-900/50 p-2 rounded-full shrink-0">
@@ -277,7 +277,6 @@ function PublicLineupContent() {
             </div>
           )}
 
-          {/* LINEUP HEADER WITH INLINE FIELD MAP BUTTON */}
           <div className="flex items-center justify-between mb-2 sm:mb-4 px-1">
             <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900 dark:text-white">
               Lineup
@@ -292,13 +291,24 @@ function PublicLineupContent() {
             </button>
           </div>
 
-          <div className="bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-colors">
+          <div className="bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-colors shadow-sm">
             <table className="w-full text-left border-collapse">
               <thead className="bg-[#2563eb] text-white text-[11px] sm:text-sm font-bold">
                 <tr>
-                  <th className="px-2 sm:px-4 py-2 sm:py-4 w-[80px] sm:w-[140px]">Order</th>
+                  <th 
+                    onClick={() => setHighlight(prev => prev === 'col_order' ? null : 'col_order')}
+                    className={`px-2 sm:px-4 py-2 sm:py-4 w-[80px] sm:w-[140px] cursor-pointer select-none transition-colors ${highlight === 'col_order' ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
+                  >
+                    Order
+                  </th>
                   {INNINGS.map(i => (
-                    <th key={i} className="px-0.5 sm:px-2 py-2 sm:py-4 text-center min-w-[28px] sm:min-w-[50px]">{i}</th>
+                    <th 
+                      key={i} 
+                      onClick={() => setHighlight(prev => prev === `col_${i}` ? null : `col_${i}`)}
+                      className={`px-0.5 sm:px-2 py-2 sm:py-4 text-center min-w-[28px] sm:min-w-[50px] cursor-pointer select-none transition-colors ${highlight === `col_${i}` ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
+                    >
+                      {i}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -307,14 +317,14 @@ function PublicLineupContent() {
                   const isEven = idx % 2 === 0
                   const rowBg = isEven ? 'bg-white dark:bg-gray-900' : 'bg-[#f1f5f9] dark:bg-gray-800/50'
                   
-                  const isDimmed = highlightedPlayer !== null && highlightedPlayer !== player.id
+                  const isRowDimmed = highlight?.startsWith('player_') && highlight !== `player_${player.id}`
                   
                   return (
                     <tr 
                       key={player.id} 
-                      onClick={() => setHighlightedPlayer(prev => prev === player.id ? null : player.id)}
+                      onClick={() => setHighlight(prev => prev === `player_${player.id}` ? null : `player_${player.id}`)}
                       className={`${rowBg} transition-all duration-300 cursor-pointer ${
-                        isDimmed ? 'opacity-25 grayscale' : 'opacity-100 shadow-sm'
+                        isRowDimmed ? 'opacity-25 grayscale' : 'opacity-100'
                       }`}
                     >
                       <td className={`px-2 sm:px-4 py-1.5 sm:py-3 ${rowBg} truncate max-w-[80px] sm:max-w-none transition-all duration-300`}>
@@ -325,8 +335,10 @@ function PublicLineupContent() {
                          if (pos === 'Bench') pos = 'OUT'
                          const colors = getPositionColors(pos)
                          
+                         const isCellDimmedByCol = highlight === 'col_order' || (highlight?.startsWith('col_') && highlight !== 'col_order' && highlight !== `col_${inning}`)
+                         
                          return (
-                           <td key={inning} className="px-0.5 sm:px-2 py-1 sm:py-3 text-center align-middle transition-all duration-300">
+                           <td key={inning} className={`px-0.5 sm:px-2 py-1 sm:py-3 text-center align-middle transition-all duration-300 ${isCellDimmedByCol ? 'opacity-25 grayscale' : 'opacity-100'}`}>
                              <span className={`inline-flex items-center justify-center w-[28px] h-[18px] sm:w-[42px] sm:h-[28px] rounded sm:rounded-md text-[9px] sm:text-xs uppercase tracking-tighter sm:tracking-wide ${colors}`}>
                                {pos}
                              </span>
@@ -341,7 +353,7 @@ function PublicLineupContent() {
           </div>
 
           <div className="mt-4 sm:mt-8 mb-4 sm:mb-12 px-1">
-            <h3 className="text-[11px] sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-3">Position Key</h3>
+            <h3 className="text-[11px] sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-3">Key</h3>
             <div className="flex flex-wrap gap-x-3 gap-y-1.5 sm:gap-4 text-[10px] sm:text-xs font-semibold text-gray-600 dark:text-gray-400">
               {[
                 { abbr: 'RC', name: 'Right Center' }, { abbr: 'P', name: 'Pitcher' }, { abbr: 'C', name: 'Catcher' },
