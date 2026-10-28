@@ -104,7 +104,7 @@ function KickingOrderContent() {
         </div>
       </div>
 
-      <div className="fixed bottom-20 sm:bottom-0 z-40 left-0 right-0 p-4 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800">
+      <div className="fixed bottom-0 sm:bottom-0 z-40 left-0 right-0 p-4 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800">
         <div className="max-w-2xl mx-auto flex justify-between">
           <button 
             onClick={() => router.back()}
