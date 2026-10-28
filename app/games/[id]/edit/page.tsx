@@ -1,13 +1,10 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
-import { Suspense } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { ArrowLeft, Calendar, Clock, MapPin, Cloud, Flag, Shield, Save, Loader2 } from 'lucide-react'
-import { useParams } from 'next/navigation'
-import { Map, X } from 'lucide-react'
+import { ArrowLeft, Calendar, Clock, MapPin, Cloud, Flag, Shield, Save, Loader2, Map, X } from 'lucide-react'
 
 function EditGameContent() {
   const params = useParams()
@@ -17,6 +14,7 @@ function EditGameContent() {
   
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [showFieldMap, setShowFieldMap] = useState(false)
   
   // Form State
   const [opponent, setOpponent] = useState('')
@@ -25,9 +23,6 @@ function EditGameContent() {
   const [location, setLocation] = useState('')
   const [field, setField] = useState('')
   const [weather, setWeather] = useState('')
-  const [showFieldMap, setShowFieldMap] = useState(false)
-  const [highlightedPlayer, setHighlightedPlayer] = useState<string | null>(null)
-
   const [notes, setNotes] = useState('')
 
   useEffect(() => {
@@ -70,7 +65,6 @@ function EditGameContent() {
       .eq('id', id)
 
     if (!error) {
-      // Send them back to the lineup page
       router.push(`/games/${id}`)
       router.refresh()
     } else {
@@ -88,15 +82,17 @@ function EditGameContent() {
         Back to Lineup
       </Link>
 
-      <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 mb-8">Edit Game</h1>
-      <button 
-  type="button"
-  onClick={() => setShowFieldMap(true)}
-  className="inline-flex items-center px-4 py-2 text-sm font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all"
->
-  <Map className="w-4 h-4 mr-2" />
-  Field Map
-</button>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Edit Game</h1>
+        <button 
+          type="button"
+          onClick={() => setShowFieldMap(true)}
+          className="inline-flex items-center px-4 py-2 text-sm font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all"
+        >
+          <Map className="w-4 h-4 mr-2" />
+          Field Map
+        </button>
+      </div>
 
       <form onSubmit={handleSave} className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 space-y-6">
         <div className="grid sm:grid-cols-2 gap-6">
@@ -150,19 +146,20 @@ function EditGameContent() {
             <input type="text" value={weather} onChange={(e) => setWeather(e.target.value)} placeholder="e.g. Sunny, Cool 55 F" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-600/20 font-medium transition-all" />
           </div>
         </div>
+        
         <div>
-  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-    Team Announcement / Notes <span className="text-gray-400 font-normal">(Optional)</span>
-  </label>
-<textarea
-  name="notes"
-  rows={3}
-  placeholder="e.g. Wear the red jerseys today! Post-game drinks at the pub."
-  className="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-y"
-  value={notes}
-  onChange={(e) => setNotes(e.target.value)}
-/>
-</div>
+          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+            Team Announcement / Notes <span className="text-gray-400 font-normal">(Optional)</span>
+          </label>
+          <textarea
+            name="notes"
+            rows={3}
+            placeholder="e.g. Wear the red jerseys today! Post-game drinks at the pub."
+            className="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-y"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
+        </div>
 
         <button type="submit" disabled={saving || !date} className="w-full py-4 mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 text-lg shadow-sm">
           {saving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
@@ -201,6 +198,7 @@ function EditGameContent() {
     </div>
   )
 }
+
 export default function EditGamePage() {
   return (
     <Suspense fallback={
