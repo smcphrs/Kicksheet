@@ -71,7 +71,7 @@ export default function NewGamePage() {
 
     if (!error && data) {
       // FIXED: Send them to the first step of the wizard (Attendance) instead of the final view!
-      router.push(`/games/new/attendance?id=${data.id}`)
+      router.push(`/games/new/attendance?gameId=${data.id}`)
     } else {
       console.error(error)
       setSaving(false)
