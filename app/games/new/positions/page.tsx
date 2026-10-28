@@ -1,46 +1,55 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { useDraftStore } from '@/store/useDraftStore'
 import { useSettingsStore } from '@/store/useSettingsStore'
 import Link from 'next/link'
 import { ArrowLeft, Loader2, Save, User, Sparkles, AlertTriangle } from 'lucide-react'
 
-// REMOVED 'EH' from both lists
 const POSITIONS = ['Bench', 'P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF']
 const FIELD_POSITIONS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF']
 
-export default function PositionsStep4() {
+function PositionsContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const id = searchParams.get('id')
   const supabase = createClient()
-  const store = useDraftStore()
   
   const { fairPlayEnabled, inningsCount } = useSettingsStore()
   const INNINGS = Array.from({ length: inningsCount || 7 }, (_, i) => i + 1)
 
-  const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
   const [players, setPlayers] = useState<any[]>([])
   const [activeInning, setActiveInning] = useState(1)
-  
   const [assignments, setAssignments] = useState<Record<number, Record<string, string>>>({})
 
   useEffect(() => {
-    setMounted(true)
-    
-    if (!store.selectedTeamId || store.kickingOrder.length === 0) {
-      router.replace('/games/new/kicking-order')
-      return
-    }
+    if (!id) return
 
-    async function fetchPlayers() {
+    async function fetchGameAndPlayers() {
+      const { data: game, error: gameError } = await supabase
+        .from('games')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (gameError || !game) {
+        setError("Could not load game data.")
+        setLoading(false)
+        return
+      }
+
+      if (!game.kicking_order || game.kicking_order.length === 0) {
+        router.replace(`/games/new/kicking-order?id=${id}`)
+        return
+      }
+
       let fetchedRoster: any[] = []
-      const regularIds = store.kickingOrder.filter(id => !id.startsWith('sub-'))
+      const regularIds = game.kicking_order.filter((pid: string) => !pid.startsWith('sub-'))
 
       if (regularIds.length > 0) {
         const { data } = await supabase
@@ -51,17 +60,19 @@ export default function PositionsStep4() {
         if (data) fetchedRoster = data
       }
 
+      const subs = game.subs || []
       const combined = [
         ...fetchedRoster,
-        ...store.subs.map(sub => ({ ...sub, isSub: true, preferred_positions: [] }))
+        ...subs.map((sub: any) => ({ ...sub, isSub: true, preferred_positions: [] }))
       ]
 
-      combined.sort((a, b) => store.kickingOrder.indexOf(a.id) - store.kickingOrder.indexOf(b.id))
+      // Sort them perfectly by the Kicking Order we just set in Step 2!
+      combined.sort((a, b) => game.kicking_order.indexOf(a.id) - game.kicking_order.indexOf(b.id))
       setPlayers(combined)
 
-      if (store.innings && store.innings.length > 0) {
+      if (game.innings && game.innings.length > 0) {
         const loadedAssignments: Record<number, Record<string, string>> = {}
-        store.innings.forEach((inningObj: any) => {
+        game.innings.forEach((inningObj: any) => {
           loadedAssignments[inningObj.inning] = inningObj.assignments || {}
         })
         setAssignments(loadedAssignments)
@@ -70,8 +81,8 @@ export default function PositionsStep4() {
       setLoading(false)
     }
 
-    fetchPlayers()
-  }, [])
+    fetchGameAndPlayers()
+  }, [id, supabase, router])
 
   // --- HISTORICAL DATA LOGIC ---
   const benchCounts: Record<string, number> = {}
@@ -194,45 +205,31 @@ export default function PositionsStep4() {
     setError(null)
 
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
-      if (userError || !user) throw new Error('You must be logged in to save a game.')
-
       const formattedInnings = INNINGS.map(inningNum => ({
         inning: inningNum,
         assignments: assignments[inningNum] || {}
       }))
 
-      const { error: insertError } = await supabase
+      // NEW: We UPDATE the game instead of inserting a new one!
+      const { error: updateError } = await supabase
         .from('games')
-        .insert([{
-          user_id: user.id,
-          team_id: store.selectedTeamId,
-          game_date: store.gameInfo?.gameDate,
-          game_time: store.gameInfo?.gameTime,
-          opposing_team: store.gameInfo?.opposingTeam,
-          location: store.gameInfo?.location,
-          field: store.gameInfo?.field,
-          weather: store.gameInfo?.weather,
-          kicking_order: store.kickingOrder,
-          subs: store.subs,
+        .update({
           innings: formattedInnings,
           status: 'scheduled'
-        }])
+        })
+        .eq('id', id)
 
-      if (insertError) throw insertError
+      if (updateError) throw updateError
 
-      store.resetDraft()
       router.refresh()
-      router.push('/dashboard')
+      router.push(`/games/${id}`) // Sends you right to the final Lineup Viewer!
 
     } catch (err: any) {
-      console.error('Error saving game:', err)
-      setError(err.message || 'Failed to save game. Please try again.')
+      console.error('Error saving positions:', err)
+      setError(err.message || 'Failed to save positions. Please try again.')
       setSaving(false)
     }
   }
-
-  if (!mounted) return null
 
   if (loading) {
     return (
@@ -242,24 +239,23 @@ export default function PositionsStep4() {
     )
   }
 
-  // Identify which field positions have already been used in this inning
   const currentInningAssignments = assignments[activeInning] || {}
   const takenPositions = Object.values(currentInningAssignments).filter(pos => pos !== 'Bench')
 
   return (
     <div className="max-w-3xl mx-auto p-6 w-full pb-24">
       <div className="flex items-center justify-between mb-8">
-        <Link href="/games/new/kicking-order" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
+        <Link href={`/games/new/kicking-order?id=${id}`} className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
           <ArrowLeft className="w-4 h-4 mr-1" />
           Back to Order
         </Link>
-        <span className="text-sm font-bold text-gray-400">Step 4 of 4</span>
+        <span className="text-sm font-bold text-gray-400">Step 3 of 3</span>
       </div>
 
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Field Positions</h1>
-          <p className="text-gray-500 mt-2">Assign field positions for each inning.</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">Field Positions</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">Assign field positions for each inning.</p>
         </div>
         
         <button
@@ -277,16 +273,16 @@ export default function PositionsStep4() {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-        <div className="flex overflow-x-auto border-b border-gray-100 hide-scrollbar bg-gray-50">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden mb-8">
+        <div className="flex overflow-x-auto border-b border-gray-100 dark:border-gray-800 hide-scrollbar bg-gray-50 dark:bg-gray-900/50">
           {INNINGS.map(inning => (
             <button
               key={inning}
               onClick={() => setActiveInning(inning)}
               className={`flex-1 min-w-[60px] py-4 text-sm font-bold transition-colors border-b-2 ${
                 activeInning === inning
-                  ? 'border-blue-600 text-blue-600 bg-white'
-                  : 'border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+                  ? 'border-blue-600 text-blue-600 bg-white dark:bg-gray-800'
+                  : 'border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
             >
               Inn {inning}
@@ -294,11 +290,10 @@ export default function PositionsStep4() {
           ))}
         </div>
 
-        <div className="p-2 sm:p-4 divide-y divide-gray-50">
+        <div className="p-2 sm:p-4 divide-y divide-gray-50 dark:divide-gray-800/50">
           {players.map((player, idx) => {
             const currentPosition = currentInningAssignments[player.id] || 'Bench'
             
-            // FILTER LOGIC: Keep 'Bench', keep their currently selected position, hide all others that are taken
             const availableOptions = POSITIONS.filter(pos => 
               pos === 'Bench' || pos === currentPosition || !takenPositions.includes(pos)
             )
@@ -311,13 +306,13 @@ export default function PositionsStep4() {
               !unbenchedPlayers.some(p => p.id === player.id)
             
             return (
-              <div key={player.id} className="p-2 sm:p-3 hover:bg-gray-50 rounded-xl transition-colors">
+              <div key={player.id} className="p-2 sm:p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-xl transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded bg-gray-100 text-gray-500 font-bold flex items-center justify-center text-xs shrink-0">
+                    <div className="w-6 h-6 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-bold flex items-center justify-center text-xs shrink-0">
                       {idx + 1}
                     </div>
-                    <div className="font-bold text-gray-900 text-sm sm:text-base flex items-center">
+                    <div className="font-bold text-gray-900 dark:text-white text-sm sm:text-base flex items-center">
                       {player.name}
                       {player.isSub && (
                         <span className="ml-2 text-[10px] uppercase bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full inline-flex items-center">
@@ -332,13 +327,12 @@ export default function PositionsStep4() {
                     onChange={(e) => handlePositionChange(player.id, e.target.value)}
                     className={`px-3 py-2 rounded-lg border font-bold text-sm outline-none transition-colors cursor-pointer ${
                       currentPosition !== 'Bench' 
-                        ? 'bg-blue-50 border-blue-200 text-blue-700' 
+                        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400' 
                         : showFairPlayWarning 
-                          ? 'bg-amber-100 border-amber-300 text-amber-800'
-                          : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
+                          ? 'bg-amber-100 dark:bg-amber-900/20 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-400'
+                          : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                   >
-                    {/* Render the dynamically filtered options */}
                     {availableOptions.map(pos => (
                       <option key={pos} value={pos}>{pos}</option>
                     ))}
@@ -346,7 +340,7 @@ export default function PositionsStep4() {
                 </div>
 
                 {showFairPlayWarning && (
-                  <div className="mt-2 ml-9 flex items-start gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 p-2 rounded-lg border border-amber-100">
+                  <div className="mt-2 ml-9 flex items-start gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/10 p-2 rounded-lg border border-amber-100 dark:border-amber-900/50">
                     <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>
                       {player.name} is on the bench {benchCounts[player.id]} times. 
@@ -360,23 +354,35 @@ export default function PositionsStep4() {
         </div>
       </div>
 
-      <button
-        onClick={handleSaveGame}
-        disabled={saving}
-        className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm text-lg"
-      >
-        {saving ? (
-          <>
-            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-            Saving Game...
-          </>
-        ) : (
-          <>
-            <Save className="w-5 h-5 mr-2" />
-            Save Final Game
-          </>
-        )}
-      </button>
+      <div className="fixed bottom-20 sm:bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-40">
+        <div className="max-w-3xl mx-auto flex justify-end">
+          <button
+            onClick={handleSaveGame}
+            disabled={saving}
+            className="w-full sm:w-auto py-3 px-8 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm text-lg"
+          >
+            {saving ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Saving Game...
+              </>
+            ) : (
+              <>
+                <Save className="w-5 h-5 mr-2" />
+                Save Final Game
+              </>
+            )}
+          </button>
+        </div>
+      </div>
     </div>
+  )
+}
+
+export default function PositionsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#f8f9fa] dark:bg-gray-950"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>}>
+      <PositionsContent />
+    </Suspense>
   )
 }
