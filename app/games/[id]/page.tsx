@@ -120,13 +120,13 @@ function LineupContent() {
      return innData?.assignments?.[playerId] || 'OUT'
   }
 
-  const getPositionColors = (pos: string) => {
+ const getPositionColors = (pos: string) => {
     switch (pos) {
       case 'C': return 'bg-[#9c27b0] text-white' 
       case 'RF': return 'bg-[#5e35b1] text-white' 
       case 'SS': return 'bg-[#43a047] text-white' 
-      case 'LC': return 'bg-[#00acc1] text-white' 
-      case 'LF': return 'bg-[#04aaaa] text-white' 
+      case 'LC': return 'bg-[#3b82f6] text-white' // Bright Vibrant Blue
+      case 'LF': return 'bg-[#1e40af] text-white' // Deep Royal Blue
       case 'RC': return 'bg-[#3949ab] text-white' 
       case 'P': return 'bg-[#f44336] text-white' 
       case '1B': return 'bg-[#f4511e] text-white' 
