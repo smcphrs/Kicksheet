@@ -122,18 +122,23 @@ function LineupContent() {
 
  const getPositionColors = (pos: string) => {
     switch (pos) {
-      case 'C': return 'bg-[#9c27b0] text-white' 
-      case 'RF': return 'bg-[#5e35b1] text-white' 
-      case 'SS': return 'bg-[#43a047] text-white' 
-      case 'LC': return 'bg-[#3b82f6] text-white' // Bright Vibrant Blue
+      // OUTFIELD (Cool Colors: Blues, Teals, Greens)
       case 'LF': return 'bg-[#1e40af] text-white' // Deep Royal Blue
-      case 'RC': return 'bg-[#3949ab] text-white' 
-      case 'P': return 'bg-[#f44336] text-white' 
-      case '1B': return 'bg-[#f4511e] text-white' 
-      case '2B': return 'bg-[#fb8c00] text-white' 
-      case '3B': return 'bg-[#fdd835] text-gray-900' 
+      case 'LC': return 'bg-[#03a9f4] text-white' // Sky Blue
+      case 'RC': return 'bg-[#009688] text-white' // Teal/Blue-Green
+      case 'RF': return 'bg-[#43a047] text-white' // Green
+
+      // INFIELD (Warm Colors: Reds, Pinks, Oranges, Yellows)
+      case 'P': return 'bg-[#f44336] text-white'  // Red
+      case 'C': return 'bg-[#c2185b] text-white'  // Deep Pink/Magenta
+      case '1B': return 'bg-[#e65100] text-white' // Dark Orange
+      case '2B': return 'bg-[#ff9800] text-white' // Orange
+      case '3B': return 'bg-[#fdd835] text-gray-900' // Yellow (dark text for contrast)
+      case 'SS': return 'bg-[#ff5252] text-white' // Coral/Light Red
+
+      // NEUTRAL
       case 'Bench':
-      case 'OUT': return 'bg-[#757575] text-white' 
+      case 'OUT': return 'bg-[#757575] text-white' // Grey
       default: return 'bg-gray-400 dark:bg-gray-600 text-white'
     }
   }
