@@ -129,7 +129,7 @@ function LineupContent() {
       case 'RF': return 'bg-[#43a047] text-white' // Green
 
       // INFIELD (Warm Colors: Reds, Pinks, Oranges, Yellows)
-      case 'P': return 'bg-[#f44336] text-white'  // Red
+      case 'P': return 'bg-[#dd0000] text-white'  // Red
       case 'C': return 'bg-[#c2185b] text-white'  // Deep Pink/Magenta
       case '1B': return 'bg-[#e65100] text-white' // Dark Orange
       case '2B': return 'bg-[#ff9800] text-white' // Orange
