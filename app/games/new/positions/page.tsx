@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useSettingsStore } from '@/store/useSettingsStore'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, Save, User, Sparkles, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, Loader2, Save, User, Sparkles, AlertTriangle, RotateCcw } from 'lucide-react'
 
 const POSITIONS = ['Bench', 'P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF']
 const FIELD_POSITIONS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF']
@@ -66,7 +66,6 @@ function PositionsContent() {
         ...subs.map((sub: any) => ({ ...sub, isSub: true, preferred_positions: [] }))
       ]
 
-      // Sort them perfectly by the Kicking Order we just set in Step 2!
       combined.sort((a, b) => game.kicking_order.indexOf(a.id) - game.kicking_order.indexOf(b.id))
       setPlayers(combined)
 
@@ -105,6 +104,14 @@ function PositionsContent() {
         ...(prev[activeInning] || {}),
         [playerId]: position
       }
+    }))
+  }
+
+  // --- NEW: RESET INNING LOGIC ---
+  const handleResetInning = () => {
+    setAssignments(prev => ({
+      ...prev,
+      [activeInning]: {} // Clearing the assignments defaults everyone back to Bench!
     }))
   }
 
@@ -210,7 +217,6 @@ function PositionsContent() {
         assignments: assignments[inningNum] || {}
       }))
 
-      // NEW: We UPDATE the game instead of inserting a new one!
       const { error: updateError } = await supabase
         .from('games')
         .update({
@@ -222,7 +228,7 @@ function PositionsContent() {
       if (updateError) throw updateError
 
       router.refresh()
-      router.push(`/games/${id}`) // Sends you right to the final Lineup Viewer!
+      router.push(`/games/${id}`) 
 
     } catch (err: any) {
       console.error('Error saving positions:', err)
@@ -258,13 +264,25 @@ function PositionsContent() {
           <p className="text-gray-500 dark:text-gray-400 mt-2">Assign field positions for each inning.</p>
         </div>
         
-        <button
-          onClick={handleAutoSetInning}
-          className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-xl shadow-sm transition-all"
-        >
-          <Sparkles className="w-4 h-4 mr-2" />
-          Auto Set Inning
-        </button>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          {/* NEW RESET BUTTON */}
+          <button
+            onClick={handleResetInning}
+            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl shadow-sm transition-all"
+          >
+            <RotateCcw className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Reset</span>
+          </button>
+
+          <button
+            onClick={handleAutoSetInning}
+            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-xl shadow-sm transition-all"
+          >
+            <Sparkles className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Auto Set</span>
+            <span className="sm:hidden">Auto Set</span>
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -354,7 +372,7 @@ function PositionsContent() {
         </div>
       </div>
 
-      <div className="fixed bottom-20 sm:bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-40">
+      <div className="fixed bottom-15 sm:bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-40">
         <div className="max-w-3xl mx-auto flex justify-end">
           <button
             onClick={handleSaveGame}
