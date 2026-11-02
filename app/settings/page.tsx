@@ -5,7 +5,7 @@ import { useSettingsStore } from '@/store/useSettingsStore'
 import { useTheme } from 'next-themes'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Moon, Sun, Monitor, Save, Loader2, ArrowLeft, Shield, Paintbrush, Cog, KeyRound, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Moon, Sun, Monitor, Save, Loader2, ArrowLeft, Shield, Paintbrush, Cog, KeyRound, CheckCircle2, AlertCircle, Mail } from 'lucide-react'
 import Link from 'next/link'
 
 export default function SettingsPage() {
@@ -17,6 +17,16 @@ export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
 
+  // User State
+  const [currentEmail, setCurrentEmail] = useState('')
+
+  // Email Update States
+  const [isEditingEmail, setIsEditingEmail] = useState(false)
+  const [newEmail, setNewEmail] = useState('')
+  const [isUpdatingEmail, setIsUpdatingEmail] = useState(false)
+  const [emailError, setEmailError] = useState<string | null>(null)
+  const [emailSuccess, setEmailSuccess] = useState(false)
+
   // Password Update States
   const [isEditingPassword, setIsEditingPassword] = useState(false)
   const [newPassword, setNewPassword] = useState('')
@@ -25,7 +35,15 @@ export default function SettingsPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [passwordSuccess, setPasswordSuccess] = useState(false)
 
-  useEffect(() => setMounted(true), [])
+  useEffect(() => {
+    setMounted(true)
+    const fetchUser = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user?.email) setCurrentEmail(user.email)
+    }
+    fetchUser()
+  }, [])
 
   const handleSaveAndRefresh = () => {
     setIsSaving(true)
@@ -38,6 +56,39 @@ export default function SettingsPage() {
         window.location.reload()
       }, 400)
     }, 600)
+  }
+
+  const handleUpdateEmail = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setEmailError(null)
+    setEmailSuccess(false)
+
+    if (!newEmail || !newEmail.includes('@')) {
+      setEmailError('Please enter a valid email address.')
+      return
+    }
+
+    if (newEmail === currentEmail) {
+      setEmailError('Please enter a different email address.')
+      return
+    }
+
+    setIsUpdatingEmail(true)
+    const supabase = createClient()
+    
+    const { error } = await supabase.auth.updateUser({ email: newEmail })
+
+    if (error) {
+      setEmailError(error.message)
+    } else {
+      setEmailSuccess(true)
+      setNewEmail('')
+      setTimeout(() => {
+        setIsEditingEmail(false)
+        setEmailSuccess(false)
+      }, 6000) // Keep message up longer so they can read the instruction
+    }
+    setIsUpdatingEmail(false)
   }
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
@@ -58,9 +109,7 @@ export default function SettingsPage() {
     setIsUpdatingPassword(true)
     const supabase = createClient()
     
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword
-    })
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
 
     if (error) {
       setPasswordError(error.message)
@@ -255,6 +304,91 @@ export default function SettingsPage() {
                 </div>
               </div>
 
+              {/* Email Update Area */}
+              <div className="pt-6 sm:pt-8 pb-6 sm:pb-8 border-b border-gray-100 dark:border-gray-800">
+                {!isEditingEmail ? (
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-xl font-extrabold text-gray-900 dark:text-white">Email Address</h3>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
+                        {currentEmail ? currentEmail : 'Loading...'}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setIsEditingEmail(true)
+                        setNewEmail(currentEmail)
+                      }}
+                      className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl transition-colors border border-gray-300 dark:border-gray-700 active:scale-95"
+                    >
+                      <Mail className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
+                      Update Email
+                    </button>
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 transition-all">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
+                        <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        Update Email Address
+                      </h3>
+                    </div>
+                    
+                    {emailError && (
+                      <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-xl text-red-600 dark:text-red-400 text-sm font-bold flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                        {emailError}
+                      </div>
+                    )}
+
+                    {emailSuccess ? (
+                      <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 rounded-xl text-green-700 dark:text-green-400 flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-bold">Confirmation links sent!</p>
+                          <p className="text-sm font-medium mt-1 opacity-90 leading-relaxed">
+                            For security, you must click the verification links sent to <strong>both</strong> your old and new email addresses to complete this change.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <form onSubmit={handleUpdateEmail} className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">New Email Address</label>
+                          <input
+                            type="email"
+                            required
+                            value={newEmail}
+                            onChange={(e) => setNewEmail(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all placeholder:text-gray-400 font-medium"
+                            placeholder="Enter new email address"
+                          />
+                        </div>
+                        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsEditingEmail(false)
+                              setEmailError(null)
+                            }}
+                            className="px-5 py-2.5 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 font-bold rounded-xl transition-colors border border-gray-300 dark:border-gray-700 active:scale-95"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={isUpdatingEmail || !newEmail || newEmail === currentEmail}
+                            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+                          >
+                            {isUpdatingEmail ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : 'Save Email'}
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+                )}
+              </div>
+
               {/* Password Update Area */}
               <div className="pt-6 sm:pt-8">
                 {!isEditingPassword ? (
@@ -289,7 +423,7 @@ export default function SettingsPage() {
 
                     {passwordSuccess ? (
                       <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 rounded-xl text-green-700 dark:text-green-400 font-bold flex items-center gap-2">
-                        <CheckCircle2 className="w-5 h-5" />
+                        <CheckCircle2 className="w-5 h-5 shrink-0" />
                         Password updated successfully!
                       </div>
                     ) : (
