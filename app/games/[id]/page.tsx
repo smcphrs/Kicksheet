@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { Calendar, Clock, MapPin, Users, Cloud, ArrowLeft, Download, Loader2, Edit, Map, X, Share2, Megaphone } from 'lucide-react'
+import { Calendar, Clock, MapPin, Users, Cloud, ArrowLeft, Download, Loader2, Edit, Map, X, Share2, Megaphone, Info } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
 
@@ -178,14 +178,7 @@ function LineupContent() {
           </Link>
         </div>
         
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <button 
-            onClick={() => setShowFieldMap(true)}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all active:scale-95"
-          >
-            <span className="hidden sm:inline">Field Map</span>
-          </button>
-
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-end">
           <button 
             onClick={handleDownload}
             disabled={downloading}
@@ -252,7 +245,30 @@ function LineupContent() {
             </div>
           )}
 
-          <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900 dark:text-white mb-2 sm:mb-4 pl-1">Lineup</h2>
+          {/* Tooltip & Header Row */}
+          <div className="flex items-center justify-between mb-2 sm:mb-4 px-1">
+            {/* Lineup Header with Tooltip Trigger */}
+            <div className="relative group flex items-center cursor-help">
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
+                Lineup
+                <Info className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 dark:text-gray-500" />
+              </h2>
+              
+              {/* The actual Tooltip */}
+              <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-active:opacity-100 group-active:visible transition-all z-50 pointer-events-none">
+                For quicker sorting, tap a name to highlight only that row, or tap an Inning number to highlight only that column.
+                {/* Tooltip Arrow */}
+                <div className="absolute -top-1 left-6 w-3 h-3 bg-gray-900 dark:bg-white rotate-45"></div>
+              </div>
+            </div>
+            
+            <button 
+              onClick={() => setShowFieldMap(true)}
+              className="inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
+            >
+              <span>Field Map</span>
+            </button>
+          </div>
 
           <div className="bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-colors border border-gray-300 dark:border-gray-700">
             <table className="w-full text-left border-collapse">
