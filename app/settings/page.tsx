@@ -4,15 +4,26 @@ import { SignOutButton } from '@/components/auth/SignOutButton'
 import { useSettingsStore } from '@/store/useSettingsStore'
 import { useTheme } from 'next-themes'
 import { useState, useEffect } from 'react'
-import { Moon, Sun, Monitor, Save, Loader2, ArrowLeft, Shield, Paintbrush, Cog, LogOut, CheckCircle2 } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { Moon, Sun, Monitor, Save, Loader2, ArrowLeft, Shield, Paintbrush, Cog, KeyRound, CheckCircle2, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 
 export default function SettingsPage() {
   const { fairPlayEnabled, setFairPlayEnabled, inningsCount, setInningsCount } = useSettingsStore()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  
+  // Global Save States
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
+
+  // Password Update States
+  const [isEditingPassword, setIsEditingPassword] = useState(false)
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [passwordSuccess, setPasswordSuccess] = useState(false)
 
   useEffect(() => setMounted(true), [])
 
@@ -27,6 +38,42 @@ export default function SettingsPage() {
         window.location.reload()
       }, 400)
     }, 600)
+  }
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordError(null)
+    setPasswordSuccess(false)
+
+    if (newPassword.length < 6) {
+      setPasswordError('Password must be at least 6 characters.')
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match.')
+      return
+    }
+
+    setIsUpdatingPassword(true)
+    const supabase = createClient()
+    
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword
+    })
+
+    if (error) {
+      setPasswordError(error.message)
+    } else {
+      setPasswordSuccess(true)
+      setNewPassword('')
+      setConfirmPassword('')
+      setTimeout(() => {
+        setIsEditingPassword(false)
+        setPasswordSuccess(false)
+      }, 3000)
+    }
+    setIsUpdatingPassword(false)
   }
 
   if (!mounted) return (
@@ -195,7 +242,9 @@ export default function SettingsPage() {
             </div>
 
             <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-3xl border border-gray-300 dark:border-gray-700 transition-colors">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              
+              {/* Session / Sign Out */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 sm:pb-8 border-b border-gray-100 dark:border-gray-800">
                 <div>
                   <h3 className="text-xl font-extrabold text-gray-900 dark:text-white">Active Session</h3>
                   <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">You are currently logged in securely to Kicksheet.</p>
@@ -204,6 +253,95 @@ export default function SettingsPage() {
                 <div className="w-full sm:w-auto">
                   <SignOutButton />
                 </div>
+              </div>
+
+              {/* Password Update Area */}
+              <div className="pt-6 sm:pt-8">
+                {!isEditingPassword ? (
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-xl font-extrabold text-gray-900 dark:text-white">Password</h3>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">Update your account password.</p>
+                    </div>
+                    <button
+                      onClick={() => setIsEditingPassword(true)}
+                      className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl transition-colors border border-gray-300 dark:border-gray-700 active:scale-95"
+                    >
+                      <KeyRound className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
+                      Update Password
+                    </button>
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 transition-all">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
+                        <KeyRound className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        Update Password
+                      </h3>
+                    </div>
+                    
+                    {passwordError && (
+                      <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-xl text-red-600 dark:text-red-400 text-sm font-bold flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                        {passwordError}
+                      </div>
+                    )}
+
+                    {passwordSuccess ? (
+                      <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 rounded-xl text-green-700 dark:text-green-400 font-bold flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5" />
+                        Password updated successfully!
+                      </div>
+                    ) : (
+                      <form onSubmit={handleUpdatePassword} className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">New Password</label>
+                          <input
+                            type="password"
+                            required
+                            minLength={6}
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all placeholder:text-gray-400 font-medium"
+                            placeholder="Enter new password (min 6 characters)"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">Confirm Password</label>
+                          <input
+                            type="password"
+                            required
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all placeholder:text-gray-400 font-medium"
+                            placeholder="Confirm new password"
+                          />
+                        </div>
+                        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsEditingPassword(false)
+                              setPasswordError(null)
+                              setNewPassword('')
+                              setConfirmPassword('')
+                            }}
+                            className="px-5 py-2.5 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 font-bold rounded-xl transition-colors border border-gray-300 dark:border-gray-700 active:scale-95"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={isUpdatingPassword || !newPassword || !confirmPassword}
+                            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+                          >
+                            {isUpdatingPassword ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : 'Save Password'}
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </section>
