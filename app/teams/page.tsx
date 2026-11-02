@@ -81,7 +81,7 @@ export default function ManageTeamsPage() {
             <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
               Manage Teams
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg tracking-tight">Edit, manage, or delete your rosters.</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg tracking-tight">Click a team to view and edit it's players.</p>
           </div>
           
           <div className="flex w-full sm:w-auto">
