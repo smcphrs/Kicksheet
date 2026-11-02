@@ -127,11 +127,12 @@ export default function ManageTeamsPage() {
                 <div key={team.id} className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-300 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                   
                   <Link href={`/teams/${team.id}`} className="flex items-center gap-4 flex-1">
-                    <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300 group-hover:bg-[#2563eb] group-hover:border-blue-700">
-                      <span className="text-xl font-black text-[#2563eb] dark:text-blue-400 group-hover:text-white transition-colors uppercase">
-                        {team.name ? team.name.charAt(0) : '?'}
-                      </span>
-                    </div>
+                    const { error: uploadError } = await supabase.storage
+  .from('team-logos')
+  .upload(filePath, logoFile, {
+    cacheControl: '3600',
+    upsert: true
+  })
                     <div>
                       <h3 className="font-extrabold text-lg text-gray-900 dark:text-white tracking-tight">{team.name}</h3>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-bold uppercase tracking-wider group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
