@@ -72,7 +72,13 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
           
           <div className="relative z-10 flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
-              <Shield className="w-7 h-7 text-white" />
+              {team.logo_url ? (
+  <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover rounded-xl" />
+) : (
+  <span className="text-xl font-black text-[#2563eb] dark:text-blue-400 group-hover:text-white transition-colors uppercase">
+    {team.name ? team.name.charAt(0) : '?'}
+  </span>
+)}
             </div>
             <div>
               <h1 className="text-3xl font-black tracking-tight">{team.name}</h1>
