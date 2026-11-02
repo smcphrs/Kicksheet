@@ -21,7 +21,6 @@ function LineupContent() {
   const [downloading, setDownloading] = useState(false)
   const [showFieldMap, setShowFieldMap] = useState(false)
   
-  // NEW: Advanced Highlight State (handles rows and columns)
   const [highlight, setHighlight] = useState<string | null>(null)
   
   const captureRef = useRef<HTMLDivElement>(null)
@@ -67,7 +66,6 @@ function LineupContent() {
     setDownloading(true)
     
     try {
-      // Temporarily remove highlights so the saved image is clean
       const prevHighlight = highlight
       setHighlight(null)
       
@@ -87,7 +85,6 @@ function LineupContent() {
       const gameDate = game?.game_date || 'Unknown_Date'
       const fileName = `vs_${opponent}_${gameDate}.png`
       
-      // DIRECT DOWNLOAD FOR ALL DEVICES (Bypasses the mobile share sheet)
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
@@ -110,25 +107,20 @@ function LineupContent() {
      return innData?.assignments?.[playerId] || 'OUT'
   }
 
- const getPositionColors = (pos: string) => {
+  const getPositionColors = (pos: string) => {
     switch (pos) {
-      // OUTFIELD (Cool Colors: Blues, Teals, Greens)
-      case 'LF': return 'bg-[#1e40af] text-white' // Deep Royal Blue
-      case 'LC': return 'bg-[#03a9f4] text-white' // Sky Blue
-      case 'RC': return 'bg-[#009688] text-white' // Teal/Blue-Green
-      case 'RF': return 'bg-[#43a047] text-white' // Green
-
-      // INFIELD (Warm Colors: Reds, Pinks, Oranges, Yellows)
-      case 'P': return 'bg-[#dd0000] text-white'  // Red
-      case 'C': return 'bg-[#c2185b] text-white'  // Deep Pink/Magenta
-      case '1B': return 'bg-[#e65100] text-white' // Dark Orange
-      case '2B': return 'bg-[#ff9800] text-white' // Orange
-      case '3B': return 'bg-[#fdd835] text-gray-900' // Yellow (dark text for contrast)
-      case 'SS': return 'bg-[#ff5252] text-white' // Coral/Light Red
-
-      // NEUTRAL
+      case 'LF': return 'bg-[#1e40af] text-white' 
+      case 'LC': return 'bg-[#03a9f4] text-white' 
+      case 'RC': return 'bg-[#009688] text-white' 
+      case 'RF': return 'bg-[#43a047] text-white' 
+      case 'P': return 'bg-[#f44336] text-white'  
+      case 'C': return 'bg-[#c2185b] text-white'  
+      case '1B': return 'bg-[#e65100] text-white' 
+      case '2B': return 'bg-[#ff9800] text-white' 
+      case '3B': return 'bg-[#fdd835] text-gray-900' 
+      case 'SS': return 'bg-[#ff5252] text-white' 
       case 'Bench':
-      case 'OUT': return 'bg-[#757575] text-white' // Grey
+      case 'OUT': return 'bg-[#757575] text-white' 
       default: return 'bg-gray-400 dark:bg-gray-600 text-white'
     }
   }
@@ -161,7 +153,7 @@ function LineupContent() {
 
   return (
     <div className="bg-[#f8f9fa] dark:bg-gray-950 min-h-[100dvh] font-sans pb-10 transition-colors sm:pt-16">
-      <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors gap-3 sm:gap-0">
+      <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-300 dark:border-gray-800 transition-colors gap-3 sm:gap-0">
         <div className="flex flex-wrap items-center gap-3 sm:gap-4">
           <Link href="/games" className="inline-flex items-center text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
             <ArrowLeft className="w-4 h-4 mr-1" />
@@ -182,23 +174,22 @@ function LineupContent() {
 
           <Link href={`/share/${game.id}`} target="_blank" className="inline-flex items-center text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ml-1">
             <Share2 className="w-3.5 h-3.5 mr-1.5" />
-          Player Link
+            Public Link
           </Link>
         </div>
         
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <button 
             onClick={() => setShowFieldMap(true)}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all active:scale-95"
           >
-            <Map className="w-4 h-4 sm:mr-1.5" />
-            <span className="hidden sm:inline">Field</span>
+            <span className="hidden sm:inline">Field Map</span>
           </button>
 
           <button 
             onClick={handleDownload}
             disabled={downloading}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all disabled:opacity-50"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
           >
             {downloading ? <Loader2 className="w-4 h-4 sm:mr-1.5 animate-spin" /> : <Download className="w-4 h-4 sm:mr-1.5" />}
             <span className="hidden sm:inline">Save Image</span>
@@ -209,8 +200,8 @@ function LineupContent() {
       <div className="max-w-4xl mx-auto w-full" ref={captureRef}>
         <div className="px-2 sm:px-6 pt-2 sm:pt-6">
           
-          <div className="bg-[#2563eb] text-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 shadow-sm">
-            <div className="inline-flex items-center px-3 py-1 bg-white/20 text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-full mb-2.5 border border-white/30 shadow-sm">
+          <div className="bg-[#2563eb] text-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 border border-blue-700">
+            <div className="inline-flex items-center px-3 py-1 bg-white/20 text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-full mb-2.5 border border-white/30">
               {game?.teams?.name || 'Your Team'}
             </div>
 
@@ -246,11 +237,14 @@ function LineupContent() {
           </div>
 
           {game.notes && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 mb-4 sm:mb-8 flex items-start gap-3 sm:gap-4 shadow-sm">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 mb-4 sm:mb-8 flex items-start gap-3 sm:gap-4">
               <div className="bg-red-100 dark:bg-red-900/50 p-2 rounded-full shrink-0">
                 <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
               </div>
               <div className="pt-0.5">
+                <h3 className="text-xs sm:text-sm font-extrabold text-red-900 dark:text-red-300 uppercase tracking-wider mb-1">
+                  Team Announcement
+                </h3>
                 <p className="text-red-800 dark:text-red-200 text-sm sm:text-base font-medium whitespace-pre-wrap leading-relaxed">
                   {game.notes}
                 </p>
@@ -260,7 +254,7 @@ function LineupContent() {
 
           <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900 dark:text-white mb-2 sm:mb-4 pl-1">Lineup</h2>
 
-          <div className="bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-colors shadow-sm">
+          <div className="bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-colors border border-gray-300 dark:border-gray-700">
             <table className="w-full text-left border-collapse">
               <thead className="bg-[#2563eb] text-white text-[11px] sm:text-sm font-bold">
                 <tr>
@@ -286,8 +280,8 @@ function LineupContent() {
                   const isEven = idx % 2 === 0
                   const rowBg = isEven ? 'bg-white dark:bg-gray-900' : 'bg-[#f1f5f9] dark:bg-gray-800/50'
                   
-                  // 1. Is this row dimmed by a player selection?
                   const isRowDimmed = highlight?.startsWith('player_') && highlight !== `player_${player.id}`
+                  const isRowHighlighted = highlight === `player_${player.id}`
                   
                   return (
                     <tr 
@@ -295,10 +289,9 @@ function LineupContent() {
                       onClick={() => setHighlight(prev => prev === `player_${player.id}` ? null : `player_${player.id}`)}
                       className={`${rowBg} transition-all duration-300 cursor-pointer ${
                         isRowDimmed ? 'opacity-25 grayscale' : 'opacity-100'
-                      }`}
+                      } ${isRowHighlighted ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''}`}
                     >
-                      {/* Names are only dimmed if another PLAYER row is selected. They are never dimmed by column taps. */}
-                      <td className={`px-2 sm:px-4 py-1.5 sm:py-3 ${rowBg} truncate max-w-[80px] sm:max-w-none transition-all duration-300`}>
+                      <td className={`px-2 sm:px-4 py-1.5 sm:py-3 ${rowBg} truncate max-w-[80px] sm:max-w-none transition-all duration-300 border-r border-gray-100 dark:border-gray-800`}>
                         {formatName(player.name)}
                       </td>
                       
@@ -307,12 +300,10 @@ function LineupContent() {
                          if (pos === 'Bench') pos = 'OUT'
                          const colors = getPositionColors(pos)
                          
-                         // 2. Is this specific cell dimmed by a column selection?
-                         // It dims if 'Order' is tapped, OR if an inning is tapped that isn't this one.
                          const isCellDimmedByCol = highlight === 'col_order' || (highlight?.startsWith('col_') && highlight !== 'col_order' && highlight !== `col_${inning}`)
                          
                          return (
-                           <td key={inning} className={`px-0.5 sm:px-2 py-1 sm:py-3 text-center align-middle transition-all duration-300 ${isCellDimmedByCol ? 'opacity-25 grayscale' : 'opacity-100'}`}>
+                           <td key={inning} className={`px-0.5 sm:px-2 py-1 sm:py-3 text-center align-middle transition-all duration-300 border-r border-gray-100 dark:border-gray-800 last:border-r-0 ${isCellDimmedByCol ? 'opacity-25 grayscale' : 'opacity-100'}`}>
                              <span className={`inline-flex items-center justify-center w-[28px] h-[18px] sm:w-[42px] sm:h-[28px] rounded sm:rounded-md text-[9px] sm:text-xs uppercase tracking-tighter sm:tracking-wide ${colors}`}>
                                {pos}
                              </span>
@@ -352,16 +343,16 @@ function LineupContent() {
 
       {showFieldMap && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 dark:bg-black/80 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-900 rounded-3xl p-4 sm:p-6 max-w-2xl w-full border border-gray-100 dark:border-gray-800 relative shadow-2xl">
+          <div className="bg-white dark:bg-gray-900 rounded-3xl p-4 sm:p-6 max-w-2xl w-full border border-gray-300 dark:border-gray-800 relative">
             <button
               onClick={() => setShowFieldMap(false)}
-              className="absolute top-4 right-4 p-2 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-full transition-colors"
+              className="absolute top-4 right-4 p-2 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-full transition-colors active:scale-95"
             >
               <X className="w-5 h-5" />
             </button>
             <h2 className="text-xl font-extrabold text-gray-900 dark:text-white mb-4 pr-10">Field Positions</h2>
             
-            <div className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-2">
+            <div className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-2">
               <img 
                 src="/assets/kicksheet_positions.jpg" 
                 alt="Kickball Field Positions Diagram" 
@@ -371,7 +362,7 @@ function LineupContent() {
             
             <button
               onClick={() => setShowFieldMap(false)}
-              className="mt-6 w-full py-3 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-xl transition-colors"
+              className="mt-6 w-full py-3 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-xl transition-colors active:scale-95"
             >
               Close Map
             </button>

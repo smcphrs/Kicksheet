@@ -21,10 +21,7 @@ function PublicLineupContent() {
   const [showFieldMap, setShowFieldMap] = useState(false)
   const [copied, setCopied] = useState(false)
   
-  // Advanced Highlight State
   const [highlight, setHighlight] = useState<string | null>(null)
-  
-  // NEW: Animation State
   const [mounted, setMounted] = useState(false)
   
   const captureRef = useRef<HTMLDivElement>(null)
@@ -66,7 +63,6 @@ function PublicLineupContent() {
       setOrderedPlayers(ordered)
       setLoading(false)
       
-      // Trigger the entrance animation immediately after loading finishes
       setTimeout(() => setMounted(true), 50)
     }
     fetchGame()
@@ -77,10 +73,9 @@ function PublicLineupContent() {
     setDownloading(true)
     
     try {
-      // Temporarily un-highlight before export
       const prevHighlight = highlight
       setHighlight(null)
-      await new Promise(resolve => setTimeout(resolve, 150)) // Wait for highlight transition to finish
+      await new Promise(resolve => setTimeout(resolve, 150))
 
       const blob = await toBlob(captureRef.current, { 
         quality: 1,
@@ -96,7 +91,6 @@ function PublicLineupContent() {
       const gameDate = game?.game_date || 'Unknown_Date'
       const fileName = `vs_${opponent}_${gameDate}.png`
       
-      // DIRECT DOWNLOAD FOR ALL DEVICES (Bypasses the mobile share sheet)
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
@@ -193,7 +187,7 @@ function PublicLineupContent() {
   return (
     <div className="bg-[#f8f9fa] dark:bg-gray-950 min-h-[100dvh] font-sans pb-10 transition-colors antialiased">
       
-      <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row justify-between items-center px-4 py-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800 transition-colors gap-3 sm:gap-0 shadow-sm">
+      <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row justify-between items-center px-4 py-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-300 dark:border-gray-800 transition-colors gap-3 sm:gap-0">
         <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 font-bold text-sm w-full sm:w-auto justify-center sm:justify-start">
           <img src="/assets/kicksheet-logo.png" alt="Logo" className="h-6 dark:hidden" />
           <img src="/assets/kicksheet-logo-white.png" alt="Logo" className="h-6 hidden dark:block" />
@@ -203,7 +197,7 @@ function PublicLineupContent() {
         <div className="flex items-center justify-center gap-2 w-full sm:w-auto">
           <button 
             onClick={handleShareLink}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 sm:px-6 py-2 text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 rounded-full hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all active:scale-95"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 sm:px-6 py-2 text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 rounded-full hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all active:scale-95 border border-transparent"
           >
             {copied ? <Check className="w-4 h-4 mr-2 text-green-600" /> : <Share2 className="w-4 h-4 mr-2" />}
             <span>{copied ? 'Copied' : 'Share'}</span>
@@ -223,12 +217,9 @@ function PublicLineupContent() {
       <div className="max-w-4xl mx-auto w-full" ref={captureRef}>
         <div className={`px-2 sm:px-6 pt-2 sm:pt-6 transform transition-all duration-700 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
           
-          <div className="bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] text-white p-5 sm:p-8 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 shadow-lg relative overflow-hidden">
-            {/* Decorative background element */}
-            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-5 rounded-full blur-2xl pointer-events-none"></div>
-            
+          <div className="bg-[#2563eb] text-white p-5 sm:p-8 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 relative overflow-hidden border border-blue-700">
             <div className="relative z-10">
-              <div className="inline-flex items-center px-3 py-1 bg-white/20 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest rounded-full mb-3 border border-white/30 shadow-sm backdrop-blur-sm">
+              <div className="inline-flex items-center px-3 py-1 bg-white/20 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest rounded-full mb-3 border border-white/30 backdrop-blur-sm">
                 {game?.teams?.name || 'Your Team'}
               </div>
 
@@ -261,7 +252,7 @@ function PublicLineupContent() {
           </div>
 
           {game.notes && (
-            <div className={`bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 mb-4 sm:mb-8 flex items-start gap-3 sm:gap-4 shadow-sm transition-all duration-700 delay-100 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+            <div className={`bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 mb-4 sm:mb-8 flex items-start gap-3 sm:gap-4 transition-all duration-700 delay-100 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
               <div className="bg-red-100 dark:bg-red-900/50 p-2 rounded-full shrink-0">
                 <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
               </div>
@@ -280,13 +271,13 @@ function PublicLineupContent() {
             
             <button 
               onClick={() => setShowFieldMap(true)}
-              className="inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 hover:shadow-md transition-all active:scale-95 shadow-sm"
+              className="inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
             >
               <span>Field Map</span>
             </button>
           </div>
 
-          <div className={`bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-700 delay-300 ease-out shadow-sm border border-gray-100 dark:border-gray-800 ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+          <div className={`bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-700 delay-300 ease-out border border-gray-300 dark:border-gray-700 ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
             <table className="w-full text-left border-collapse">
               <thead className="bg-[#2563eb] text-white text-[11px] sm:text-sm font-bold">
                 <tr>
@@ -321,9 +312,9 @@ function PublicLineupContent() {
                       onClick={() => setHighlight(prev => prev === `player_${player.id}` ? null : `player_${player.id}`)}
                       className={`${rowBg} transition-all duration-300 cursor-pointer ${
                         isRowDimmed ? 'opacity-25 grayscale' : 'opacity-100'
-                      } ${isRowHighlighted ? 'relative z-10 shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:shadow-[0_0_15px_rgba(0,0,0,0.5)] scale-[1.01] bg-white dark:bg-gray-800' : ''}`}
+                      } ${isRowHighlighted ? 'relative z-10 bg-white dark:bg-gray-800' : ''}`}
                     >
-                      <td className={`px-2 sm:px-4 py-2 sm:py-3 truncate max-w-[80px] sm:max-w-none transition-all duration-300 ${isRowHighlighted ? 'text-blue-700 dark:text-blue-400 font-black' : 'font-extrabold tracking-tight'}`}>
+                      <td className={`px-2 sm:px-4 py-2 sm:py-3 truncate max-w-[80px] sm:max-w-none transition-all duration-300 border-r border-gray-100 dark:border-gray-800 ${isRowHighlighted ? 'text-blue-700 dark:text-blue-400 font-black' : 'font-extrabold tracking-tight'}`}>
                         {formatName(player.name)}
                       </td>
                       {INNINGS.map(inning => {
@@ -335,8 +326,8 @@ function PublicLineupContent() {
                          const isCellHighlighted = highlight === `col_${inning}`
                          
                          return (
-                           <td key={inning} className={`px-0.5 sm:px-2 py-1.5 sm:py-3 text-center align-middle transition-all duration-300 ${isCellDimmedByCol ? 'opacity-25 grayscale' : 'opacity-100'} ${isCellHighlighted ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}>
-                             <span className={`inline-flex items-center justify-center w-[28px] h-[18px] sm:w-[42px] sm:h-[28px] rounded sm:rounded-md text-[9px] sm:text-xs uppercase tracking-tighter sm:tracking-widest ${colors} ${isCellHighlighted || isRowHighlighted ? 'shadow-sm ring-2 ring-white/20 dark:ring-black/20' : ''}`}>
+                           <td key={inning} className={`px-0.5 sm:px-2 py-1.5 sm:py-3 text-center align-middle transition-all duration-300 border-r border-gray-100 dark:border-gray-800 last:border-r-0 ${isCellDimmedByCol ? 'opacity-25 grayscale' : 'opacity-100'} ${isCellHighlighted ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}>
+                             <span className={`inline-flex items-center justify-center w-[28px] h-[18px] sm:w-[42px] sm:h-[28px] rounded sm:rounded-md text-[9px] sm:text-xs uppercase tracking-tighter sm:tracking-widest ${colors} ${isCellHighlighted || isRowHighlighted ? 'ring-2 ring-white/20 dark:ring-black/20' : ''}`}>
                                {pos}
                              </span>
                            </td>
@@ -359,7 +350,7 @@ function PublicLineupContent() {
                 { abbr: 'LC', name: 'Left Center' }, { abbr: 'OUT', name: 'Out' },
               ].map(item => (
                 <div key={item.abbr} className="flex items-center gap-1.5 sm:gap-2">
-                  <span className={`inline-flex items-center justify-center w-[22px] h-[14px] sm:w-[36px] sm:h-[24px] rounded text-[8px] sm:text-[11px] text-white shadow-sm tracking-tighter ${getPositionColors(item.abbr)}`}>
+                  <span className={`inline-flex items-center justify-center w-[22px] h-[14px] sm:w-[36px] sm:h-[24px] rounded text-[8px] sm:text-[11px] text-white tracking-tighter ${getPositionColors(item.abbr)}`}>
                     {item.abbr}
                   </span>
                   <span className="tracking-tight">{item.name}</span>
@@ -373,10 +364,10 @@ function PublicLineupContent() {
         </div>
       </div>
 
-      {/* Field Map Modal (Remains identical) */}
+      {/* Field Map Modal */}
       {showFieldMap && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 dark:bg-black/80 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-900 rounded-3xl p-4 sm:p-6 max-w-2xl w-full border border-gray-100 dark:border-gray-800 relative shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-gray-900 rounded-3xl p-4 sm:p-6 max-w-2xl w-full border border-gray-300 dark:border-gray-800 relative">
             <button
               onClick={() => setShowFieldMap(false)}
               className="absolute top-4 right-4 p-2 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-full transition-colors active:scale-95"
@@ -385,17 +376,17 @@ function PublicLineupContent() {
             </button>
             <h2 className="text-xl font-extrabold text-gray-900 dark:text-white mb-4 pr-10 tracking-tight">Field Positions</h2>
             
-            <div className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-2">
+            <div className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-2">
               <img 
                 src="/assets/kicksheet_positions.jpg" 
                 alt="Kickball Field Positions Diagram" 
-                className="w-full h-auto rounded-xl shadow-inner"
+                className="w-full h-auto rounded-xl"
               />
             </div>
             
             <button
               onClick={() => setShowFieldMap(false)}
-              className="mt-6 w-full py-3 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-xl transition-all active:scale-[0.98]"
+              className="mt-6 w-full py-3 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-xl transition-all active:scale-95"
             >
               Close Map
             </button>
