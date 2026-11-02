@@ -264,15 +264,17 @@ function PublicLineupContent() {
             </div>
           )}
 
-          <div className={`flex items-center justify-between mb-2 sm:mb-4 px-1 transition-all duration-700 delay-200 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
-              Lineup
-            </h2><br/>
-            <span className="instructions">For quicker sorting, tap a name to highlight only that row, or tap an Inning number to highlight ony that column.</span>
+          <div className={`flex flex-col sm:flex-row sm:items-center justify-between mb-2 sm:mb-4 px-1 gap-2 sm:gap-0 transition-all duration-700 delay-200 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+            <div className="flex flex-col">
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
+                Lineup
+              </h2>
+              <span className="text-xs italic text-gray-400 dark:text-gray-500 font-medium">For quicker sorting, tap a name to highlight only that row, or tap an Inning number to highlight only that column.</span>
+            </div>
             
             <button 
               onClick={() => setShowFieldMap(true)}
-              className="inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
+              className="inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 w-fit"
             >
               <span>Field Map</span>
             </button>
