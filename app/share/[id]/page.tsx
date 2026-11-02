@@ -192,6 +192,7 @@ function PublicLineupContent() {
           <img src="/assets/kicksheet-logo.png" alt="Logo" className="h-6 dark:hidden" />
           <img src="/assets/kicksheet-logo-white.png" alt="Logo" className="h-6 hidden dark:block" />
           <span className="tracking-tight">Lineup</span>
+          <h3>For quicker sorting, tap a name to highlight only that row, or tap an Inning number to highlight ony that column.</h3>
         </div>
         
         <div className="flex items-center justify-center gap-2 w-full sm:w-auto">
