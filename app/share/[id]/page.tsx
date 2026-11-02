@@ -266,9 +266,6 @@ function PublicLineupContent() {
                 <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
               </div>
               <div className="pt-0.5">
-                <h3 className="text-[11px] sm:text-xs font-extrabold text-red-900 dark:text-red-300 uppercase tracking-widest mb-1.5">
-                  Team Announcement
-                </h3>
                 <p className="text-red-800 dark:text-red-200 text-sm sm:text-base font-semibold whitespace-pre-wrap leading-relaxed tracking-tight">
                   {game.notes}
                 </p>
