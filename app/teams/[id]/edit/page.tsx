@@ -72,8 +72,11 @@ function EditTeamContent() {
           const filePath = `${user.id}/${fileName}`
 
           const { error: uploadError } = await supabase.storage
-            .from('team-logos')
-            .upload(filePath, logoFile)
+  .from('team-logos')
+  .upload(filePath, logoFile, {
+    cacheControl: '3600',
+    upsert: true
+  })
 
           if (uploadError) throw new Error('Failed to upload new logo.')
 
