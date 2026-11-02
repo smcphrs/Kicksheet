@@ -86,9 +86,9 @@ export default async function DashboardPage() {
           <div className="flex flex-wrap gap-3 w-full sm:w-auto">
             <Link 
               href="/teams/new"
-              className="flex-1 sm:flex-none text-center bg-navy dark:bg-cyan-100 text-white-600 dark:text-gray-700 border border-gray-300 dark:border-gray-700 px-5 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 font-bold transition-colors active:scale-95 inline-flex items-center justify-center gap-2 group"
+              className="flex-1 sm:flex-none text-center bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] border border-gray-300 dark:border-gray-700 px-5 py-3 rounded-xl hover:bg-gray-800 dark:hover:bg-blue-300 font-bold transition-colors active:scale-95 inline-flex items-center justify-center gap-2 group"
             >
-              <Shield className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" />
+              <Shield className="w-4 h-4 text-white dark:text-[#0a192f] transition-colors" />
               New Team
             </Link>
             <Link 
