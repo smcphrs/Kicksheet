@@ -60,16 +60,20 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
       <div className="max-w-6xl mx-auto px-4 pt-24 pb-24 sm:px-6 sm:pt-28 w-full space-y-8 sm:space-y-10">
         
-        {/* Mobile-Only Branded Logo Banner */}
-        <div className="sm:hidden bg-[#2563eb] rounded-3xl p-6 flex flex-col items-start gap-3 relative overflow-hidden">
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
+        {/* Mobile-Only Logo Header (Directly on background) */}
+        <div className="sm:hidden flex flex-col items-start gap-1 pb-2">
+          <img 
+            src="/assets/kicksheet-logo.png" 
+            alt="Kicksheet" 
+            className="h-8 w-auto object-contain dark:hidden" 
+          />
           <img 
             src="/assets/kicksheet-logo-white.png" 
             alt="Kicksheet" 
-            className="h-9 w-auto object-contain relative z-10" 
+            className="h-8 w-auto object-contain hidden dark:block" 
           />
-          <p className="text-blue-100 font-medium text-sm tracking-wide relative z-10">
-          Kickball Line-Up Creator.
+          <p className="text-gray-500 dark:text-gray-400 font-bold text-sm tracking-tight mt-1">
+            Kickball Line-Up Creator.
           </p>
         </div>
 
