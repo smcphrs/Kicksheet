@@ -58,7 +58,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
-      <div className="max-w-6xl mx-auto px-4 pt-24 pb-24 sm:px-6 sm:pt-28 w-full space-y-8 sm:space-y-10">
+      <div className="max-w-3xl mx-auto px-4 pt-24 pb-24 sm:px-6 sm:pt-28 w-full space-y-8 sm:space-y-10">
         
         {/* Mobile-Only Logo Header (Directly on background) */}
         <div className="sm:hidden flex flex-col items-start gap-1 pb-2">
@@ -72,7 +72,7 @@ export default async function DashboardPage() {
             alt="Kicksheet" 
             className="h-8 w-auto object-contain hidden dark:block" 
           />
-          <p className="text-gray-500 dark:text-gray-400 font-bold text-sm tracking-tight mt-1">
+          <p className="text-gray-500 dark:text-gray-400 font-regular text-sm tracking-tight mt-1">
             Kickball Line-Up Creator.
           </p>
         </div>
