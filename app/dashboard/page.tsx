@@ -251,9 +251,13 @@ export default async function DashboardPage() {
                   {teams.map(team => (
                     <Link key={team.id} href={`/teams/${team.id}`} className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 group text-center flex flex-col items-center transition-colors">
                       <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mb-3 group-hover:bg-[#2563eb] group-hover:scale-110 transition-all duration-300 border border-blue-100 dark:border-blue-900/50">
-                        <span className="text-xl font-black text-[#2563eb] dark:text-blue-400 group-hover:text-white transition-colors uppercase">
-                          {team.name ? team.name.charAt(0) : '?'}
-                        </span>
+                        {team.logo_url ? (
+  <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover rounded-xl" />
+) : (
+  <span className="text-xl font-black text-[#2563eb] dark:text-blue-400 group-hover:text-white transition-colors uppercase">
+    {team.name ? team.name.charAt(0) : '?'}
+  </span>
+)}
                       </div>
                       
                       <h3 className="font-extrabold text-gray-900 dark:text-white tracking-tight truncate w-full px-2">{team.name}</h3>
