@@ -65,12 +65,12 @@ export default async function DashboardPage() {
           <img 
             src="/assets/kicksheet-logo.png" 
             alt="Kicksheet" 
-            className="h-8 w-auto object-contain dark:hidden" 
+            className="h-12 w-auto object-contain dark:hidden" 
           />
           <img 
             src="/assets/kicksheet-logo-white.png" 
             alt="Kicksheet" 
-            className="h-8 w-auto object-contain hidden dark:block" 
+            className="h-12 w-auto object-contain hidden dark:block" 
           />
           <p className="text-gray-500 dark:text-gray-400 font-regular text-sm tracking-tight mt-1">
             Kickball Line-Up Creator.
