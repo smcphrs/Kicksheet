@@ -127,12 +127,15 @@ export default function ManageTeamsPage() {
                 <div key={team.id} className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-300 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                   
                   <Link href={`/teams/${team.id}`} className="flex items-center gap-4 flex-1">
-                    const { error: uploadError } = await supabase.storage
-  .from('team-logos')
-  .upload(filePath, logoFile, {
-    cacheControl: '3600',
-    upsert: true
-  })
+                    <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300 group-hover:bg-[#2563eb] group-hover:border-blue-700 overflow-hidden">
+                      {team.logo_url ? (
+                        <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-xl font-black text-[#2563eb] dark:text-blue-400 group-hover:text-white transition-colors uppercase">
+                          {team.name ? team.name.charAt(0) : '?'}
+                        </span>
+                      )}
+                    </div>
                     <div>
                       <h3 className="font-extrabold text-lg text-gray-900 dark:text-white tracking-tight">{team.name}</h3>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-bold uppercase tracking-wider group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
@@ -147,7 +150,7 @@ export default function ManageTeamsPage() {
                       className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl transition-colors border border-gray-300 dark:border-gray-700 active:scale-95"
                     >
                       <Edit2 className="w-4 h-4 sm:mr-2" />
-                      <span className="hidden sm:inline">Rename</span>
+                      <span className="hidden sm:inline">Edit</span>
                     </Link>
                     <button 
                       onClick={() => handleDeleteTeam(team.id, team.name)}
