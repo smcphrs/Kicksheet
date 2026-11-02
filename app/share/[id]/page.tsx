@@ -268,7 +268,7 @@ function PublicLineupContent() {
             <h2 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
               Lineup
             </h2><br/>
-            <span style="font-size: 9px; font-style: italics;">For quicker sorting, tap a name to highlight only that row, or tap an Inning number to highlight ony that column.</span>
+            <span class="instructions">For quicker sorting, tap a name to highlight only that row, or tap an Inning number to highlight ony that column.</span>
             
             <button 
               onClick={() => setShowFieldMap(true)}
