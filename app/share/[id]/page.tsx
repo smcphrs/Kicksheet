@@ -362,7 +362,7 @@ function PublicLineupContent() {
             </div>
           </div>
           <div className={`text-center text-[10px] sm:text-xs font-semibold text-gray-400 dark:text-gray-600 pb-2 sm:pb-8 transition-all duration-700 delay-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
-            Created using Kicksheet
+            Created with Kicksheet
           </div>
         </div>
       </div>
