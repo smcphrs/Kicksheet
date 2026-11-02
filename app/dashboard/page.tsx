@@ -101,46 +101,54 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* Heavy Stat Grid - Static Solid Borders */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
-          <div className="group bg-white dark:bg-gray-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 flex flex-col justify-between transition-colors cursor-default">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-all duration-300">
-                <Shield className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h3 className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Total Teams</h3>
-            </div>
-            <p className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">{teams?.length || 0}</p>
+        {/* STATS SECTION */}
+        <div className="space-y-3 sm:space-y-4">
+          {/* Stats Header Bar */}
+          <div className="w-full bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 flex items-center">
+            <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">Stats</h2>
           </div>
 
-          <div className="group bg-white dark:bg-gray-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 flex flex-col justify-between transition-colors cursor-default">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-green-100 dark:group-hover:bg-green-900/50 transition-all duration-300">
-                <Users className="w-5 h-5 text-green-600 dark:text-green-400" />
+          {/* Heavy Stat Grid - Static Solid Borders */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+            <div className="group bg-white dark:bg-gray-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 flex flex-col justify-between transition-colors cursor-default">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-all duration-300">
+                  <Shield className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Total Teams</h3>
               </div>
-              <h3 className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Players</h3>
+              <p className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">{teams?.length || 0}</p>
             </div>
-            <p className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">{playersCount}</p>
-          </div>
 
-          <div className="group bg-white dark:bg-gray-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 flex flex-col justify-between transition-colors cursor-default">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-orange-100 dark:group-hover:bg-orange-900/50 transition-all duration-300">
-                <Calendar className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+            <div className="group bg-white dark:bg-gray-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 flex flex-col justify-between transition-colors cursor-default">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-green-100 dark:group-hover:bg-green-900/50 transition-all duration-300">
+                  <Users className="w-5 h-5 text-green-600 dark:text-green-400" />
+                </div>
+                <h3 className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Players</h3>
               </div>
-              <h3 className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Upcoming</h3>
+              <p className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">{playersCount}</p>
             </div>
-            <p className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">{upcomingGames.length}</p>
-          </div>
 
-          <div className="group bg-white dark:bg-gray-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 flex flex-col justify-between transition-colors cursor-default">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-purple-100 dark:group-hover:bg-purple-900/50 transition-all duration-300">
-                <Trophy className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            <div className="group bg-white dark:bg-gray-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 flex flex-col justify-between transition-colors cursor-default">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-orange-100 dark:group-hover:bg-orange-900/50 transition-all duration-300">
+                  <Calendar className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                </div>
+                <h3 className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Upcoming</h3>
               </div>
-              <h3 className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Games Played</h3>
+              <p className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">{upcomingGames.length}</p>
             </div>
-            <p className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">{pastGames.length}</p>
+
+            <div className="group bg-white dark:bg-gray-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 flex flex-col justify-between transition-colors cursor-default">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-purple-100 dark:group-hover:bg-purple-900/50 transition-all duration-300">
+                  <Trophy className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <h3 className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Games Played</h3>
+              </div>
+              <p className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">{pastGames.length}</p>
+            </div>
           </div>
         </div>
 
@@ -233,81 +241,4 @@ export default async function DashboardPage() {
             {/* Teams Thumbnails Hub */}
             <section>
               <div className="flex items-center justify-between mb-4 px-1">
-                <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">Your Teams</h2>
-              </div>
-              
-              {teams && teams.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                  {teams.map(team => (
-                    <Link key={team.id} href={`/teams/${team.id}`} className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 group text-center flex flex-col items-center transition-colors">
-                      <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mb-3 group-hover:bg-[#2563eb] group-hover:scale-110 transition-all duration-300 border border-blue-100 dark:border-blue-900/50">
-                        <span className="text-xl font-black text-[#2563eb] dark:text-blue-400 group-hover:text-white transition-colors uppercase">
-                          {team.name ? team.name.charAt(0) : '?'}
-                        </span>
-                      </div>
-                      
-                      <h3 className="font-extrabold text-gray-900 dark:text-white tracking-tight truncate w-full px-2">{team.name}</h3>
-                      <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1 font-bold uppercase tracking-wider group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Manage Roster</p>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center transition-colors">
-                  <p className="text-gray-500 dark:text-gray-400 text-sm font-bold tracking-tight mb-3">You haven't created any teams yet.</p>
-                  <Link href="/teams/new" className="text-blue-600 dark:text-blue-400 font-extrabold hover:underline text-sm">
-                    Create your first team
-                  </Link>
-                </div>
-              )}
-            </section>
-
-          </div>
-
-          {/* Right Column: Recent Games */}
-          <div className="space-y-4 lg:pl-4">
-            <div className="flex items-center justify-between px-1">
-              <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">Recent Games</h2>
-              <Link href="/games" className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline">
-                View All
-              </Link>
-            </div>
-
-            {recentGames && recentGames.length > 0 ? (
-              <div className="space-y-3">
-                {recentGames.map((game: any) => (
-                  <Link 
-                    key={game.id} 
-                    href={`/games/${game.id}`}
-                    className="flex flex-col bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-[0.98] group transition-colors"
-                  >
-                    <div className="flex justify-between items-start w-full mb-2">
-                      <span className="text-[10px] font-black px-2 py-1 bg-gray-100 dark:bg-gray-800 border border-transparent text-gray-500 dark:text-gray-400 rounded-md uppercase tracking-widest group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                        {new Date(game.game_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </span>
-                      <div className="bg-gray-100 dark:bg-gray-800 rounded-full p-1 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 transition-colors">
-                        <ChevronRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all" />
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="font-extrabold text-gray-900 dark:text-white truncate tracking-tight">{game.teams?.name}</span>
-                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">vs</span>
-                      <span className="text-sm font-bold text-gray-500 dark:text-gray-400 truncate tracking-tight">
-                        {game.opposing_team || 'TBD'}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center flex flex-col items-center justify-center min-h-[250px] transition-colors">
-                <p className="text-gray-500 dark:text-gray-400 font-bold tracking-tight">No past games yet.</p>
-              </div>
-            )}
-          </div>
-          
-        </div>
-      </div>
-    </div>
-  )
-}
+                <h2 className="text-xl font-extrabold text-gray-900 dark:
