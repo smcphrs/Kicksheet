@@ -252,7 +252,7 @@ function PublicLineupContent() {
           </div>
 
           {game.notes && (
-            <div className={`bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 mb-4 sm:mb-8 flex items-start gap-3 sm:gap-4 transition-all duration-700 delay-100 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+            <div className={`bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl sm:rounded-3xl p-3 sm:p-5 mb-4 sm:mb-8 flex items-start gap-3 sm:gap-4 transition-all duration-700 delay-100 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
               <div className="bg-red-100 dark:bg-red-900/50 p-2 rounded-full shrink-0">
                 <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
               </div>
