@@ -118,7 +118,7 @@ function EditPlayerContent() {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white">Edit Player</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg tracking-tight">Update roster details, positions, or archive this player.</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg tracking-tight">Update player details and preferred positions.</p>
         </div>
 
         {/* Form */}
