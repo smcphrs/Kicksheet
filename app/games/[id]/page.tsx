@@ -86,27 +86,17 @@ function LineupContent() {
       const opponent = game?.opposing_team ? game.opposing_team.replace(/\s+/g, '_') : 'TBD'
       const gameDate = game?.game_date || 'Unknown_Date'
       const fileName = `vs_${opponent}_${gameDate}.png`
-      const file = new File([blob], fileName, { type: 'image/png' })
-
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: `vs ${game?.opposing_team || 'TBD'} Lineup`,
-          })
-        } catch (shareErr: any) {
-          console.log("User closed share sheet", shareErr)
-        }
-      } else {
-        const url = URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.href = url
-        link.download = fileName
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        URL.revokeObjectURL(url)
-      }
+      
+      // DIRECT DOWNLOAD FOR ALL DEVICES (Bypasses the mobile share sheet)
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = fileName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+      
     } catch (err) {
       console.error("Failed to capture image", err)
       alert("Failed to capture image. Please try again.")
