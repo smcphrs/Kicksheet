@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useParams } from 'next/navigation'
-import { Calendar, Clock, MapPin, Users, Cloud, Download, Loader2, Map, X, Share2, Check, Megaphone } from 'lucide-react'
+import { Calendar, Clock, MapPin, Users, Cloud, Download, Loader2, Map, X, Share2, Check, Megaphone, Info } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
 
@@ -252,11 +252,11 @@ function PublicLineupContent() {
           </div>
 
           {game.notes && (
-            <div className={`bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl sm:rounded-3xl p-3 sm:p-2 mb-4 sm:mb-8 flex items-start gap-3 sm:gap-4 transition-all duration-700 delay-100 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+            <div className={`bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 mb-4 sm:mb-8 flex items-start gap-3 sm:gap-4 transition-all duration-700 delay-100 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
               <div className="bg-red-100 dark:bg-red-900/50 p-2 rounded-full shrink-0">
                 <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
               </div>
-              <div className="pt-1">
+              <div className="pt-0.5">
                 <p className="text-red-800 dark:text-red-200 text-sm sm:text-base font-semibold whitespace-pre-wrap leading-relaxed tracking-tight">
                   {game.notes}
                 </p>
@@ -264,19 +264,29 @@ function PublicLineupContent() {
             </div>
           )}
 
-          <div className={`flex flex-col sm:flex-row sm:items-center justify-between mb-2 sm:mb-4 px-1 gap-2 sm:gap-0 transition-all duration-700 delay-200 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-            <div className="flex flex-col">
-              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
+          {/* Tooltip & Header Row */}
+          <div className={`flex items-center justify-between mb-2 sm:mb-4 px-1 transition-all duration-700 delay-200 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+            
+            {/* Lineup Header with Tooltip Trigger */}
+            <div className="relative group flex items-center cursor-help">
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
                 Lineup
+                <Info className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 dark:text-gray-500" />
               </h2>
-              <span className="text-xs italic text-gray-400 dark:text-gray-500 font-medium">For quicker sorting, tap a name to highlight only that row, or tap an Inning number to highlight only that column.</span>
+              
+              {/* The actual Tooltip */}
+              <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-active:opacity-100 group-active:visible transition-all z-50 pointer-events-none">
+                For quicker sorting, tap a name to highlight only that row, or tap an Inning number to highlight only that column.
+                {/* Tooltip Arrow */}
+                <div className="absolute -top-1 left-6 w-3 h-3 bg-gray-900 dark:bg-white rotate-45"></div>
+              </div>
             </div>
             
             <button 
               onClick={() => setShowFieldMap(true)}
-              className="inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 w-fit"
+              className="inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
             >
-              <span>Field</span>
+              <span>Field Map</span>
             </button>
           </div>
 
@@ -350,7 +360,7 @@ function PublicLineupContent() {
                 { abbr: 'RC', name: 'Right Center' }, { abbr: 'P', name: 'Pitcher' }, { abbr: 'C', name: 'Catcher' },
                 { abbr: '1B', name: '1st Base' }, { abbr: 'SS', name: 'Shortstop' }, { abbr: 'RF', name: 'Right Field' },
                 { abbr: '3B', name: '3rd Base' }, { abbr: '2B', name: '2nd Base' }, { abbr: 'LF', name: 'Left Field' },
-                { abbr: 'LC', name: 'Left Center' },
+                { abbr: 'LC', name: 'Left Center' }, { abbr: 'OUT', name: 'Out' },
               ].map(item => (
                 <div key={item.abbr} className="flex items-center gap-1.5 sm:gap-2">
                   <span className={`inline-flex items-center justify-center w-[22px] h-[14px] sm:w-[36px] sm:h-[24px] rounded text-[8px] sm:text-[11px] text-white tracking-tighter ${getPositionColors(item.abbr)}`}>
@@ -362,7 +372,7 @@ function PublicLineupContent() {
             </div>
           </div>
           <div className={`text-center text-[10px] sm:text-xs font-semibold text-gray-400 dark:text-gray-600 pb-2 sm:pb-8 transition-all duration-700 delay-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
-            Created with Kicksheet
+            Created using Kicksheet
           </div>
         </div>
       </div>
