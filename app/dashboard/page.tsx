@@ -73,7 +73,7 @@ export default async function DashboardPage() {
             className="h-18 w-auto object-contain hidden dark:block" 
           />
           <p className="text-gray-500 dark:text-gray-400 font-regular text-sm tracking-tight mt-1">
-            Kickball Line-Up Creator.
+            <center>Kickball Line-Up Creator</center>
           </p>
         </div>
 
