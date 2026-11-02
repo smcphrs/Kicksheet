@@ -80,7 +80,7 @@ export default async function DashboardPage() {
         {/* Header & Main Actions */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
           <div>
-            <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg tracking-tight">Click 'New Game' to begin a fresh lineup.</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg tracking-tight"></p>
           </div>
           
           <div className="flex flex-wrap gap-3 w-full sm:w-auto">
