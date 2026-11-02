@@ -276,7 +276,7 @@ function PublicLineupContent() {
               onClick={() => setShowFieldMap(true)}
               className="inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 w-fit"
             >
-              <span>Field Map</span>
+              <span>Field</span>
             </button>
           </div>
 
