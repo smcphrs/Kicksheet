@@ -83,7 +83,7 @@ export default async function DashboardPage() {
             <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
               Dashboard
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg tracking-tight">Overview and quick actions</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg tracking-tight">Team & Game Management. Click 'New Game' to begin a new lineup.</p>
           </div>
           
           <div className="flex flex-wrap gap-3 w-full sm:w-auto">
