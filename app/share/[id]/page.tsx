@@ -267,7 +267,7 @@ function PublicLineupContent() {
           <div className={`flex items-center justify-between mb-2 sm:mb-4 px-1 transition-all duration-700 delay-200 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
             <h2 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white">
               Lineup
-            </h2>
+            </h2><br/>
             <span style="font-size: 9px; font-style: italics;">For quicker sorting, tap a name to highlight only that row, or tap an Inning number to highlight ony that column.</span>
             
             <button 
