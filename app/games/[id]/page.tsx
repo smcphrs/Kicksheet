@@ -230,14 +230,11 @@ function LineupContent() {
           </div>
 
           {game.notes && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 mb-4 sm:mb-8 flex items-start gap-3 sm:gap-4">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl sm:rounded-3xl p-4 sm:p-2 mb-4 sm:mb-8 flex items-start gap-3 sm:gap-4">
               <div className="bg-red-100 dark:bg-red-900/50 p-2 rounded-full shrink-0">
                 <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
               </div>
               <div className="pt-0.5">
-                <h3 className="text-xs sm:text-sm font-extrabold text-red-900 dark:text-red-300 uppercase tracking-wider mb-1">
-                  Team Announcement
-                </h3>
                 <p className="text-red-800 dark:text-red-200 text-sm sm:text-base font-medium whitespace-pre-wrap leading-relaxed">
                   {game.notes}
                 </p>
