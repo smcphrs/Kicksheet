@@ -175,9 +175,9 @@ export default async function DashboardPage() {
             
             {/* Next Game Hero */}
             <section>
-              <div className="flex items-center justify-between mb-4 px-1">
-                <h2 className="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-amber-500 fill-amber-500" />
+              <div className="w-full bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
+                <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
                   Next Up
                 </h2>
               </div>
@@ -240,8 +240,10 @@ export default async function DashboardPage() {
 
             {/* Teams Thumbnails Hub */}
             <section>
-              <div className="flex items-center justify-between mb-4 px-1">
-                <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">Your Teams</h2>
+              <div className="w-full bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
+                <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">
+                  Your Teams
+                </h2>
               </div>
               
               {teams && teams.length > 0 ? (
@@ -273,9 +275,11 @@ export default async function DashboardPage() {
 
           {/* Right Column: Recent Games */}
           <div className="space-y-4 lg:pl-4">
-            <div className="flex items-center justify-between px-1">
-              <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">Recent Games</h2>
-              <Link href="/games" className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline">
+            <div className="w-full bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
+              <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">
+                Recent Games
+              </h2>
+              <Link href="/games" className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
                 View All
               </Link>
             </div>
