@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
-import { Users, Calendar, Plus, ChevronRight, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap } from 'lucide-react'
+import { Users, Map, Calendar, Plus, ChevronRight, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap, Map } from 'lucide-react'
 import { redirect } from 'next/navigation'
 
 export default async function DashboardPage() {
@@ -163,15 +163,12 @@ export default async function DashboardPage() {
         </div>
 
         {/* Quick Hub Shortcuts */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <Link href="/teams" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors">
-            <Shield className="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform" /> View Roster
-          </Link>
-          <Link href="/games" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors">
-            <Calendar className="w-4 h-4 text-orange-500 group-hover:scale-110 transition-transform" /> Schedule
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <Link href="https://scheduler.leaguelobster.com/o/586394/big-apple-recreational-sports/" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors">
+            <Calendar className="w-4 h-4 text-orange-500 group-hover:scale-110 transition-transform" /> League Lobster
           </Link>
           <Link href="/players" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors">
-            <Users className="w-4 h-4 text-green-500 group-hover:scale-110 transition-transform" /> Player DB
+            <Map className="w-4 h-4 text-green-500 group-hover:scale-110 transition-transform" /> Field Map
           </Link>
           <Link href="/settings" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors">
             <Settings className="w-4 h-4 text-gray-500 group-hover:rotate-90 transition-transform duration-500" /> Settings
