@@ -143,34 +143,34 @@ export default function ManageTeamsPage() {
                 <div key={team.id} className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-300 dark:border-gray-700 flex flex-col overflow-hidden group hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-900/10 dark:hover:shadow-blue-900/5 transition-all duration-300">
                   
                   {/* Hero Image / Logo Area */}
-                  <Link href={`/teams/${team.id}`} className="relative h-48 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-800 flex items-center justify-center overflow-hidden">
+                  <Link href={`/teams/${team.id}`} className="relative aspect-square w-full bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800 flex items-center justify-center overflow-hidden">
                     {team.logo_url ? (
-                      <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                      <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover" />
                     ) : (
-                      // NEW: Dynamic Color Square Placeholder
-                      <div className={`w-full h-full bg-gradient-to-br ${getTeamGradient(team.name)} flex items-center justify-center group-hover:scale-105 transition-transform duration-700`}>
-                        <span className="text-6xl font-black text-white uppercase drop-shadow-md">
+                      // Dynamic Color Square Placeholder
+                      <div className={`w-full h-full bg-gradient-to-br ${getTeamGradient(team.name)} flex items-center justify-center`}>
+                        <span className="text-7xl font-black text-white uppercase drop-shadow-md">
                           {team.name ? team.name.charAt(0) : '?'}
                         </span>
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 dark:group-hover:bg-black/20 transition-colors duration-300 pointer-events-none" />
                   </Link>
 
                   {/* Card Body */}
-                  <div className="p-5 flex-1 flex flex-col">
-                    <Link href={`/teams/${team.id}`} className="mb-5 block">
+                  <div className="p-4 flex-1 flex flex-col">
+                    <Link href={`/teams/${team.id}`} className="mb-3 block">
                       <h3 className="font-extrabold text-xl text-gray-900 dark:text-white tracking-tight truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                         {team.name}
                       </h3>
-                      <div className="flex items-center gap-1.5 mt-1.5 text-sm font-bold text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center gap-1.5 mt-1 text-sm font-bold text-gray-500 dark:text-gray-400">
                         <Users className="w-4 h-4" />
                         {team.players?.length || 0} Players
                       </div>
                     </Link>
 
                     {/* Action Buttons */}
-                    <div className="mt-auto grid grid-cols-2 gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                    <div className="mt-auto grid grid-cols-2 gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
                       <Link 
                         href={`/teams/${team.id}/edit`}
                         className="inline-flex items-center justify-center px-4 py-2.5 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl transition-colors border border-gray-300 dark:border-gray-700 active:scale-95 text-sm"
