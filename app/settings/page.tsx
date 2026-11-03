@@ -145,7 +145,6 @@ export default function SettingsPage() {
             <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
               Settings
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg tracking-tight">Manage your account and application preferences.</p>
           </div>
         </header>
 
