@@ -12,7 +12,7 @@ export function FieldMapShortcut() {
         onClick={() => setIsOpen(true)}
         className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors w-full h-full"
       >
-        Field Map
+        <span>Field Map</span>
       </button>
 
       {isOpen && (
@@ -24,7 +24,7 @@ export function FieldMapShortcut() {
             >
               <X className="w-5 h-5" />
             </button>
-            <h2 className="text-xl font-extrabold text-gray-900 dark:text-white mb-4 pr-10">Field Positions</h2>
+            <h2 className="text-xl font-extrabold text-gray-900 dark:text-white mb-4 pr-10 tracking-tight">Field Positions</h2>
             
             <div className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-2">
               <img 
