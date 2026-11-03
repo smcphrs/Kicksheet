@@ -148,7 +148,7 @@ export default function ManageTeamsPage() {
                       </h3>
                       <div className="flex items-center gap-1.5 mt-1.5 text-sm font-bold text-gray-500 dark:text-gray-400">
                         <Users className="w-4 h-4" />
-                        {team.players?.length || 0} Roster Players
+                        {team.players?.length || 0} Players
                       </div>
                     </Link>
 
