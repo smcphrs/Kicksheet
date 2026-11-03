@@ -70,7 +70,7 @@ export default async function DashboardPage() {
           <img 
             src="/assets/kicksheet-logo-white.png" 
             alt="Kicksheet" 
-            className="h-18 w-auto object-contain hidden dark:block" 
+            className="h-16 w-auto object-contain hidden dark:block" 
           />
           <p className="text-gray-500 dark:text-gray-400 font-regular text-sm tracking-tight mt-1">
             <center>Create winning kickball lineups in minutes.</center>
