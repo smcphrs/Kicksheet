@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useSettingsStore } from '@/store/useSettingsStore'
 import Link from 'next/link'
 import { ArrowLeft, Loader2, Save, User, Sparkles, AlertTriangle, RotateCcw } from 'lucide-react'
+import { FieldMapModal } from '@/components/FieldMapModal'
 
 const POSITIONS = ['Bench', 'P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF']
 const FIELD_POSITIONS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF']

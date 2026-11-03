@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation'
 import { Calendar, Clock, MapPin, Users, Cloud, ArrowLeft, Download, Loader2, Edit, Map, X, Share2, Megaphone, Info } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
+import { FieldMapModal } from '@/components/FieldMapModal'
 
 function LineupContent() {
   const params = useParams()
@@ -354,34 +355,7 @@ function LineupContent() {
         </div>
       </div>
 
-      {showFieldMap && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 dark:bg-black/80 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-900 rounded-3xl p-4 sm:p-6 max-w-2xl w-full border border-gray-300 dark:border-gray-800 relative">
-            <button
-              onClick={() => setShowFieldMap(false)}
-              className="absolute top-4 right-4 p-2 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-full transition-colors active:scale-95"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <h2 className="text-xl font-extrabold text-gray-900 dark:text-white mb-4 pr-10">Field Positions</h2>
-            
-            <div className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-2">
-              <img 
-                src="/assets/kicksheet_positions.jpg" 
-                alt="Kickball Field Positions Diagram" 
-                className="w-full h-auto rounded-xl"
-              />
-            </div>
-            
-            <button
-              onClick={() => setShowFieldMap(false)}
-              className="mt-6 w-full py-3 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-xl transition-colors active:scale-95"
-            >
-              Close Map
-            </button>
-          </div>
-        </div>
-      )}
+      <FieldMapModal isOpen={isMapOpen} onClose={() => setIsMapOpen(false)} />
     </div>
   )
 }
