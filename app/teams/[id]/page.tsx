@@ -131,9 +131,13 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
                   <div key={player.id} className="bg-white dark:bg-gray-900 p-3 sm:p-4 rounded-2xl border border-gray-300 dark:border-gray-700 flex items-center justify-between gap-3 sm:gap-4 group hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                     
                     <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 font-black text-gray-400 dark:text-gray-500 text-base sm:text-lg">
-                        {player.number || '#'}
-                      </div>
+                      {/* ONLY show the number block if a number exists */}
+                      {player.number && (
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 font-black text-gray-600 dark:text-gray-400 text-base sm:text-lg">
+                          {player.number}
+                        </div>
+                      )}
+                      
                       <div className="flex-1 truncate">
                         <h3 className="font-extrabold text-base sm:text-lg text-gray-900 dark:text-white tracking-tight truncate">{player.name}</h3>
                         <div className="flex flex-wrap gap-1.5 mt-1">
