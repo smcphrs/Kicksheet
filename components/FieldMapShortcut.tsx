@@ -28,7 +28,7 @@ export function FieldMapShortcut() {
             
             <div className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-2">
               <img 
-                src="/assets/kicksheet_positions.jpg" 
+                src="/assets/kicksheet_positions.png" 
                 alt="Kickball Field Positions Diagram" 
                 className="w-full h-auto rounded-xl"
               />
