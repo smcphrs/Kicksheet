@@ -4,25 +4,23 @@ import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { ArrowLeft, Loader2, UserPlus } from 'lucide-react'
 
-// Standard field positions for Kickball/Softball/Baseball
 const POSITIONS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF']
 
-function NewPlayerForm() {
+function NewPlayerContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const teamId = searchParams.get('teamId')
+  const teamId = searchParams.get('team_id')
   const supabase = createClient()
   
   const [name, setName] = useState('')
   const [number, setNumber] = useState('')
   const [selectedPositions, setSelectedPositions] = useState<string[]>([])
   
-  const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Add or remove a position from the array when tapped
   const togglePosition = (pos: string) => {
     setSelectedPositions(prev => 
       prev.includes(pos) 
@@ -34,19 +32,18 @@ function NewPlayerForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    const trimmedName = name.trim()
-    if (!trimmedName) return
-    
     if (!teamId) {
       setError('No team selected. Please go back to your team and try again.')
       return
     }
 
-    setLoading(true)
+    const trimmedName = name.trim()
+    if (!trimmedName) return
+
+    setSaving(true)
     setError(null)
 
     try {
-      // Insert player into Supabase
       const { error: insertError } = await supabase
         .from('players')
         .insert([{ 
@@ -54,28 +51,40 @@ function NewPlayerForm() {
           name: trimmedName,
           number: number.trim() || null,
           preferred_positions: selectedPositions,
-          status: 'active' // Default status
+          status: 'active'
         }])
 
       if (insertError) throw insertError
 
-      // Refresh and redirect back to the team roster
       router.refresh()
       router.push(`/teams/${teamId}`)
       
     } catch (err: any) {
-      console.error('Error adding player:', err)
-      setError(err.message || 'Failed to add player. Please try again.')
-      setLoading(false)
+      console.error('Error creating player:', err)
+      setError(err.message || 'Failed to create player. Please try again.')
+      setSaving(false)
     }
   }
 
+  // If they somehow got here without a team ID in the URL
+  if (!teamId) {
+    return (
+      <div className="max-w-2xl mx-auto p-6 text-center pt-24">
+        <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-4">Missing Team Information</h2>
+        <p className="text-gray-500 dark:text-gray-400 mb-8">We don't know which team to add this player to.</p>
+        <Link href="/teams" className="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl">
+          Go back to Teams
+        </Link>
+      </div>
+    )
+  }
+
   return (
-    <div className="max-w-2xl mx-auto p-6 w-full">
+    <div className="max-w-2xl mx-auto p-4 sm:p-6 pt-12 sm:pt-24 w-full pb-24">
       {/* Back Navigation */}
       <Link 
-        href={teamId ? `/teams/${teamId}` : '/teams'} 
-        className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors mb-8"
+        href={`/teams/${teamId}`} 
+        className="inline-flex items-center text-sm font-bold text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 transition-colors mb-6"
       >
         <ArrowLeft className="w-4 h-4 mr-1" />
         Back to Team
@@ -83,54 +92,54 @@ function NewPlayerForm() {
 
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Add New Player</h1>
-        <p className="text-gray-500 mt-2">Add a player to your roster and assign their preferred field positions.</p>
+        <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white">Add Player</h1>
+        <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg tracking-tight">Add a new player to your roster.</p>
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 space-y-8">
+      <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-3xl border border-gray-300 dark:border-gray-700 space-y-8 transition-colors">
         {error && (
-          <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm font-medium">
+          <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm font-bold">
             {error}
           </div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-2 sm:col-span-2">
-            <label htmlFor="name" className="block text-sm font-bold text-gray-900">
-              Player Name *
+            <label htmlFor="name" className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-300">
+              <UserPlus className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Player Name *
             </label>
             <input
               id="name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Jane Doe"
               required
               maxLength={50}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 outline-none transition-all text-gray-900"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-600/20 font-bold transition-all placeholder:text-gray-400"
+              placeholder="e.g. Jane Doe"
             />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="number" className="block text-sm font-bold text-gray-900">
-              Jersey Number <span className="font-normal text-gray-500">(Optional)</span>
+            <label htmlFor="number" className="block text-sm font-bold text-gray-700 dark:text-gray-300">
+              Jersey Number <span className="font-medium text-gray-400 dark:text-gray-500">(Optional)</span>
             </label>
             <input
               id="number"
               type="text"
               value={number}
               onChange={(e) => setNumber(e.target.value)}
-              placeholder="e.g. 42"
               maxLength={5}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 outline-none transition-all text-gray-900"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-600/20 font-bold transition-all placeholder:text-gray-400"
+              placeholder="e.g. 24"
             />
           </div>
         </div>
 
         {/* Position Selector */}
         <div className="space-y-3">
-          <label className="block text-sm font-bold text-gray-900">
+          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">
             Preferred Positions
           </label>
           <div className="flex flex-wrap gap-2">
@@ -141,10 +150,10 @@ function NewPlayerForm() {
                   key={pos}
                   type="button"
                   onClick={() => togglePosition(pos)}
-                  className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border ${
+                  className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border active:scale-95 ${
                     isSelected 
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
-                      : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                      ? 'bg-blue-600 text-white border-blue-700 dark:border-blue-500' 
+                      : 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   {pos}
@@ -152,26 +161,25 @@ function NewPlayerForm() {
               )
             })}
           </div>
-          <p className="text-xs text-gray-500 mt-2">Tap positions to toggle them on or off.</p>
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-gray-100">
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-gray-300 dark:border-gray-700">
           <Link
-            href={teamId ? `/teams/${teamId}` : '/teams'}
-            className="px-6 py-3 text-gray-700 bg-gray-50 hover:bg-gray-100 font-bold rounded-xl text-center transition-colors border border-gray-200"
+            href={`/teams/${teamId}`}
+            className="px-6 py-3.5 text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 font-bold rounded-xl text-center transition-colors border border-gray-300 dark:border-gray-700 active:scale-95"
           >
             Cancel
           </Link>
           <button
             type="submit"
-            disabled={loading || !name.trim()}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            disabled={saving || !name.trim()}
+            className="px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
           >
-            {loading ? (
+            {saving ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Saving...
+                Adding...
               </>
             ) : (
               'Add Player'
@@ -183,15 +191,16 @@ function NewPlayerForm() {
   )
 }
 
-// Wrap the component that uses useSearchParams() in a Suspense boundary
 export default function NewPlayerPage() {
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-      </div>
-    }>
-      <NewPlayerForm />
-    </Suspense>
+    <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        </div>
+      }>
+        <NewPlayerContent />
+      </Suspense>
+    </div>
   )
 }
