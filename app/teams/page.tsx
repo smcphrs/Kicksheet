@@ -5,6 +5,23 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { Users, Edit2, Trash2, Plus, Loader2, ArrowLeft, Shield } from 'lucide-react'
 
+// Helper to generate a consistent vibrant gradient based on the first letter of the team name
+const getTeamGradient = (name: string) => {
+  const gradients = [
+    'from-blue-600 to-cyan-400',
+    'from-emerald-500 to-teal-400',
+    'from-orange-500 to-amber-400',
+    'from-pink-600 to-rose-400',
+    'from-violet-600 to-purple-400',
+    'from-indigo-600 to-blue-500',
+    'from-red-500 to-orange-500',
+    'from-fuchsia-600 to-pink-500'
+  ]
+  if (!name) return gradients[0]
+  const charCode = name.charCodeAt(0)
+  return gradients[charCode % gradients.length]
+}
+
 export default function ManageTeamsPage() {
   const supabase = createClient()
   const [teams, setTeams] = useState<any[]>([])
@@ -20,7 +37,6 @@ export default function ManageTeamsPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    // We added `players(id)` so we can count how many players are on each team!
     const { data, error } = await supabase
       .from('teams')
       .select('*, players(id)')
@@ -127,17 +143,18 @@ export default function ManageTeamsPage() {
                 <div key={team.id} className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-300 dark:border-gray-700 flex flex-col overflow-hidden group hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-900/10 dark:hover:shadow-blue-900/5 transition-all duration-300">
                   
                   {/* Hero Image / Logo Area */}
-                  <Link href={`/teams/${team.id}`} className="relative h-48 bg-blue-50 dark:bg-blue-900/20 border-b border-gray-200 dark:border-gray-800 flex items-center justify-center overflow-hidden">
+                  <Link href={`/teams/${team.id}`} className="relative h-48 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-800 flex items-center justify-center overflow-hidden">
                     {team.logo_url ? (
                       <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                     ) : (
-                      <div className="w-24 h-24 rounded-3xl bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                        <span className="text-4xl font-black text-[#2563eb] dark:text-blue-400 uppercase">
+                      // NEW: Dynamic Color Square Placeholder
+                      <div className={`w-full h-full bg-gradient-to-br ${getTeamGradient(team.name)} flex items-center justify-center group-hover:scale-105 transition-transform duration-700`}>
+                        <span className="text-6xl font-black text-white uppercase drop-shadow-md">
                           {team.name ? team.name.charAt(0) : '?'}
                         </span>
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                   </Link>
 
                   {/* Card Body */}

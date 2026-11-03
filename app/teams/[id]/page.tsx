@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, UserPlus, Edit2, Shield, Users } from 'lucide-react'
+import { DeletePlayerButton } from '@/components/DeletePlayerButton'
 
 const getPosAbbr = (pos: string) => {
   const map: Record<string, string> = {
@@ -157,14 +158,18 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
                       </div>
                     </div>
 
-                    {/* Discreet Edit Button */}
-                    <Link 
-                      href={`/players/${player.id}/edit`}
-                      className="p-2 sm:p-2.5 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all active:scale-95 shrink-0"
-                      title="Edit Player"
-                    >
-                      <Edit2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </Link>
+                    {/* Discreet Actions Container */}
+                    <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                      <Link 
+                        href={`/players/${player.id}/edit`}
+                        className="p-2 sm:p-2.5 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all active:scale-95 shrink-0"
+                        title="Edit Player"
+                      >
+                        <Edit2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </Link>
+                      
+                      <DeletePlayerButton playerId={player.id} playerName={player.name} />
+                    </div>
                   </div>
                 )
               })}
