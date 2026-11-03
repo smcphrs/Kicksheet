@@ -355,7 +355,7 @@ function LineupContent() {
         </div>
       </div>
 
-      <FieldMapModal isOpen={isMapOpen} onClose={() => setIsMapOpen(false)} />
+      <FieldMapModal isOpen={showFieldMap} onClose={() => setShowFieldMap(false)} />
     </div>
   )
 }
