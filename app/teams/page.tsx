@@ -5,7 +5,6 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { Users, Edit2, Trash2, Plus, Loader2, ArrowLeft, Shield } from 'lucide-react'
 
-// Helper to generate a consistent vibrant gradient based on the first letter of the team name
 const getTeamGradient = (name: string) => {
   const gradients = [
     'from-blue-600 to-cyan-400',
@@ -138,7 +137,6 @@ export default function ManageTeamsPage() {
               </Link>
             </div>
           ) : (
-            {/* Updated Grid for Mobile (grid-cols-2) and reduced gap on mobile */}
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {teams.map(team => (
                 <div key={team.id} className="bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 flex flex-col overflow-hidden group hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-900/10 dark:hover:shadow-blue-900/5 transition-all duration-300">
@@ -148,7 +146,6 @@ export default function ManageTeamsPage() {
                     {team.logo_url ? (
                       <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover" />
                     ) : (
-                      // Adjusted text size (text-5xl) for smaller mobile squares
                       <div className={`w-full h-full bg-gradient-to-br ${getTeamGradient(team.name)} flex items-center justify-center`}>
                         <span className="text-5xl sm:text-7xl font-black text-white uppercase drop-shadow-md">
                           {team.name ? team.name.charAt(0) : '?'}
@@ -158,7 +155,7 @@ export default function ManageTeamsPage() {
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 dark:group-hover:bg-black/20 transition-colors duration-300 pointer-events-none" />
                   </Link>
 
-                  {/* Card Body - Tightened padding for mobile */}
+                  {/* Card Body */}
                   <div className="p-3 sm:p-4 flex-1 flex flex-col">
                     <Link href={`/teams/${team.id}`} className="mb-2 block">
                       <h3 className="font-extrabold text-lg sm:text-xl text-gray-900 dark:text-white tracking-tight truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
@@ -170,7 +167,7 @@ export default function ManageTeamsPage() {
                       </div>
                     </Link>
 
-                    {/* Action Buttons - Adjusted padding and text size for mobile 2-col fit */}
+                    {/* Action Buttons */}
                     <div className="mt-auto grid grid-cols-2 gap-1.5 sm:gap-2 pt-2 sm:pt-3 border-t border-gray-100 dark:border-gray-800">
                       <Link 
                         href={`/teams/${team.id}/edit`}
