@@ -36,7 +36,7 @@ export function FieldMapShortcut() {
             <img 
               src="/assets/kicksheet_positions.png" 
               alt="Kickball Field Positions Diagram" 
-              className="w-full h-auto max-h-[85vh] object-contain rounded-2xl shadow-2xl"
+              className="w-full h-auto max-h-[85vh] object-contain"
             />
           </div>
         </div>
