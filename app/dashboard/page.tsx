@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
-import { Users, Map, Calendar, Plus, ChevronRight, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap, Map } from 'lucide-react'
+import { Users, Calendar, Plus, ChevronRight, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap } from 'lucide-react'
 import { redirect } from 'next/navigation'
+import { FieldMapShortcut } from '@/components/FieldMapShortcut' // <-- New Import
 
 export default async function DashboardPage() {
   const cookieStore = await cookies()
@@ -60,7 +61,7 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
       <div className="max-w-6xl mx-auto px-4 pt-12 pb-24 sm:px-6 sm:pt-28 w-full space-y-8 sm:space-y-10">
         
-        {/* Mobile-Only Logo Header (Directly on background) */}
+        {/* Mobile-Only Logo Header */}
         <div className="sm:hidden flex flex-col gap-1 pb-2">
           <img 
             src="/assets/kicksheet-logo.png" 
@@ -103,12 +104,10 @@ export default async function DashboardPage() {
 
         {/* STATS SECTION */}
         <div className="space-y-3 sm:space-y-4">
-          {/* Stats Header Bar */}
           <div className="w-full bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 flex items-center">
             <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">Stats</h2>
           </div>
 
-          {/* Heavy Stat Grid - Now with Position Palette Colors! */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
             
             {/* Total Teams - Deep Royal Blue (LF) */}
@@ -167,9 +166,10 @@ export default async function DashboardPage() {
           <Link href="https://scheduler.leaguelobster.com/o/586394/big-apple-recreational-sports/" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors">
             <Calendar className="w-4 h-4 text-orange-500 group-hover:scale-110 transition-transform" /> League Lobster
           </Link>
-          <Link href="/players" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors">
-            <Map className="w-4 h-4 text-green-500 group-hover:scale-110 transition-transform" /> Field Map
-          </Link>
+          
+          {/* Inserted the new Client Component here */}
+          <FieldMapShortcut />
+          
           <Link href="/settings" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors">
             <Settings className="w-4 h-4 text-gray-500 group-hover:rotate-90 transition-transform duration-500" /> Settings
           </Link>
