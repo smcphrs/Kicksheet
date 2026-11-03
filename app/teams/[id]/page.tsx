@@ -19,22 +19,22 @@ const getPosAbbr = (pos: string) => {
 const getPositionColors = (pos: string) => {
     switch (pos) {
       // OUTFIELD (Cool Colors: Blues, Teals, Greens)
-      case 'LF': return 'bg-[#1e40af] text-white' // Deep Royal Blue
-      case 'LC': return 'bg-[#03a9f4] text-white' // Sky Blue
-      case 'RC': return 'bg-[#009688] text-white' // Teal/Blue-Green
-      case 'RF': return 'bg-[#43a047] text-white' // Green
+      case 'LF': return 'bg-[#1e40af] text-white' 
+      case 'LC': return 'bg-[#03a9f4] text-white' 
+      case 'RC': return 'bg-[#009688] text-white' 
+      case 'RF': return 'bg-[#43a047] text-white' 
 
       // INFIELD (Warm Colors: Reds, Pinks, Oranges, Yellows)
-      case 'P': return 'bg-[#dd0000] text-white'  // Red
-      case 'C': return 'bg-[#c2185b] text-white'  // Deep Pink/Magenta
-      case '1B': return 'bg-[#e65100] text-white' // Dark Orange
-      case '2B': return 'bg-[#ff9800] text-white' // Orange
-      case '3B': return 'bg-[#fdd835] text-gray-900' // Yellow (dark text for contrast)
-      case 'SS': return 'bg-[#ff5252] text-white' // Coral/Light Red
+      case 'P': return 'bg-[#dd0000] text-white'  
+      case 'C': return 'bg-[#c2185b] text-white'  
+      case '1B': return 'bg-[#e65100] text-white' 
+      case '2B': return 'bg-[#ff9800] text-white' 
+      case '3B': return 'bg-[#fdd835] text-gray-900' 
+      case 'SS': return 'bg-[#ff5252] text-white' 
 
       // NEUTRAL
       case 'Bench':
-      case 'OUT': return 'bg-[#757575] text-white' // Grey
+      case 'OUT': return 'bg-[#757575] text-white' 
       default: return 'bg-gray-400 dark:bg-gray-600 text-white'
     }
   }
@@ -72,12 +72,12 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
           
           <div className="relative z-10 flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 overflow-hidden">
-  {team.logo_url ? (
-    <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover" />
-  ) : (
-    <Shield className="w-7 h-7 text-white" />
-  )}
-</div>
+              {team.logo_url ? (
+                <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover" />
+              ) : (
+                <Shield className="w-7 h-7 text-white" />
+              )}
+            </div>
             <div>
               <h1 className="text-3xl font-black tracking-tight">{team.name}</h1>
               <p className="text-blue-100 font-bold mt-1 tracking-tight">{players?.length || 0} Active Players</p>
@@ -89,7 +89,7 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
               href={`/teams/${team.id}/edit`}
               className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-3 bg-blue-800/50 hover:bg-blue-800 border border-blue-700 text-white font-bold rounded-xl transition-colors active:scale-95"
             >
-              Rename
+              Edit Team
             </Link>
             <Link 
               href={`/players/new?team_id=${team.id}`}
@@ -128,36 +128,38 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
                 const uniqueAbbrs = Array.from(new Set(rawPositions.map((pos: string) => getPosAbbr(pos))))
 
                 return (
-                  <div key={player.id} className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-300 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 font-black text-gray-400 dark:text-gray-500 text-lg">
+                  <div key={player.id} className="bg-white dark:bg-gray-900 p-3 sm:p-4 rounded-2xl border border-gray-300 dark:border-gray-700 flex items-center justify-between gap-3 sm:gap-4 group hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    
+                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 font-black text-gray-400 dark:text-gray-500 text-base sm:text-lg">
                         {player.number || '#'}
                       </div>
-                      <div>
-                        <h3 className="font-extrabold text-lg text-gray-900 dark:text-white tracking-tight">{player.name}</h3>
-                        <div className="flex flex-wrap gap-1.5 mt-1.5">
+                      <div className="flex-1 truncate">
+                        <h3 className="font-extrabold text-base sm:text-lg text-gray-900 dark:text-white tracking-tight truncate">{player.name}</h3>
+                        <div className="flex flex-wrap gap-1.5 mt-1">
                           {uniqueAbbrs.length > 0 ? (
                             uniqueAbbrs.map((abbr) => {
                               const colors = getPositionColors(abbr as string);
                               return (
-                                <span key={abbr as string} className={`inline-flex items-center justify-center w-8 h-8 rounded text-xs font-bold transition-colors uppercase tracking-wider ${colors}`}>
+                                <span key={abbr as string} className={`inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded text-[10px] sm:text-xs font-bold transition-colors uppercase tracking-wider ${colors}`}>
                                   {abbr as string}
                                 </span>
                               )
                             })
                           ) : (
-                            <span className="text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider">No preferred positions</span>
+                            <span className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider">No preferred positions</span>
                           )}
                         </div>
                       </div>
                     </div>
 
+                    {/* Discreet Edit Button */}
                     <Link 
                       href={`/players/${player.id}/edit`}
-                      className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl transition-colors border border-gray-300 dark:border-gray-700 active:scale-95"
+                      className="p-2 sm:p-2.5 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all active:scale-95 shrink-0"
+                      title="Edit Player"
                     >
-                      <Edit2 className="w-4 h-4 mr-2" />
-                      Edit
+                      <Edit2 className="w-4 h-4 sm:w-5 sm:h-5" />
                     </Link>
                   </div>
                 )
