@@ -61,7 +61,7 @@ export function ActiveGameBanner() {
   if (!activeGame || dismissed) return null
 
   return (
-    <div className="sticky top-0 z-[100] w-full bg-[#43a047] dark:bg-green-600 text-white px-4 py-3 shadow-xl animate-in slide-in-from-top-full duration-500 flex items-center justify-center">
+    <div className="sticky top-0 z-[9999] w-full bg-[#43a047] dark:bg-green-600 text-white px-4 py-3 shadow-xl animate-in slide-in-from-top-full duration-500 flex items-center justify-center">
       <div className="flex items-center gap-3 w-full max-w-6xl">
         
         {/* Pulsing Icon */}

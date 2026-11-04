@@ -35,7 +35,7 @@ export function FieldMapModal({ isOpen, onClose }: FieldMapModalProps) {
 
   return (
     <div 
-      className={`fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 bg-gray-900/90 dark:bg-black/95 backdrop-blur-md transition-opacity duration-300 ease-out ${
+      className={`fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-8 bg-gray-900/90 dark:bg-black/95 backdrop-blur-md transition-opacity duration-300 ease-out ${
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
       onClick={onClose}

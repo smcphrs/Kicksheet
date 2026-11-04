@@ -129,8 +129,8 @@ function AttendanceContent() {
 
       </div>
       
-      {/* Sticky Footer Bar with z-[100] to cover everything underneath */}
-      <div className="fixed bottom-0 z-[100] left-0 right-0 p-4 pb-8 sm:pb-4 bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl border-t border-gray-300 dark:border-gray-800 transition-colors">
+      {/* Sticky Footer Bar with z-[9999] to cover everything underneath */}
+      <div className="fixed bottom-0 z-[9999] left-0 right-0 p-4 pb-8 sm:pb-4 bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl border-t border-gray-300 dark:border-gray-800 transition-colors">
         <div className="max-w-2xl mx-auto flex justify-end">
           <button 
             onClick={handleNext}

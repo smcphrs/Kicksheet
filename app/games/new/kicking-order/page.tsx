@@ -180,7 +180,7 @@ function KickingOrderContent() {
       </div>
 
       {/* Sticky Footer Bar */}
-      <div className="fixed bottom-0 z-[100] left-0 right-0 p-4 pb-8 sm:pb-4 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-t border-gray-300 dark:border-gray-800 transition-colors">
+      <div className="fixed bottom-0 z-[9999] left-0 right-0 p-4 pb-8 sm:pb-4 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-t border-gray-300 dark:border-gray-800 transition-colors">
         <div className="max-w-2xl mx-auto flex justify-between">
           <button 
             onClick={() => router.push(`/games/new/attendance?id=${id}`)}
