@@ -5,11 +5,16 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useSettingsStore } from '@/store/useSettingsStore'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, Save, User, Sparkles, AlertTriangle, RotateCcw } from 'lucide-react'
+import { ArrowLeft, Loader2, Save, User, Sparkles, AlertTriangle, RotateCcw, Map } from 'lucide-react'
 import { FieldMapModal } from '@/components/FieldMapModal'
 
-const POSITIONS = ['Bench', 'P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF']
-const FIELD_POSITIONS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF']
+const POSITIONS = {
+  INFIELD: ['P', 'C', '1B', '2B', '3B', 'SS'],
+  OUTFIELD: ['LF', 'LC', 'RC', 'RF'],
+  BENCH: ['Bench']
+}
+const ALL_POSITIONS = [...POSITIONS.BENCH, ...POSITIONS.INFIELD, ...POSITIONS.OUTFIELD]
+const FIELD_POSITIONS = [...POSITIONS.INFIELD, ...POSITIONS.OUTFIELD]
 
 function PositionsContent() {
   const router = useRouter()
@@ -23,6 +28,7 @@ function PositionsContent() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showMap, setShowMap] = useState(false)
   
   const [players, setPlayers] = useState<any[]>([])
   const [activeInning, setActiveInning] = useState(1)
@@ -108,11 +114,10 @@ function PositionsContent() {
     }))
   }
 
-  // --- NEW: RESET INNING LOGIC ---
   const handleResetInning = () => {
     setAssignments(prev => ({
       ...prev,
-      [activeInning]: {} // Clearing the assignments defaults everyone back to Bench!
+      [activeInning]: {} 
     }))
   }
 
@@ -240,8 +245,8 @@ function PositionsContent() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 flex items-center justify-center transition-colors">
+        <Loader2 className="w-8 h-8 animate-spin text-[#2563eb]" />
       </div>
     )
   }
@@ -250,149 +255,167 @@ function PositionsContent() {
   const takenPositions = Object.values(currentInningAssignments).filter(pos => pos !== 'Bench')
 
   return (
-    <div className="max-w-2xl mx-auto p-4 w-full pt-8 sm:pt-24 pb-32">
-      <div className="flex items-center justify-between mb-8">
-        <Link href={`/games/new/kicking-order?id=${id}`} className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
-          <ArrowLeft className="w-4 h-4 mr-1" />
-          Back to Order
-        </Link>
-        <span className="text-sm font-bold text-gray-400">Step 3 of 3</span>
-      </div>
-
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">Field Positions</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">Assign field positions for each inning.</p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
+      <div className="max-w-2xl mx-auto p-4 w-full pt-8 sm:pt-24 pb-32">
         
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          {/* NEW RESET BUTTON */}
-          <button
-            onClick={handleResetInning}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl shadow-sm transition-all"
-          >
-            <RotateCcw className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Reset</span>
-          </button>
-
-          <button
-            onClick={handleAutoSetInning}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-xl shadow-sm transition-all"
-          >
-            <Sparkles className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Auto Set</span>
-            <span className="sm:hidden">Auto Set</span>
-          </button>
+        <div className="flex items-center justify-between mb-8">
+          <Link href={`/games/new/kicking-order?id=${id}`} className="inline-flex items-center text-sm font-bold text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 transition-colors mb-2">
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Back to Order
+          </Link>
         </div>
-      </div>
 
-      {error && (
-        <div className="p-4 mb-6 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm font-medium">
-          {error}
-        </div>
-      )}
-
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden mb-8">
-        <div className="flex overflow-x-auto border-b border-gray-100 dark:border-gray-800 hide-scrollbar bg-gray-50 dark:bg-gray-900/50">
-          {INNINGS.map(inning => (
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xs font-black text-[#2563eb] dark:text-blue-400 uppercase tracking-widest mb-1">Step 3 of 3</h2>
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white">Field Positions</h1>
+            <p className="text-gray-500 dark:text-gray-400 font-medium mt-1 text-lg">Assign the positions for each inning.</p>
+          </div>
+          
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
-              key={inning}
-              onClick={() => setActiveInning(inning)}
-              className={`flex-1 min-w-[60px] py-4 text-sm font-bold transition-colors border-b-2 ${
-                activeInning === inning
-                  ? 'border-blue-600 text-blue-600 bg-white dark:bg-gray-800'
-                  : 'border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
-              }`}
+              onClick={() => setShowMap(true)}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center p-2.5 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 font-bold rounded-xl transition-all active:scale-95 shadow-sm"
+              title="View Field Map"
             >
-              Inn {inning}
             </button>
-          ))}
+            <button
+              onClick={handleResetInning}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 font-bold rounded-xl transition-all active:scale-95 shadow-sm text-sm"
+            >
+              <RotateCcw className="w-4 h-4 mr-1.5" />
+              Reset
+            </button>
+            <button
+              onClick={handleAutoSetInning}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-900/20 transition-all active:scale-95 text-sm"
+            >
+              <Sparkles className="w-4 h-4 mr-1.5" />
+              Auto Set
+            </button>
+          </div>
         </div>
 
-        <div className="p-2 sm:p-4 divide-y divide-gray-50 dark:divide-gray-800/50">
-          {players.map((player, idx) => {
-            const currentPosition = currentInningAssignments[player.id] || 'Bench'
-            
-            const availableOptions = POSITIONS.filter(pos => 
-              pos === 'Bench' || pos === currentPosition || !takenPositions.includes(pos)
-            )
-            
-            const showFairPlayWarning = 
-              fairPlayEnabled && 
-              currentPosition === 'Bench' && 
-              benchCounts[player.id] > 1 && 
-              unbenchedPlayers.length > 0 &&
-              !unbenchedPlayers.some(p => p.id === player.id)
-            
-            return (
-              <div key={player.id} className="p-2 sm:p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-xl transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-bold flex items-center justify-center text-xs shrink-0">
-                      {idx + 1}
+        {error && (
+          <div className="p-4 mb-6 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm font-bold shadow-sm">
+            {error}
+          </div>
+        )}
+
+        <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-300 dark:border-gray-700 overflow-hidden mb-8 shadow-xl shadow-blue-900/5 dark:shadow-none transition-colors">
+          
+          <div className="flex overflow-x-auto border-b border-gray-200 dark:border-gray-800 hide-scrollbar bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-10">
+            {INNINGS.map(inning => (
+              <button
+                key={inning}
+                onClick={() => setActiveInning(inning)}
+                className={`flex-1 min-w-[70px] py-4 text-sm font-bold transition-all border-b-2 ${
+                  activeInning === inning
+                    ? 'border-[#2563eb] text-[#2563eb] dark:text-blue-400 bg-white dark:bg-gray-800 shadow-sm'
+                    : 'border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                Inn {inning}
+              </button>
+            ))}
+          </div>
+
+          <div className="p-2 sm:p-4 divide-y divide-gray-100 dark:divide-gray-800">
+            {players.map((player, idx) => {
+              const currentPosition = currentInningAssignments[player.id] || 'Bench'
+              
+              const isAvailable = (pos: string) => pos === 'Bench' || pos === currentPosition || !takenPositions.includes(pos)
+              
+              const showFairPlayWarning = 
+                fairPlayEnabled && 
+                currentPosition === 'Bench' && 
+                benchCounts[player.id] > 1 && 
+                unbenchedPlayers.length > 0 &&
+                !unbenchedPlayers.some(p => p.id === player.id)
+              
+              return (
+                <div key={player.id} className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-2xl transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-400 font-black flex items-center justify-center text-sm shrink-0 shadow-sm">
+                        {idx + 1}
+                      </div>
+                      <div className="font-bold text-gray-900 dark:text-white text-base sm:text-lg tracking-tight flex items-center">
+                        {player.name}
+                        {player.isSub && (
+                          <span className="ml-2 text-[10px] uppercase font-black bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400 px-2 py-0.5 rounded-md inline-flex items-center">
+                            <User className="w-3 h-3 mr-1" /> Sub
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="font-bold text-gray-900 dark:text-white text-sm sm:text-base flex items-center">
-                      {player.name}
-                      {player.isSub && (
-                        <span className="ml-2 text-[10px] uppercase bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full inline-flex items-center">
-                          <User className="w-3 h-3 mr-0.5" /> Sub
-                        </span>
-                      )}
-                    </div>
+
+                    {/* Grouped Dropdown for better scannability */}
+                    <select
+                      value={currentPosition}
+                      onChange={(e) => handlePositionChange(player.id, e.target.value)}
+                      className={`px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border font-black text-sm outline-none transition-colors cursor-pointer appearance-none text-center min-w-[80px] sm:min-w-[100px] shadow-sm ${
+                        currentPosition !== 'Bench' 
+                          ? 'bg-[#2563eb] border-[#2563eb] text-white' 
+                          : showFairPlayWarning 
+                            ? 'bg-amber-100 dark:bg-amber-900/20 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-400'
+                            : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      <option value="Bench">Bench</option>
+                      <optgroup label="Infield">
+                        {POSITIONS.INFIELD.map(pos => isAvailable(pos) && (
+                          <option key={pos} value={pos}>{pos}</option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Outfield">
+                        {POSITIONS.OUTFIELD.map(pos => isAvailable(pos) && (
+                          <option key={pos} value={pos}>{pos}</option>
+                        ))}
+                      </optgroup>
+                    </select>
                   </div>
 
-                  <select
-                    value={currentPosition}
-                    onChange={(e) => handlePositionChange(player.id, e.target.value)}
-                    className={`px-3 py-2 rounded-lg border font-bold text-sm outline-none transition-colors cursor-pointer ${
-                      currentPosition !== 'Bench' 
-                        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400' 
-                        : showFairPlayWarning 
-                          ? 'bg-amber-100 dark:bg-amber-900/20 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-400'
-                          : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-                    }`}
-                  >
-                    {availableOptions.map(pos => (
-                      <option key={pos} value={pos}>{pos}</option>
-                    ))}
-                  </select>
+                  {showFairPlayWarning && (
+                    <div className="mt-3 ml-11 sm:ml-12 flex items-start gap-2 text-xs font-bold text-amber-800 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/10 p-2.5 rounded-xl border border-amber-200 dark:border-amber-900/50 shadow-sm">
+                      <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <span className="leading-tight">
+                        {player.name} is on the bench {benchCounts[player.id]} times. 
+                        Consider benching someone with 0 bench time (e.g. {unbenchedPlayers.slice(0, 3).map(p => p.name).join(', ')}) instead.
+                      </span>
+                    </div>
+                  )}
                 </div>
-
-                {showFairPlayWarning && (
-                  <div className="mt-2 ml-9 flex items-start gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/10 p-2 rounded-lg border border-amber-100 dark:border-amber-900/50">
-                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span>
-                      {player.name} is on the bench {benchCounts[player.id]} times. 
-                      Consider benching someone with 0 bench time (e.g. {unbenchedPlayers.slice(0, 3).map(p => p.name).join(', ')}) instead.
-                    </span>
-                  </div>
-                )}
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
-      </div>
 
-      <div className="fixed bottom-15 sm:bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-40">
-        <div className="max-w-3xl mx-auto flex justify-end">
-          <button
-            onClick={handleSaveGame}
-            disabled={saving}
-            className="w-full sm:w-auto py-3 px-8 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm text-lg"
-          >
-            {saving ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Saving Game...
-              </>
-            ) : (
-              <>
-                <Save className="w-5 h-5 mr-2" />
-                Save Final Game
-              </>
-            )}
-          </button>
+        {/* Sticky Footer Bar */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-t border-gray-300 dark:border-gray-800 z-40 transition-colors">
+          <div className="max-w-2xl mx-auto flex justify-end">
+            <button
+              onClick={handleSaveGame}
+              disabled={saving}
+              className="w-full sm:w-auto px-8 py-3.5 bg-[#43a047] hover:bg-green-700 text-white font-bold rounded-xl flex items-center justify-center transition-all active:scale-95 disabled:opacity-50 shadow-md shadow-green-900/20 text-base"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Saving Game...
+                </>
+              ) : (
+                <>
+                  <Save className="w-5 h-5 mr-2" />
+                  Save Lineup
+                </>
+              )}
+            </button>
+          </div>
         </div>
+
+        {/* Render Map Modal if toggled */}
+        {showMap && <FieldMapModal onClose={() => setShowMap(false)} />}
       </div>
     </div>
   )
@@ -400,7 +423,11 @@ function PositionsContent() {
 
 export default function PositionsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#f8f9fa] dark:bg-gray-950"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 flex items-center justify-center transition-colors">
+        <Loader2 className="w-8 h-8 animate-spin text-[#2563eb]" />
+      </div>
+    }>
       <PositionsContent />
     </Suspense>
   )

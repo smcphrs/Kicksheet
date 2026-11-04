@@ -50,14 +50,14 @@ export function WriteInSubForm({ gameId, onSuccess }: { gameId: string, onSucces
           className="flex items-center justify-center w-full py-2 text-sm font-bold text-[#2563eb] dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors active:scale-95 group"
         >
           <UserPlus className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" /> 
-          Add Write-in Sub
+          Add Sub
         </button>
       ) : (
         <form onSubmit={handleAddSub} className="flex flex-col sm:flex-row items-center gap-3 animate-in fade-in zoom-in-95 duration-200">
           <input
             autoFocus
             type="text"
-            placeholder="Sub's full name..."
+            placeholder="Full Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full flex-1 p-3 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-[#2563eb] outline-none text-gray-900 dark:text-white placeholder-gray-400 font-medium text-sm"
