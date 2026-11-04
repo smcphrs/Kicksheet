@@ -415,7 +415,7 @@ function PositionsContent() {
         </div>
 
         {/* Render Map Modal if toggled */}
-        {showMap && <FieldMapModal onClose={() => setShowMap(false)} />}
+{showMap && <FieldMapModal isOpen={showMap} onClose={() => setShowMap(false)} />}
       </div>
     </div>
   )
