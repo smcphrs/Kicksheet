@@ -250,7 +250,7 @@ function PositionsContent() {
   const takenPositions = Object.values(currentInningAssignments).filter(pos => pos !== 'Bench')
 
   return (
-    <div className="max-w-3xl mx-auto p-6 w-full pb-24">
+    <div className="max-w-2xl mx-auto p-4 w-full pt-8 sm:pt-24 pb-32">
       <div className="flex items-center justify-between mb-8">
         <Link href={`/games/new/kicking-order?id=${id}`} className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
           <ArrowLeft className="w-4 h-4 mr-1" />
