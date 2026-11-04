@@ -118,7 +118,7 @@ export default function ManageTeamsPage() {
         )}
 
         <div className="space-y-3 sm:space-y-4">
-          <div className="w-full bg-gray-300/60 dark:bg-black/40 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
+          <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
             <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">
               Active Teams
             </h2>
