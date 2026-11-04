@@ -3,49 +3,43 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { UserPlus, Check, X, Loader2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 
-export function WriteInSubForm({ gameId }: { gameId: string }) {
+export function WriteInSubForm({ gameId, onSuccess }: { gameId: string, onSuccess?: (player: any) => void }) {
   const [isOpen, setIsOpen] = useState(false)
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
   const supabase = createClient()
 
   const handleAddSub = async (e: React.FormEvent) => {
-  e.preventDefault()
-  if (!name.trim()) return
-  setLoading(true)
+    e.preventDefault()
+    if (!name.trim()) return
+    setLoading(true)
 
-  // 1. Create the sub
-  const { data: subPlayer, error: playerError } = await supabase
-    .from('players')
-    .insert({ 
-      name: `${name.trim()} (Sub)`,
-      team_id: null 
-    })
-    .select()
-    .single()
+    // Create the sub
+    const { data: subPlayer, error: playerError } = await supabase
+      .from('players')
+      .insert({ 
+        name: `${name.trim()} (Sub)`,
+        team_id: null 
+      })
+      .select()
+      .single()
 
-  if (playerError) {
-    console.error("SUPABASE PLAYER ERROR:", playerError)
-    alert(`Failed to create sub: ${playerError.message}`)
+    if (playerError) {
+      console.error("SUPABASE PLAYER ERROR:", playerError)
+      alert(`Failed to create sub: ${playerError.message}`)
+      setLoading(false)
+      return
+    }
+
+    // Hand the new player directly back to the parent page!
+    if (onSuccess) {
+      onSuccess(subPlayer)
+    }
+    
+    setName('')
+    setIsOpen(false)
     setLoading(false)
-    return
-  }
-
-  // 2. We need to add the new sub ID to your page's selectedIds state!
-  // But since that state lives in the parent page, we need to pass it back up.
-  // Wait, your current setup just reloads the page. Let's stick to that for now, 
-  // but ensure the attendance table gets updated if you use one.
-  
-  setName('')
-  setIsOpen(false)
-  
-  // Force a hard refresh so the new sub appears in the list
-  window.location.reload()
-  
-  setLoading(false)
   }
 
   return (

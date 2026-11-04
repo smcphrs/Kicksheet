@@ -23,11 +23,18 @@ function AttendanceContent() {
       const { data: game } = await supabase.from('games').select('team_id, kicking_order').eq('id', id).single()
       if (!game) return
 
-      const { data: roster } = await supabase.from('players').select('*').eq('team_id', game.team_id).order('name')
+      // Fetch roster OR anyone already saved to this game's kicking order (which will include our subs!)
+      let query = supabase.from('players').select('*')
+      if (game.kicking_order && game.kicking_order.length > 0) {
+        query = query.or(`team_id.eq.${game.team_id},id.in.(${game.kicking_order.join(',')})`)
+      } else {
+        query = query.eq('team_id', game.team_id)
+      }
+      
+      const { data: roster } = await query.order('name')
       
       if (roster) {
         setPlayers(roster)
-        // If we already saved attendance, use it. Otherwise, select everyone by default.
         if (game.kicking_order && game.kicking_order.length > 0) {
           setSelectedIds(game.kicking_order)
         } else {
@@ -47,11 +54,15 @@ function AttendanceContent() {
     )
   }
 
+  // This catches the new sub from the form and instantly updates the UI
+  const handleSubAdded = (newPlayer: any) => {
+    setPlayers(prev => [...prev, newPlayer]) // Add them to the visual list
+    setSelectedIds(prev => [...prev, newPlayer.id]) // Auto-select them
+  }
+
   const handleNext = async () => {
     setSaving(true)
-    // Save the attendance to the kicking_order array temporarily
     await supabase.from('games').update({ kicking_order: selectedIds }).eq('id', id)
-    // Send them to the next step
     router.push(`/games/new/kicking-order?id=${id}`)
   }
 
@@ -100,8 +111,9 @@ function AttendanceContent() {
             )
           })}
         </div>
-        {/* Safely pass the URL id variable instead of the non-existent game object */}
-        {id && <WriteInSubForm gameId={id} />}
+        
+        {/* Pass the handleSubAdded function to the form! */}
+        {id && <WriteInSubForm gameId={id} onSuccess={handleSubAdded} />}
       </div>
 
       <div className="fixed bottom-15 sm:bottom-0 z-40 left-0 right-0 p-4 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800">
