@@ -104,7 +104,7 @@ export default async function DashboardPage() {
 
         {/* STATS SECTION */}
         <div className="space-y-3 sm:space-y-4">
-          <div className="w-full bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 flex items-center">
+          <div className="w-full bg-gray-300/60 dark:bg-black/40 rounded-xl px-4 py-2.5 flex items-center">
             <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">Stats</h2>
           </div>
 
@@ -182,7 +182,7 @@ export default async function DashboardPage() {
             
             {/* Next Game Hero */}
             <section>
-              <div className="w-full bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
+              <div className="w-full bg-gray-300/60 dark:bg-black/40 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
                 <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
                   <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
                   Next Up
@@ -247,7 +247,7 @@ export default async function DashboardPage() {
 
             {/* Teams Thumbnails Hub */}
             <section>
-              <div className="w-full bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
+              <div className="w-full bg-gray-300/60 dark:bg-black/40 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
                 <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">
                   Your Teams
                 </h2>
@@ -286,7 +286,7 @@ export default async function DashboardPage() {
 
           {/* Right Column: Recent Games */}
           <div className="space-y-4 lg:pl-4">
-            <div className="w-full bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
+            <div className="w-full bg-gray-300/60 dark:bg-black/40 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
               <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">
                 Recent Games
               </h2>

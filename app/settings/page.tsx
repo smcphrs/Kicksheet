@@ -152,7 +152,7 @@ export default function SettingsPage() {
           
           {/* Game Preferences */}
           <section>
-            <div className="w-full bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 flex items-center mb-4">
+            <div className="w-full bg-gray-300/60 dark:bg-black/40 rounded-xl px-4 py-2.5 flex items-center mb-4">
               <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
                 <Cog className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Game Engine
               </h2>
@@ -205,7 +205,7 @@ export default function SettingsPage() {
 
           {/* App Preferences */}
           <section>
-            <div className="w-full bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 flex items-center mb-4">
+            <div className="w-full bg-gray-300/60 dark:bg-black/40 rounded-xl px-4 py-2.5 flex items-center mb-4">
               <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
                 <Paintbrush className="w-4 h-4 text-orange-500" /> Interface
               </h2>
@@ -283,7 +283,7 @@ export default function SettingsPage() {
 
           {/* Account Settings */}
           <section>
-            <div className="w-full bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 flex items-center mb-4 mt-8">
+            <div className="w-full bg-gray-300/60 dark:bg-black/40 rounded-xl px-4 py-2.5 flex items-center mb-4 mt-8">
               <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
                 <Shield className="w-4 h-4 text-green-600 dark:text-green-400" /> Account Security
               </h2>
