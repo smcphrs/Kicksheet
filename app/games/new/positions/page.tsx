@@ -265,32 +265,31 @@ function PositionsContent() {
           </Link>
         </div>
 
-        <div className="mb-6 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-          <div>
-            <h2 className="text-xs font-black text-[#2563eb] dark:text-blue-400 uppercase tracking-widest mb-1">Step 3 of 3</h2>
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white">Field Positions</h1>
-            <p className="text-gray-500 dark:text-gray-400 font-medium mt-1 text-lg">Assign the positions for each inning.</p>
-          </div>
+        <div className="mb-8 text-center">
+          <h2 className="text-xs font-black text-[#2563eb] dark:text-blue-400 uppercase tracking-widest mb-2">Step 3 of 3</h2>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white">Field Positions</h1>
+          <p className="text-gray-500 dark:text-gray-400 font-medium mt-2 text-lg">Assign the positions for each inning.</p>
           
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          {/* Slim, Subtle Action Buttons */}
+          <div className="flex items-center justify-center gap-2 mt-5 w-full">
             <button
               onClick={() => setShowMap(true)}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center p-2.5 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 font-bold rounded-xl transition-all active:scale-95 shadow-sm"
-              title="View Field Map"
+              className="inline-flex items-center justify-center px-3 py-1.5 sm:px-4 sm:py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-700 font-bold rounded-lg transition-all active:scale-95 shadow-sm text-xs sm:text-sm"
             >
+              Map
             </button>
             <button
               onClick={handleResetInning}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 font-bold rounded-xl transition-all active:scale-95 shadow-sm text-sm"
+              className="inline-flex items-center justify-center px-3 py-1.5 sm:px-4 sm:py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-700 font-bold rounded-lg transition-all active:scale-95 shadow-sm text-xs sm:text-sm"
             >
-              <RotateCcw className="w-4 h-4 mr-1.5" />
+              <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5" />
               Reset
             </button>
             <button
               onClick={handleAutoSetInning}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-900/20 transition-all active:scale-95 text-sm"
+              className="inline-flex items-center justify-center px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-50 dark:bg-[#2563eb]/10 hover:bg-blue-100 dark:hover:bg-[#2563eb]/20 text-[#2563eb] dark:text-blue-400 border border-blue-200 dark:border-blue-800 font-bold rounded-lg transition-all active:scale-95 shadow-sm text-xs sm:text-sm"
             >
-              <Sparkles className="w-4 h-4 mr-1.5" />
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5" />
               Auto Set
             </button>
           </div>
@@ -350,7 +349,6 @@ function PositionsContent() {
                       </div>
                     </div>
 
-                    {/* Grouped Dropdown for better scannability */}
                     <select
                       value={currentPosition}
                       onChange={(e) => handlePositionChange(player.id, e.target.value)}
@@ -415,7 +413,7 @@ function PositionsContent() {
         </div>
 
         {/* Render Map Modal if toggled */}
-{showMap && <FieldMapModal isOpen={showMap} onClose={() => setShowMap(false)} />}
+        {showMap && <FieldMapModal isOpen={showMap} onClose={() => setShowMap(false)} />}
       </div>
     </div>
   )
