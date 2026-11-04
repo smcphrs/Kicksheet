@@ -82,7 +82,6 @@ function KickingOrderContent() {
       <div className="mb-8 text-center">
         <h2 className="text-sm font-bold text-blue-600 uppercase tracking-wider mb-2">Step 2 of 3</h2>
         <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">Kicking Order</h1>
-        <p className="text-gray-500 dark:text-gray-400 font-medium mt-2">Adjust the lineup sequence</p>
       </div>
 
       <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 p-2 sm:p-4 mb-6">
