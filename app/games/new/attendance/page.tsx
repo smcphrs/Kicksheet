@@ -80,7 +80,7 @@ function AttendanceContent() {
         <div className="mb-8 text-center">
           <h2 className="text-xs font-black text-[#2563eb] dark:text-blue-400 uppercase tracking-widest mb-2">Step 1 of 3</h2>
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white">Attendance</h1>
-          <p className="text-gray-500 dark:text-gray-400 font-medium mt-2 text-lg">Who will play in this game?</p>
+          <p className="text-gray-500 dark:text-gray-400 font-medium mt-1 text-lg">Who will play in this game?</p>
         </div>
 
         <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-300 dark:border-gray-700 p-3 sm:p-5 mb-6 shadow-xl shadow-blue-900/5 dark:shadow-none transition-colors">
