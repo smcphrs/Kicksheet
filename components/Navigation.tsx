@@ -56,7 +56,7 @@ export default function Navigation() {
 
       {/* Mobile Bottom Nav */}
       
-      <nav className="fixed bottom-0 left-0 right-0 z-50 w-full bg-[#111827] border-t border-gray-800 pb-[env(safe-area-inset-bottom)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 w-full bg-[#111827] border-t border-gray-800 pb-[env(safe-area-inset-bottom)]">
         <div className="flex justify-around items-center h-16 px-2">
           {navItems.map((item) => {
             const isActive = pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')
