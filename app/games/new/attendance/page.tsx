@@ -76,7 +76,7 @@ function AttendanceContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
-      <div className="max-w-2xl mx-auto p-4 w-full pt-8 sm:pt-24 pb-32">
+      <div className="max-w-2xl mx-auto p-4 w-full pt-8 sm:pt-24 pb-48">
         <div className="mb-8 text-center">
           <h2 className="text-xs font-black text-[#2563eb] dark:text-blue-400 uppercase tracking-widest mb-2">Step 1 of 3</h2>
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white">Attendance</h1>
@@ -130,7 +130,7 @@ function AttendanceContent() {
       </div>
       
       {/* Sticky Footer Bar */}
-      <div className="fixed bottom-0 z-40 left-0 right-0 p-4 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-t border-gray-300 dark:border-gray-800 transition-colors">
+      <div className="fixed bottom-20 sm:bottom-0 z-40 left-0 right-0 p-4 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-t border-gray-300 dark:border-gray-800 transition-colors">
         <div className="max-w-2xl mx-auto flex justify-end">
           <button 
             onClick={handleNext}

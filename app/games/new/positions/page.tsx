@@ -256,7 +256,7 @@ function PositionsContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
-      <div className="max-w-2xl mx-auto p-4 w-full pt-8 sm:pt-24 pb-32">
+      <div className="max-w-2xl mx-auto p-4 w-full pt-8 sm:pt-24 pb-48">
         
         <div className="flex items-center justify-between mb-8">
           <Link href={`/games/new/kicking-order?id=${id}`} className="inline-flex items-center text-sm font-bold text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 transition-colors mb-2">
@@ -390,7 +390,7 @@ function PositionsContent() {
         </div>
 
         {/* Sticky Footer Bar */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-t border-gray-300 dark:border-gray-800 z-40 transition-colors">
+        <div className="fixed bottom-20 sm:bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-t border-gray-300 dark:border-gray-800 z-40 transition-colors">
           <div className="max-w-2xl mx-auto flex justify-end">
             <button
               onClick={handleSaveGame}
