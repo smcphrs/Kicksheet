@@ -100,7 +100,8 @@ function AttendanceContent() {
             )
           })}
         </div>
-        <WriteInSubForm gameId={game.id} />
+        {/* Safely pass the URL id variable instead of the non-existent game object */}
+        {id && <WriteInSubForm gameId={id} />}
       </div>
 
       <div className="fixed bottom-15 sm:bottom-0 z-40 left-0 right-0 p-4 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800">
