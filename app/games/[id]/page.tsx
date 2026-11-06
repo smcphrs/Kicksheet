@@ -250,20 +250,24 @@ function LineupContent() {
             <div className="relative group flex items-center cursor-help">
               <h2 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-1.5">
                 Lineup
-                <Info className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                {!downloading && <Info className="w-4 h-4 text-gray-400 dark:text-gray-500" />}
               </h2>
-              <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
-                Tap a name to highlight only that row, or tap an Inning number to highlight only that column.
-                <div className="absolute -top-1 left-6 w-3 h-3 bg-gray-900 dark:bg-white rotate-45"></div>
-              </div>
+              {!downloading && (
+                <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
+                  Tap a name to highlight only that row, or tap an Inning number to highlight only that column.
+                  <div className="absolute -top-1 left-6 w-3 h-3 bg-gray-900 dark:bg-white rotate-45"></div>
+                </div>
+              )}
             </div>
             
-            <button 
-              onClick={() => setShowFieldMap(true)}
-              className="inline-flex items-center justify-center px-3 py-1 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 shadow-sm"
-            >
-              Field Map
-            </button>
+            {!downloading && (
+              <button 
+                onClick={() => setShowFieldMap(true)}
+                className="inline-flex items-center justify-center px-3 py-1 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 shadow-sm"
+              >
+                Field Map
+              </button>
+            )}
           </div>
 
           {/* Tightened High-Legibility Table */}
