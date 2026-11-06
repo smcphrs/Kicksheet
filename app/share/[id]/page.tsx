@@ -364,7 +364,7 @@ function PublicLineupContent() {
                 { abbr: 'RC', name: 'Right Center' }, { abbr: 'P', name: 'Pitcher' }, { abbr: 'C', name: 'Catcher' },
                 { abbr: '1B', name: '1st Base' }, { abbr: 'SS', name: 'Shortstop' }, { abbr: 'RF', name: 'Right Field' },
                 { abbr: '3B', name: '3rd Base' }, { abbr: '2B', name: '2nd Base' }, { abbr: 'LF', name: 'Left Field' },
-                { abbr: 'LC', name: 'Left Center' }, { abbr: 'OUT', name: 'Out' },
+                { abbr: 'LC', name: 'Left Center' },
               ].map(item => (
                 <div key={item.abbr} className="flex items-center gap-1">
                   <span className={`inline-flex items-center justify-center w-[20px] h-[14px] sm:w-[28px] sm:h-[18px] rounded text-[8px] sm:text-[10px] font-black text-white tracking-tighter ${getPositionColors(item.abbr)}`}>
