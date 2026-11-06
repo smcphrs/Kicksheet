@@ -297,7 +297,7 @@ function PublicLineupContent() {
                 <tr>
                   <th 
                     onClick={() => setHighlight(prev => prev === 'col_order' ? null : 'col_order')}
-                    className={`px-2 sm:px-3 py-1.5 sm:py-2.5 w-[90px] sm:w-[150px] cursor-pointer select-none transition-colors tracking-wider uppercase ${highlight === 'col_order' ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
+                    className={`px-2 sm:px-3 py-1.5 sm:py-2.5 w-[90px] sm:w-[150px] cursor-pointer select-none transition-colors tracking-wider ${highlight === 'col_order' ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
                   >
                     Order
                   </th>
