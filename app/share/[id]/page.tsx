@@ -135,7 +135,7 @@ function PublicLineupContent() {
 
   const getPositionColors = (pos: string) => {
     switch (pos) {
-     case 'LF': return 'bg-[#3730a3] text-white' 
+      case 'LF': return 'bg-[#3730a3] text-white' 
       case 'LC': return 'bg-[#0284c7] text-white' 
       case 'RC': return 'bg-[#00be99] text-white' 
       case 'RF': return 'bg-[#16a34a] text-white'
@@ -219,7 +219,7 @@ function PublicLineupContent() {
         <div className={`px-2 sm:px-6 pt-2 sm:pt-6 transform transition-all duration-700 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
           
           {/* Header Card with Compartmentalized Grid Details */}
-          <div className="bg-[#2563eb] text-white p-3 sm:p-5 rounded-2xl sm:rounded-3xl mb-3 relative overflow-hidden border border-blue-700 shadow-lg shadow-blue-900/10">
+          <div className="bg-[#2563eb] text-white p-3 sm:p-5 rounded-2xl sm:rounded-3xl mb-3 relative overflow-hidden border border-blue-700">
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-2">
                 <div className="inline-flex items-center px-3 py-0.5 bg-white/20 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-full border border-white/30 backdrop-blur-sm">
@@ -297,7 +297,7 @@ function PublicLineupContent() {
                 <Info className="w-4 h-4 text-gray-400 dark:text-gray-500" />
               </h2>
               
-              <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-active:opacity-100 group-active:visible transition-all z-50 pointer-events-none">
+              <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-active:opacity-100 group-active:visible transition-all z-50 pointer-events-none">
                 For quicker sorting, tap a name to highlight only that row, or tap an Inning number to highlight only that column.
                 <div className="absolute -top-1 left-6 w-3 h-3 bg-gray-900 dark:bg-white rotate-45"></div>
               </div>
@@ -305,20 +305,20 @@ function PublicLineupContent() {
             
             <button 
               onClick={() => setShowFieldMap(true)}
-              className="inline-flex items-center justify-center px-3 py-1 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 shadow-sm"
+              className="inline-flex items-center justify-center px-3 py-1 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
             >
               Field Map
             </button>
           </div>
 
           {/* Tightened High-Legibility Table */}
-          <div className={`bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-700 delay-300 ease-out border border-gray-300 dark:border-gray-700 shadow-sm ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+          <div className={`bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-700 delay-300 ease-out border border-gray-300 dark:border-gray-700 ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
             <table className="w-full text-left border-collapse">
               <thead className="bg-[#2563eb] text-white text-xs sm:text-sm font-black tracking-tight border-b-2 border-blue-800">
                 <tr>
                   <th 
                     onClick={() => setHighlight(prev => prev === 'col_order' ? null : 'col_order')}
-                    className={`px-2 sm:px-3 py-1.5 sm:py-2.5 w-[90px] sm:w-[150px] cursor-pointer select-none transition-colors tracking-wider ${highlight === 'col_order' ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
+                    className={`px-2 sm:px-3 py-1.5 sm:py-2.5 w-[90px] sm:w-[150px] cursor-pointer select-none transition-colors tracking-wider uppercase ${highlight === 'col_order' ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
                   >
                     Order
                   </th>
@@ -364,7 +364,7 @@ function PublicLineupContent() {
                          
                          return (
                            <td key={inning} className={`px-0.5 sm:px-1 py-1 sm:py-1.5 text-center align-middle transition-all duration-300 border-r border-gray-200 dark:border-gray-800 last:border-r-0 ${isCellDimmedByCol ? 'opacity-25 grayscale' : 'opacity-100'} ${isCellHighlighted ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}>
-                             <span className={`inline-flex items-center justify-center w-[30px] h-[20px] sm:w-[44px] sm:h-[26px] rounded sm:rounded-md text-[10px] sm:text-xs font-black uppercase tracking-tighter sm:tracking-tight ${colors} shadow-sm ${isCellHighlighted || isRowHighlighted ? 'ring-2 ring-white/20 dark:ring-black/20' : ''}`}>
+                             <span className={`inline-flex items-center justify-center w-[30px] h-[20px] sm:w-[44px] sm:h-[26px] rounded sm:rounded-md text-[10px] sm:text-xs font-black uppercase tracking-tighter sm:tracking-tight ${colors} ${isCellHighlighted || isRowHighlighted ? 'ring-2 ring-white/20 dark:ring-black/20' : ''}`}>
                                {pos}
                              </span>
                            </td>
