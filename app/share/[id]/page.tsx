@@ -135,16 +135,16 @@ function PublicLineupContent() {
 
   const getPositionColors = (pos: string) => {
     switch (pos) {
-       case 'LF': return 'bg-[#3730a3] text-white' 
+      case 'LF': return 'bg-[#3730a3] text-white' 
       case 'LC': return 'bg-[#0284c7] text-white' 
-      case 'RC': return 'bg-[#00be99] text-white' 
+      case 'RC': return 'bg-[#0f766e] text-white' 
       case 'RF': return 'bg-[#16a34a] text-white'
-      case 'P':  return 'bg-[#ec0000] text-white'
-      case 'C':  return 'bg-[#9942cc] text-white' 
-      case '1B': return 'bg-[#ff6a66] text-white' 
-      case '2B': return 'bg-[#ff8800] text-white' 
-      case '3B': return 'bg-[#e3005c] text-white' 
-      case 'SS': return 'bg-[#dbcc07] text-white' 
+      case 'P':  return 'bg-[#b91c1c] text-white'
+      case 'C':  return 'bg-[#6d28d9] text-white' 
+      case '1B': return 'bg-[#c2410c] text-white' 
+      case '2B': return 'bg-[#d97706] text-white' 
+      case '3B': return 'bg-[#9d174d] text-white' 
+      case 'SS': return 'bg-[#475569] text-white' 
       case 'Bench':
       case 'OUT': return 'bg-[#757575] text-white' 
       default: return 'bg-gray-400 dark:bg-gray-600 text-white'
@@ -218,35 +218,51 @@ function PublicLineupContent() {
       <div className="max-w-4xl mx-auto w-full" ref={captureRef}>
         <div className={`px-2 sm:px-6 pt-2 sm:pt-6 transform transition-all duration-700 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
           
-          {/* Tightened Header Card */}
-          <div className="bg-[#2563eb] text-white p-3 sm:p-5 rounded-2xl sm:rounded-3xl mb-3 relative overflow-hidden border border-blue-700">
+          {/* Header Card with Compartmentalized Grid Details */}
+          <div className="bg-[#2563eb] text-white p-3 sm:p-5 rounded-2xl sm:rounded-3xl mb-3 relative overflow-hidden border border-blue-700 shadow-lg shadow-blue-900/10">
             <div className="relative z-10">
-              <div className="inline-flex items-center px-3 py-0.5 bg-white/20 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-full mb-1.5 border border-white/30 backdrop-blur-sm">
+              <div className="inline-flex items-center px-3 py-0.5 bg-white/20 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-full mb-2 border border-white/30 backdrop-blur-sm">
                 {game?.teams?.name || 'Your Team'}
               </div>
 
-              <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-2 flex items-baseline gap-1.5 sm:gap-2">
+              <h1 className="text-3xl sm:text-4xl font-black tracking-tighter mb-4 flex items-baseline gap-1.5 sm:gap-2">
                 <span className="text-blue-200/80 text-xl sm:text-2xl font-bold tracking-normal">vs</span> 
                 {game.opposing_team || 'TBD'}
               </h1>
 
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-blue-50 font-bold text-sm sm:text-base">
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 opacity-90" />
-                  <span>{formattedDate}</span>
+              {/* Grid layout for distinct separate cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl p-2.5 sm:p-3 border border-white/10 flex flex-col justify-center">
+                  <div className="flex items-center gap-1.5 text-blue-200 mb-1">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Date</span>
+                  </div>
+                  <span className="text-sm font-bold text-white truncate">{formattedDate}</span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 opacity-90" />
-                  <span>{formatTime(game.game_time)}</span>
+                
+                <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl p-2.5 sm:p-3 border border-white/10 flex flex-col justify-center">
+                  <div className="flex items-center gap-1.5 text-blue-200 mb-1">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Time</span>
+                  </div>
+                  <span className="text-sm font-bold text-white truncate">{formatTime(game.game_time)}</span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4 opacity-90" />
-                  <span>{game.location || 'Unknown'} {game.field ? `• ${game.field}` : ''}</span>
+
+                <div className={`bg-white/10 hover:bg-white/20 transition-colors rounded-xl p-2.5 sm:p-3 border border-white/10 flex flex-col justify-center ${!game.weather ? 'col-span-2' : ''}`}>
+                  <div className="flex items-center gap-1.5 text-blue-200 mb-1">
+                    <MapPin className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Location</span>
+                  </div>
+                  <span className="text-sm font-bold text-white truncate">{game.location || 'Unknown'} {game.field ? `• ${game.field}` : ''}</span>
                 </div>
+
                 {game.weather && (
-                  <div className="flex items-center gap-1.5">
-                    <Cloud className="w-4 h-4 opacity-90" />
-                    <span>{game.weather}</span>
+                  <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl p-2.5 sm:p-3 border border-white/10 flex flex-col justify-center">
+                    <div className="flex items-center gap-1.5 text-blue-200 mb-1">
+                      <Cloud className="w-3.5 h-3.5" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">Weather</span>
+                    </div>
+                    <span className="text-sm font-bold text-white truncate">{game.weather}</span>
                   </div>
                 )}
               </div>
@@ -297,7 +313,7 @@ function PublicLineupContent() {
                 <tr>
                   <th 
                     onClick={() => setHighlight(prev => prev === 'col_order' ? null : 'col_order')}
-                    className={`px-2 sm:px-3 py-1.5 sm:py-2.5 w-[90px] sm:w-[150px] cursor-pointer select-none transition-colors tracking-wider ${highlight === 'col_order' ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
+                    className={`px-2 sm:px-3 py-1.5 sm:py-2.5 w-[90px] sm:w-[150px] cursor-pointer select-none transition-colors tracking-wider uppercase ${highlight === 'col_order' ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
                   >
                     Order
                   </th>
@@ -305,7 +321,7 @@ function PublicLineupContent() {
                     <th 
                       key={i} 
                       onClick={() => setHighlight(prev => prev === `col_${i}` ? null : `col_${i}`)}
-                      className={`px-0.5 sm:px-1 py-1.5 sm:py-2.5 text-center min-w-[30px] sm:min-w-[50px] cursor-pointer select-none transition-colors ${highlight === `col_${i}` ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
+                      className={`px-0.5 sm:px-1 py-1.5 sm:py-2.5 text-center min-w-[30px] sm:min-w-[50px] cursor-pointer select-none transition-colors font-mono text-[13px] sm:text-base ${highlight === `col_${i}` ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
                     >
                       {i}
                     </th>
@@ -315,7 +331,7 @@ function PublicLineupContent() {
               <tbody className="text-gray-900 dark:text-gray-100">
                 {orderedPlayers.map((player: any, idx: number) => {
                   const isEven = idx % 2 === 0
-                  const rowBg = isEven ? 'bg-white dark:bg-gray-900' : 'bg-blue-50/30 dark:bg-gray-800/40'
+                  const rowBg = isEven ? 'bg-white dark:bg-gray-900' : 'bg-[#f8fafc] dark:bg-gray-800/40'
                   
                   const isRowDimmed = highlight?.startsWith('player_') && highlight !== `player_${player.id}`
                   const isRowHighlighted = highlight === `player_${player.id}`
@@ -358,16 +374,16 @@ function PublicLineupContent() {
 
           {/* Tightened Legend */}
           <div className={`mt-3 sm:mt-5 mb-4 px-1 transition-all duration-700 delay-500 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-            <h3 className="text-[10px] sm:text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5">Legend</h3>
-            <div className="flex flex-wrap gap-x-2.5 gap-y-1.5 text-[10px] sm:text-xs font-bold text-gray-700 dark:text-gray-300">
+            <h3 className="text-[10px] sm:text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 sm:mb-3">Legend</h3>
+            <div className="flex flex-wrap gap-x-2.5 gap-y-2 sm:gap-4 text-[10px] sm:text-xs font-bold text-gray-600 dark:text-gray-400">
               {[
                  { abbr: 'P', name: 'Pitcher' }, 
                 { abbr: '1B', name: '1st Base' }, 
                { abbr: '2B', name: '2nd Base' }, { abbr: 'SS', name: 'Short Stop' }, { abbr: '3B', name: '3rd Base' }, { abbr: 'RF', name: 'Right Field' }, { abbr: 'RC', name: 'Right Center' }, { abbr: 'LF', name: 'Left Field' },
                 { abbr: 'LC', name: 'Left Center' }, { abbr: 'C', name: 'Catcher' },
               ].map(item => (
-                <div key={item.abbr} className="flex items-center gap-1">
-                  <span className={`inline-flex items-center justify-center w-[20px] h-[14px] sm:w-[28px] sm:h-[18px] rounded text-[8px] sm:text-[10px] font-black text-white tracking-tighter ${getPositionColors(item.abbr)}`}>
+                <div key={item.abbr} className="flex items-center gap-1.5 sm:gap-2">
+                  <span className={`inline-flex items-center justify-center w-[22px] h-[14px] sm:w-[36px] sm:h-[24px] rounded text-[8px] sm:text-[11px] font-black text-white tracking-tighter ${getPositionColors(item.abbr)}`}>
                     {item.abbr}
                   </span>
                   <span className="tracking-tight">{item.name}</span>
@@ -375,7 +391,7 @@ function PublicLineupContent() {
               ))}
             </div>
           </div>
-          <div className={`text-center text-[10px] font-bold text-gray-400 dark:text-gray-600 pb-2 transition-all duration-700 delay-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+          <div className={`text-center text-[10px] sm:text-xs font-semibold text-gray-400 dark:text-gray-600 pb-2 sm:pb-8 transition-all duration-700 delay-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
             Created using Kicksheet
           </div>
         </div>
