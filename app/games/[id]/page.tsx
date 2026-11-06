@@ -114,7 +114,7 @@ function LineupContent() {
       case 'LC': return 'bg-[#0284c7] text-white' 
       case 'RC': return 'bg-[#009975] text-white' 
       case 'RF': return 'bg-[#16a34a] text-white'
-      case 'P':  return 'bg-[#b91c1c] text-white'
+      case 'P':  return 'bg-[#ec0000] text-white'
       case 'C':  return 'bg-[#9942cc] text-white' 
       case '1B': return 'bg-[#ff6a66] text-white' 
       case '2B': return 'bg-[#ff8800] text-white' 
