@@ -129,7 +129,7 @@ function LineupContent() {
   const formatName = (name: string) => {
     const parts = name.split(' ')
     if (parts.length > 1) {
-      return `${parts[0]} ${parts[parts.length - 1][0]}.`
+       return `${parts[0]} ${parts[parts.length - 1][0]}.`
     }
     return name
   }
@@ -194,105 +194,104 @@ function LineupContent() {
       <div className="max-w-4xl mx-auto w-full" ref={captureRef}>
         <div className="px-2 sm:px-6 pt-2 sm:pt-6">
           
-          <div className="bg-[#2563eb] text-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 border border-blue-700">
-            <div className="inline-flex items-center px-3 py-1 bg-white/20 text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-full mb-2.5 border border-white/30">
+          {/* Tightened Header Card */}
+          <div className="bg-[#2563eb] text-white p-3 sm:p-5 rounded-2xl sm:rounded-3xl mb-3 border border-blue-700">
+            <div className="inline-flex items-center px-3 py-0.5 bg-white/20 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-full mb-1.5 border border-white/30">
               {game?.teams?.name || 'Your Team'}
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight mb-4 flex items-baseline gap-1.5 sm:gap-2">
-              <span className="text-blue-200 text-xl sm:text-2xl">vs</span> 
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tighter mb-2 flex items-baseline gap-1.5 sm:gap-2">
+              <span className="text-blue-200 text-xl sm:text-2xl font-bold">vs</span> 
               {game.opposing_team || 'TBD'}
             </h1>
 
-            <div className="flex flex-wrap items-center gap-x-4 sm:gap-x-6 gap-y-2.5 text-blue-50 font-medium text-xs sm:text-sm">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-blue-50 font-bold text-sm sm:text-base">
               <div className="flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 opacity-80" />
+                <Calendar className="w-4 h-4 opacity-90" />
                 <span>{formattedDate}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4 opacity-80" />
+                <Clock className="w-4 h-4 opacity-90" />
                 <span>{formatTime(game.game_time)}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 opacity-80" />
+                <MapPin className="w-4 h-4 opacity-90" />
                 <span>{game.location || 'Unknown'} {game.field ? `• ${game.field}` : ''}</span>
               </div>
               {game.weather && (
                 <div className="flex items-center gap-1.5">
-                  <Cloud className="w-4 h-4 opacity-80" />
+                  <Cloud className="w-4 h-4 opacity-90" />
                   <span>{game.weather}</span>
                 </div>
               )}
               <div className="flex items-center gap-1.5">
-                <Users className="w-4 h-4 opacity-80" />
+                <Users className="w-4 h-4 opacity-90" />
                 <span>{orderedPlayers.length} players</span>
               </div>
             </div>
           </div>
 
+          {/* Tightened Notes Box */}
           {game.notes && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl sm:rounded-3xl p-4 sm:p-2 mb-4 sm:mb-8 flex items-start gap-3 sm:gap-4">
-              <div className="bg-red-100 dark:bg-red-900/50 p-2 rounded-full shrink-0">
-                <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl p-3 mb-3 flex items-start gap-3">
+              <div className="bg-red-100 dark:bg-red-900/50 p-1.5 rounded-full shrink-0 mt-0.5">
+                <Megaphone className="w-4 h-4 text-red-600 dark:text-red-400" />
               </div>
-              <div className="pt-0.5">
-                <p className="text-red-800 dark:text-red-200 text-sm sm:text-base font-medium whitespace-pre-wrap leading-relaxed">
+              <div>
+                <p className="text-red-800 dark:text-red-200 text-sm sm:text-base font-bold whitespace-pre-wrap leading-tight">
                   {game.notes}
                 </p>
               </div>
             </div>
           )}
 
-          {/* Tooltip & Header Row */}
-          <div className="flex items-center justify-between mb-2 sm:mb-4 px-1">
-            {/* Lineup Header with Tooltip Trigger */}
+          {/* Lineup Header & Tooltip */}
+          <div className="flex items-center justify-between mb-1.5 px-1">
             <div className="relative group flex items-center cursor-help">
-              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-1.5">
                 Lineup
-                <Info className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 dark:text-gray-500" />
+                <Info className="w-4 h-4 text-gray-400 dark:text-gray-500" />
               </h2>
-              
-              {/* The actual Tooltip */}
-              <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-active:opacity-100 group-active:visible transition-all z-50 pointer-events-none">
-                For quicker sorting, tap a name to highlight only that row, or tap an Inning number to highlight only that column.
-                {/* Tooltip Arrow */}
+              <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
+                Tap a name to highlight only that row, or tap an Inning number to highlight only that column.
                 <div className="absolute -top-1 left-6 w-3 h-3 bg-gray-900 dark:bg-white rotate-45"></div>
               </div>
             </div>
             
             <button 
               onClick={() => setShowFieldMap(true)}
-              className="inline-flex items-center justify-center px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
+              className="inline-flex items-center justify-center px-3 py-1 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 shadow-sm"
             >
-              <span>Field Map</span>
+              Map
             </button>
           </div>
 
-          <div className="bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-colors border border-gray-300 dark:border-gray-700">
+          {/* Tightened High-Legibility Table */}
+          <div className="bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-colors border border-gray-300 dark:border-gray-700 shadow-sm">
             <table className="w-full text-left border-collapse">
-              <thead className="bg-[#2563eb] text-white text-[11px] sm:text-sm font-bold">
+              <thead className="bg-[#2563eb] text-white text-xs sm:text-sm font-black tracking-tight border-b-2 border-blue-800">
                 <tr>
                   <th 
                     onClick={() => setHighlight(prev => prev === 'col_order' ? null : 'col_order')}
-                    className={`px-2 sm:px-4 py-2 sm:py-4 w-[80px] sm:w-[140px] cursor-pointer select-none transition-colors ${highlight === 'col_order' ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
+                    className={`px-2 sm:px-3 py-1.5 sm:py-2.5 w-[90px] sm:w-[150px] cursor-pointer select-none transition-colors ${highlight === 'col_order' ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
                   >
-                    Order
+                    Batter
                   </th>
                   {INNINGS.map(i => (
                     <th 
                       key={i} 
                       onClick={() => setHighlight(prev => prev === `col_${i}` ? null : `col_${i}`)}
-                      className={`px-0.5 sm:px-2 py-2 sm:py-4 text-center min-w-[28px] sm:min-w-[50px] cursor-pointer select-none transition-colors ${highlight === `col_${i}` ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
+                      className={`px-0.5 sm:px-1 py-1.5 sm:py-2.5 text-center min-w-[30px] sm:min-w-[50px] cursor-pointer select-none transition-colors ${highlight === `col_${i}` ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
                     >
                       {i}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="text-[11px] sm:text-sm font-bold text-gray-800 dark:text-gray-200">
+              <tbody className="text-gray-900 dark:text-gray-100">
                 {orderedPlayers.map((player: any, idx: number) => {
                   const isEven = idx % 2 === 0
-                  const rowBg = isEven ? 'bg-white dark:bg-gray-900' : 'bg-[#f1f5f9] dark:bg-gray-800/50'
+                  const rowBg = isEven ? 'bg-white dark:bg-gray-900' : 'bg-blue-50/30 dark:bg-gray-800/40'
                   
                   const isRowDimmed = highlight?.startsWith('player_') && highlight !== `player_${player.id}`
                   const isRowHighlighted = highlight === `player_${player.id}`
@@ -301,12 +300,14 @@ function LineupContent() {
                     <tr 
                       key={player.id} 
                       onClick={() => setHighlight(prev => prev === `player_${player.id}` ? null : `player_${player.id}`)}
-                      className={`${rowBg} transition-all duration-300 cursor-pointer ${
+                      className={`${rowBg} transition-all duration-200 cursor-pointer ${
                         isRowDimmed ? 'opacity-25 grayscale' : 'opacity-100'
-                      } ${isRowHighlighted ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''}`}
+                      } ${isRowHighlighted ? 'bg-blue-100 dark:bg-blue-900/40' : ''}`}
                     >
-                      <td className={`px-2 sm:px-4 py-1.5 sm:py-3 ${rowBg} truncate max-w-[80px] sm:max-w-none transition-all duration-300 border-r border-gray-100 dark:border-gray-800`}>
-                        {formatName(player.name)}
+                      <td className={`px-2 sm:px-3 py-1 sm:py-2 ${rowBg} truncate max-w-[90px] sm:max-w-[150px] border-r border-gray-200 dark:border-gray-800`}>
+                        <span className="text-[13px] sm:text-base font-black tracking-tight leading-none">
+                          {formatName(player.name)}
+                        </span>
                       </td>
                       
                       {INNINGS.map(inning => {
@@ -317,8 +318,8 @@ function LineupContent() {
                          const isCellDimmedByCol = highlight === 'col_order' || (highlight?.startsWith('col_') && highlight !== 'col_order' && highlight !== `col_${inning}`)
                          
                          return (
-                           <td key={inning} className={`px-0.5 sm:px-2 py-1 sm:py-3 text-center align-middle transition-all duration-300 border-r border-gray-100 dark:border-gray-800 last:border-r-0 ${isCellDimmedByCol ? 'opacity-25 grayscale' : 'opacity-100'}`}>
-                             <span className={`inline-flex items-center justify-center w-[28px] h-[18px] sm:w-[42px] sm:h-[28px] rounded sm:rounded-md text-[9px] sm:text-xs uppercase tracking-tighter sm:tracking-wide ${colors}`}>
+                           <td key={inning} className={`px-0.5 sm:px-1 py-1 sm:py-1.5 text-center align-middle border-r border-gray-200 dark:border-gray-800 last:border-r-0 ${isCellDimmedByCol ? 'opacity-25 grayscale' : 'opacity-100'}`}>
+                             <span className={`inline-flex items-center justify-center w-[30px] h-[20px] sm:w-[44px] sm:h-[26px] rounded sm:rounded-md text-[10px] sm:text-xs font-black uppercase tracking-tighter sm:tracking-tight ${colors} shadow-sm`}>
                                {pos}
                              </span>
                            </td>
@@ -331,17 +332,18 @@ function LineupContent() {
             </table>
           </div>
 
-          <div className="mt-4 sm:mt-8 mb-4 sm:mb-12 px-1">
-            <h3 className="text-[11px] sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-3">Key</h3>
-            <div className="flex flex-wrap gap-x-3 gap-y-1.5 sm:gap-4 text-[10px] sm:text-xs font-semibold text-gray-600 dark:text-gray-400">
+          {/* Tightened Key */}
+          <div className="mt-3 sm:mt-5 mb-4 px-1">
+            <h3 className="text-[10px] sm:text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5">Key</h3>
+            <div className="flex flex-wrap gap-x-2.5 gap-y-1.5 text-[10px] sm:text-xs font-bold text-gray-700 dark:text-gray-300">
               {[
                 { abbr: 'RC', name: 'Right Center' }, { abbr: 'P', name: 'Pitcher' }, { abbr: 'C', name: 'Catcher' },
                 { abbr: '1B', name: '1st Base' }, { abbr: 'SS', name: 'Shortstop' }, { abbr: 'RF', name: 'Right Field' },
                 { abbr: '3B', name: '3rd Base' }, { abbr: '2B', name: '2nd Base' }, { abbr: 'LF', name: 'Left Field' },
                 { abbr: 'LC', name: 'Left Center' }, { abbr: 'OUT', name: 'Out' },
               ].map(item => (
-                <div key={item.abbr} className="flex items-center gap-1 sm:gap-2">
-                  <span className={`inline-flex items-center justify-center w-[22px] h-[14px] sm:w-[36px] sm:h-[24px] rounded text-[8px] sm:text-[11px] text-white ${getPositionColors(item.abbr)}`}>
+                <div key={item.abbr} className="flex items-center gap-1">
+                  <span className={`inline-flex items-center justify-center w-[20px] h-[14px] sm:w-[28px] sm:h-[18px] rounded text-[8px] sm:text-[10px] font-black text-white ${getPositionColors(item.abbr)}`}>
                     {item.abbr}
                   </span>
                   <span>{item.name}</span>
@@ -349,7 +351,7 @@ function LineupContent() {
               ))}
             </div>
           </div>
-          <div className="text-center text-[10px] sm:text-xs font-medium text-gray-400 dark:text-gray-500 pb-2 sm:pb-8">
+          <div className="text-center text-[10px] font-bold text-gray-400 dark:text-gray-600 pb-2">
             Created using Kicksheet
           </div>
         </div>
@@ -362,7 +364,11 @@ function LineupContent() {
 
 export default function GameLineupPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#f8f9fa] dark:bg-gray-950"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 flex items-center justify-center transition-colors">
+        <Loader2 className="w-8 h-8 animate-spin text-[#2563eb]" />
+      </div>
+    }>
       <LineupContent />
     </Suspense>
   )
