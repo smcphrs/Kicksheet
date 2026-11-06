@@ -262,7 +262,7 @@ function LineupContent() {
               onClick={() => setShowFieldMap(true)}
               className="inline-flex items-center justify-center px-3 py-1 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 shadow-sm"
             >
-              Map
+              Field Map
             </button>
           </div>
 
