@@ -349,7 +349,7 @@ function PublicLineupContent() {
                         isRowDimmed ? 'opacity-25 grayscale' : 'opacity-100'
                       } ${isRowHighlighted ? 'relative z-10 bg-white dark:bg-gray-800' : ''}`}
                     >
-                      <td className={`px-2 sm:px-3 py-1 sm:py-2 truncate max-w-[90px] sm:max-w-[150px] transition-all duration-300 border-r border-gray-200 dark:border-gray-800 ${isRowHighlighted ? 'text-blue-700 dark:text-blue-400 font-black' : 'font-extrabold tracking-tight'}`}>
+                      <td className={`px-2 sm:px-3 py-2 sm:py-2 truncate max-w-[90px] sm:max-w-[150px] transition-all duration-300 border-r border-gray-200 dark:border-gray-800 ${isRowHighlighted ? 'text-blue-700 dark:text-blue-400 font-black' : 'font-extrabold tracking-tight'}`}>
                         <span className="text-[13px] sm:text-base font-black tracking-tight leading-none">
                           {formatName(player.name)}
                         </span>
