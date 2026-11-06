@@ -226,7 +226,7 @@ function PublicLineupContent() {
                   {game?.teams?.name || 'Your Team'}
                 </div>
                 {game?.weather && (
-                  <div className="flex items-center gap-1.5 text-blue-100 text-[11px] sm:text-xs italic opacity-90 mt-1 mr-1">
+                  <div className="flex items-center gap-1.5 text-blue-100 text-[13px] sm:text-xs italic opacity-100 mt-1 mr-1">
                     <Cloud className="w-3.5 h-3.5" />
                     <span>{game.weather}</span>
                   </div>
