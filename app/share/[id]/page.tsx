@@ -363,7 +363,7 @@ function PublicLineupContent() {
               {[
                  { abbr: 'P', name: 'Pitcher' }, 
                 { abbr: '1B', name: '1st Base' }, 
-               { abbr: '2B', name: '2nd Base' }, { abbr: '3B', name: '3rd Base' }, { abbr: '3B', name: '3rd Base' }, { abbr: 'RF', name: 'Right Field' }, { abbr: 'RC', name: 'Right Center' }, { abbr: 'LF', name: 'Left Field' },
+               { abbr: '2B', name: '2nd Base' }, { abbr: 'SS', name: 'Short Stop' }, { abbr: '3B', name: '3rd Base' }, { abbr: 'RF', name: 'Right Field' }, { abbr: 'RC', name: 'Right Center' }, { abbr: 'LF', name: 'Left Field' },
                 { abbr: 'LC', name: 'Left Center' }, 
               ].map(item => (
                 <div key={item.abbr} className="flex items-center gap-1">
