@@ -288,16 +288,18 @@ function PublicLineupContent() {
             </div>
           )}
 
-          {/* Lineup Header & Tooltip */}
-          <div className="flex items-center justify-between mb-1.5 px-1">
+          {/* Tooltip & Header Row */}
+          <div className={`flex items-center justify-between mb-1.5 px-1 transition-all duration-700 delay-200 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+            
             <div className="relative group flex items-center cursor-help">
               <h2 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-1.5">
                 Lineup
                 {!downloading && <Info className="w-4 h-4 text-gray-400 dark:text-gray-500" />}
               </h2>
+              
               {!downloading && (
-                <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
-                  Tap a name to highlight only that row, or tap an Inning number to highlight only that column.
+                <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-active:opacity-100 group-active:visible transition-all z-50 pointer-events-none">
+                  For quicker sorting, tap a name to highlight only that row, or tap an Inning number to highlight only that column.
                   <div className="absolute -top-1 left-6 w-3 h-3 bg-gray-900 dark:bg-white rotate-45"></div>
                 </div>
               )}
@@ -312,7 +314,7 @@ function PublicLineupContent() {
               </button>
             )}
           </div>
-          
+
           {/* Tightened High-Legibility Table */}
           <div className={`bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-700 delay-300 ease-out border border-gray-300 dark:border-gray-700 ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
             <table className="w-full text-left border-collapse">
