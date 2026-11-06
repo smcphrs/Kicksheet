@@ -135,16 +135,16 @@ function PublicLineupContent() {
 
   const getPositionColors = (pos: string) => {
     switch (pos) {
-      case 'LF': return 'bg-[#3730a3] text-white' 
+     case 'LF': return 'bg-[#3730a3] text-white' 
       case 'LC': return 'bg-[#0284c7] text-white' 
-      case 'RC': return 'bg-[#0f766e] text-white' 
+      case 'RC': return 'bg-[#00be99] text-white' 
       case 'RF': return 'bg-[#16a34a] text-white'
-      case 'P':  return 'bg-[#b91c1c] text-white'
-      case 'C':  return 'bg-[#6d28d9] text-white' 
-      case '1B': return 'bg-[#c2410c] text-white' 
-      case '2B': return 'bg-[#d97706] text-white' 
-      case '3B': return 'bg-[#9d174d] text-white' 
-      case 'SS': return 'bg-[#475569] text-white' 
+      case 'P':  return 'bg-[#ec0000] text-white'
+      case 'C':  return 'bg-[#9942cc] text-white' 
+      case '1B': return 'bg-[#ff6a66] text-white' 
+      case '2B': return 'bg-[#ff8800] text-white' 
+      case '3B': return 'bg-[#e3005c] text-white' 
+      case 'SS': return 'bg-[#dbcc07] text-white' 
       case 'Bench':
       case 'OUT': return 'bg-[#757575] text-white' 
       default: return 'bg-gray-400 dark:bg-gray-600 text-white'
@@ -221,8 +221,16 @@ function PublicLineupContent() {
           {/* Header Card with Compartmentalized Grid Details */}
           <div className="bg-[#2563eb] text-white p-3 sm:p-5 rounded-2xl sm:rounded-3xl mb-3 relative overflow-hidden border border-blue-700 shadow-lg shadow-blue-900/10">
             <div className="relative z-10">
-              <div className="inline-flex items-center px-3 py-0.5 bg-white/20 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-full mb-2 border border-white/30 backdrop-blur-sm">
-                {game?.teams?.name || 'Your Team'}
+              <div className="flex justify-between items-start mb-2">
+                <div className="inline-flex items-center px-3 py-0.5 bg-white/20 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-full border border-white/30 backdrop-blur-sm">
+                  {game?.teams?.name || 'Your Team'}
+                </div>
+                {game?.weather && (
+                  <div className="flex items-center gap-1.5 text-blue-100 text-[11px] sm:text-xs italic opacity-90 mt-1 mr-1">
+                    <Cloud className="w-3.5 h-3.5" />
+                    <span>{game.weather}</span>
+                  </div>
+                )}
               </div>
 
               <h1 className="text-3xl sm:text-4xl font-black tracking-tighter mb-4 flex items-baseline gap-1.5 sm:gap-2">
@@ -248,23 +256,20 @@ function PublicLineupContent() {
                   <span className="text-sm font-bold text-white truncate">{formatTime(game.game_time)}</span>
                 </div>
 
-                <div className={`bg-white/10 hover:bg-white/20 transition-colors rounded-xl p-2.5 sm:p-3 border border-white/10 flex flex-col justify-center ${!game.weather ? 'col-span-2' : ''}`}>
+                <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl p-2.5 sm:p-3 border border-white/10 flex flex-col justify-center">
                   <div className="flex items-center gap-1.5 text-blue-200 mb-1">
                     <MapPin className="w-3.5 h-3.5" />
                     <span className="text-[10px] font-black uppercase tracking-widest">Location</span>
                   </div>
-                  <span className="text-sm font-bold text-white truncate">{game.location || 'Unknown'} {game.field ? `• ${game.field}` : ''}</span>
+                  <span className="text-sm font-bold text-white truncate">{game.location || 'Unknown'}</span>
                 </div>
 
-                {game.weather && (
-                  <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl p-2.5 sm:p-3 border border-white/10 flex flex-col justify-center">
-                    <div className="flex items-center gap-1.5 text-blue-200 mb-1">
-                      <Cloud className="w-3.5 h-3.5" />
-                      <span className="text-[10px] font-black uppercase tracking-widest">Weather</span>
-                    </div>
-                    <span className="text-sm font-bold text-white truncate">{game.weather}</span>
+                <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl p-2.5 sm:p-3 border border-white/10 flex flex-col justify-center">
+                  <div className="flex items-center gap-1.5 text-blue-200 mb-1">
+                    <span className="text-[10px] font-black uppercase tracking-widest">Field</span>
                   </div>
-                )}
+                  <span className="text-sm font-bold text-white truncate">{game.field || 'TBD'}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -313,7 +318,7 @@ function PublicLineupContent() {
                 <tr>
                   <th 
                     onClick={() => setHighlight(prev => prev === 'col_order' ? null : 'col_order')}
-                    className={`px-2 sm:px-3 py-1.5 sm:py-2.5 w-[90px] sm:w-[150px] cursor-pointer select-none transition-colors tracking-wider uppercase ${highlight === 'col_order' ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
+                    className={`px-2 sm:px-3 py-1.5 sm:py-2.5 w-[90px] sm:w-[150px] cursor-pointer select-none transition-colors tracking-wider ${highlight === 'col_order' ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
                   >
                     Order
                   </th>
@@ -374,7 +379,7 @@ function PublicLineupContent() {
 
           {/* Tightened Legend */}
           <div className={`mt-3 sm:mt-5 mb-4 px-1 transition-all duration-700 delay-500 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-            <h3 className="text-[10px] sm:text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 sm:mb-3">Legend</h3>
+            <h3 className="text-[10px] sm:text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2 sm:mb-3">Legend</h3>
             <div className="flex flex-wrap gap-x-2.5 gap-y-2 sm:gap-4 text-[10px] sm:text-xs font-bold text-gray-600 dark:text-gray-400">
               {[
                  { abbr: 'P', name: 'Pitcher' }, 
