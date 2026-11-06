@@ -337,9 +337,9 @@ function LineupContent() {
             <h3 className="text-[10px] sm:text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5">Key</h3>
             <div className="flex flex-wrap gap-x-2.5 gap-y-1.5 text-[10px] sm:text-xs font-bold text-gray-700 dark:text-gray-300">
               {[
-                { abbr: 'RC', name: 'Right Center' }, { abbr: 'P', name: 'Pitcher' }, { abbr: 'C', name: 'Catcher' },
-                { abbr: '1B', name: '1st Base' }, { abbr: 'SS', name: 'Shortstop' }, { abbr: 'RF', name: 'Right Field' },
-                { abbr: '3B', name: '3rd Base' }, { abbr: '2B', name: '2nd Base' }, { abbr: 'LF', name: 'Left Field' },
+                { abbr: 'P', name: 'Pitcher' }, 
+                { abbr: '1B', name: '1st Base' }, 
+               { abbr: '2B', name: '2nd Base' }, { abbr: '3B', name: '3rd Base' }, { abbr: '3B', name: '3rd Base' }, { abbr: 'RF', name: 'Right Field' }, { abbr: 'RC', name: 'Right Center' }, { abbr: 'LF', name: 'Left Field' },
                 { abbr: 'LC', name: 'Left Center' }, 
               ].map(item => (
                 <div key={item.abbr} className="flex items-center gap-1">
