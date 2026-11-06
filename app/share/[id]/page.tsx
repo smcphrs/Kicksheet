@@ -135,16 +135,16 @@ function PublicLineupContent() {
 
   const getPositionColors = (pos: string) => {
     switch (pos) {
-      case 'LF': return 'bg-[#1e40af] text-white' 
-      case 'LC': return 'bg-[#03a9f4] text-white' 
-      case 'RC': return 'bg-[#009688] text-white' 
-      case 'RF': return 'bg-[#43a047] text-white' 
-      case 'P': return 'bg-[#dd0000] text-white'  
-      case 'C': return 'bg-[#c2185b] text-white'  
-      case '1B': return 'bg-[#e65100] text-white' 
-      case '2B': return 'bg-[#ff9800] text-white' 
-      case '3B': return 'bg-[#fdd835] text-gray-900' 
-      case 'SS': return 'bg-[#ff5252] text-white' 
+      case 'LF': return 'bg-[#3730a3] text-white' // Deep Indigo
+      case 'LC': return 'bg-[#0284c7] text-white' // Cerulean Blue
+      case 'RC': return 'bg-[#0f766e] text-white' // Rich Teal
+      case 'RF': return 'bg-[#16a34a] text-white' // Kelly Green
+      case 'P':  return 'bg-[#b91c1c] text-white' // Crimson Red
+      case 'C':  return 'bg-[#6d28d9] text-white' // Royal Purple
+      case '1B': return 'bg-[#c2410c] text-white' // Burnt Orange
+      case '2B': return 'bg-[#d97706] text-white' // Golden Amber
+      case '3B': return 'bg-[#9d174d] text-white' // Deep Magenta
+      case 'SS': return 'bg-[#475569] text-white' // Steel Slate
       case 'Bench':
       case 'OUT': return 'bg-[#757575] text-white' 
       default: return 'bg-gray-400 dark:bg-gray-600 text-white'
