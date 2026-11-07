@@ -111,16 +111,16 @@ function LineupContent() {
 
   const getPositionColors = (pos: string) => {
     switch (pos) {
-      case 'LF': return 'bg-[#3730a3] text-white' 
-      case 'LC': return 'bg-[#0284c7] text-white' 
-      case 'RC': return 'bg-[#0f766e] text-white' 
-      case 'RF': return 'bg-[#16a34a] text-white'
-      case 'P':  return 'bg-[#b91c1c] text-white'
-      case 'C':  return 'bg-[#6d28d9] text-white' 
-      case '1B': return 'bg-[#c2410c] text-white' 
-      case '2B': return 'bg-[#d97706] text-white' 
-      case '3B': return 'bg-[#9d174d] text-white' 
-      case 'SS': return 'bg-[#475569] text-white' 
+      case 'LF': return 'bg-[#1e40af] text-white' 
+      case 'LC': return 'bg-[#03a9f4] text-white' 
+      case 'RC': return 'bg-[#00be99] text-white' 
+      case 'RF': return 'bg-[#43a047] text-white'
+      case 'P':  return 'bg-[#ec0000] text-white'
+      case 'C':  return 'bg-[#9942cc] text-white' 
+      case '1B': return 'bg-[#ff6a66] text-white' 
+      case '2B': return 'bg-[#ff8800] text-white' 
+      case '3B': return 'bg-[#e3005c] text-white' 
+      case 'SS': return 'bg-[#dbcc07] text-white' // Dark text for legibility on bright yellow
       case 'Bench':
       case 'OUT': return 'bg-[#757575] text-white' 
       default: return 'bg-gray-400 dark:bg-gray-600 text-white'
