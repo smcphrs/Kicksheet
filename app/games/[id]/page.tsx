@@ -250,39 +250,27 @@ function LineupContent() {
                 {game.opposing_team || 'TBD'}
               </h1>
 
-              {/* Grid layout for distinct separate cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-                <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl p-2.5 sm:p-3 border border-white/10 flex flex-col justify-center">
-                  <div className="flex items-center gap-1.5 text-blue-200 mb-1">
-                    <Calendar className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Date</span>
-                  </div>
-                  <span className="text-sm font-bold text-white truncate">{formattedDate}</span>
-                </div>
-                
-                <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl p-2.5 sm:p-3 border border-white/10 flex flex-col justify-center">
-                  <div className="flex items-center gap-1.5 text-blue-200 mb-1">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Time</span>
-                  </div>
-                  <span className="text-sm font-bold text-white truncate">{formatTime(game.game_time)}</span>
-                </div>
+              {/* Grid layout for distinct separate inline cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+            <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-blue-200 shrink-0" />
+              <span className="text-sm font-bold text-white truncate">{formattedDate}</span>
+            </div>
+            
+            <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-blue-200 shrink-0" />
+              <span className="text-sm font-bold text-white truncate">{formatTime(game.game_time)}</span>
+            </div>
 
-                <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl p-2.5 sm:p-3 border border-white/10 flex flex-col justify-center">
-                  <div className="flex items-center gap-1.5 text-blue-200 mb-1">
-                    <MapPin className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Location</span>
-                  </div>
-                  <span className="text-sm font-bold text-white truncate">{game.location || 'Unknown'}</span>
-                </div>
+            <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-blue-200 shrink-0" />
+              <span className="text-sm font-bold text-white truncate">{game.location || 'Unknown'}</span>
+            </div>
 
-                <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl p-2.5 sm:p-3 border border-white/10 flex flex-col justify-center">
-                  <div className="flex items-center gap-1.5 text-blue-200 mb-1">
-                    <span className="text-[10px] font-black uppercase tracking-widest">Field</span>
-                  </div>
-                  <span className="text-sm font-bold text-white truncate">{game.field || 'TBD'}</span>
-                </div>
-              </div>
+            <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
+              <span className="text-sm font-bold text-white truncate">{game.field || 'TBD'}</span>
+            </div>
+          </div>
             </div>
           </div>
 
