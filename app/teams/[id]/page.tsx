@@ -28,7 +28,7 @@ const getPositionColors = (pos: string) => {
       case '1B': return 'bg-[#ff6a66] text-white' 
       case '2B': return 'bg-[#ff8800] text-white' 
       case '3B': return 'bg-[#e3005c] text-white' 
-      case 'SS': return 'bg-[#dbcc07] text-gray-900' // Dark text for legibility on bright yellow
+      case 'SS': return 'bg-[#dbcc07] text-white' // Dark text for legibility on bright yellow
       case 'Bench':
       case 'OUT': return 'bg-[#757575] text-white' 
       default: return 'bg-gray-400 dark:bg-gray-600 text-white'
