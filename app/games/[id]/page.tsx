@@ -21,6 +21,7 @@ function LineupContent() {
   const [loading, setLoading] = useState(true)
   const [downloading, setDownloading] = useState(false)
   const [showFieldMap, setShowFieldMap] = useState(false)
+  const [showEditMenu, setShowEditMenu] = useState(false)
   
   const [highlight, setHighlight] = useState<string | null>(null)
   
@@ -163,23 +164,53 @@ function LineupContent() {
           
           <div className="w-px h-4 bg-gray-300 dark:bg-gray-700 hidden sm:block"></div>
           
-          <Link href={`/games/${game.id}/edit`} className="inline-flex items-center text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors">
-            <Edit className="w-4 h-4 mr-1" />
-            Details
-          </Link>
-          
-          <Link href={`/games/new/attendance?id=${game.id}`} className="inline-flex items-center text-xs font-bold text-blue-600 hover:text-blue-500 transition-colors">
-            <Users className="w-4 h-4 mr-1" />
-            Lineup
-          </Link>
+          {/* Dropdown Edit Menu */}
+          <div className="relative">
+            <button 
+              onClick={() => setShowEditMenu(!showEditMenu)}
+              className="inline-flex items-center text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors"
+            >
+              <Edit className="w-4 h-4 mr-1.5" />
+              Edit
+            </button>
 
-          <Link href={`/share/${game.id}`} target="_blank" className="inline-flex items-center text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ml-1">
-            <Share2 className="w-3.5 h-3.5 mr-1.5" />
-            Public Link
-          </Link>
+            {showEditMenu && (
+              <>
+                <div 
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowEditMenu(false)}
+                ></div>
+                <div className="absolute left-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-1.5 z-50 overflow-hidden">
+                  <Link 
+                    href={`/games/${game.id}/edit`} 
+                    className="flex items-center px-4 py-2.5 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    onClick={() => setShowEditMenu(false)}
+                  >
+                    Game Details
+                  </Link>
+                  <Link 
+                    href={`/games/new/attendance?id=${game.id}`} 
+                    className="flex items-center px-4 py-2.5 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    onClick={() => setShowEditMenu(false)}
+                  >
+                    Lineup
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
         </div>
         
         <div className="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-end">
+          <Link 
+            href={`/share/${game.id}`} 
+            target="_blank" 
+            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-full hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all active:scale-95"
+          >
+            <Share2 className="w-4 h-4 sm:mr-1.5" />
+            <span className="hidden sm:inline">Public Link</span>
+          </Link>
+
           <button 
             onClick={handleDownload}
             disabled={downloading}
@@ -274,8 +305,8 @@ function LineupContent() {
               </h2>
               
               {!downloading && (
-                <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-active:opacity-100 group-active:visible transition-all z-50 pointer-events-none">
-                  For quicker sorting, tap a name to highlight only that row, or tap an Inning number to highlight only that column.
+                <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
+                  Tap a name to highlight only that row, or tap an Inning number to highlight only that column.
                   <div className="absolute -top-1 left-6 w-3 h-3 bg-gray-900 dark:bg-white rotate-45"></div>
                 </div>
               )}
@@ -284,9 +315,9 @@ function LineupContent() {
             {!downloading && (
               <button 
                 onClick={() => setShowFieldMap(true)}
-                className="inline-flex items-center justify-center px-3 py-1 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
+                className="inline-flex items-center justify-center px-3 py-1 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 shadow-sm"
               >
-                Field Map
+                Map
               </button>
             )}
           </div>
