@@ -329,7 +329,7 @@ function LineupContent() {
                     <th 
                       key={i} 
                       onClick={() => setHighlight(prev => prev === `col_${i}` ? null : `col_${i}`)}
-                      className={`px-0.5 sm:px-1 py-1.5 sm:py-2.5 text-center min-w-[30px] sm:min-w-[50px] cursor-pointer select-none transition-colors font-mono text-[13px] sm:text-base ${highlight === `col_${i}` ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
+                      className={`px-0.5 sm:px-1 py-1.5 sm:py-2.5 text-center min-w-[38px] sm:min-w-[50px] cursor-pointer select-none transition-colors font-mono text-[13px] sm:text-base ${highlight === `col_${i}` ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
                     >
                       {i}
                     </th>
@@ -367,7 +367,7 @@ function LineupContent() {
                          
                          return (
                            <td key={inning} className={`px-0.5 sm:px-1 py-1 sm:py-1.5 text-center align-middle transition-all duration-300 border-r border-gray-200 dark:border-gray-800 last:border-r-0 ${isCellDimmedByCol ? 'opacity-25 grayscale' : 'opacity-100'} ${isCellHighlighted ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}>
-                             <span className={`inline-flex items-center justify-center w-[30px] h-[20px] sm:w-[44px] sm:h-[26px] rounded sm:rounded-md text-[10px] sm:text-xs font-black uppercase tracking-tighter sm:tracking-tight ${colors} ${isCellHighlighted || isRowHighlighted ? 'ring-2 ring-white/20 dark:ring-black/20' : ''}`}>
+                             <span className={`inline-flex items-center justify-center w-[36px] h-[26px] sm:w-[44px] sm:h-[28px] rounded sm:rounded-md text-[11px] sm:text-xs font-black uppercase tracking-tighter sm:tracking-tight ${colors} ${isCellHighlighted || isRowHighlighted ? 'ring-2 ring-white/20 dark:ring-black/20' : ''}`}>
                                {pos}
                              </span>
                            </td>
