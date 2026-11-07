@@ -194,7 +194,7 @@ function LineupContent() {
             className="flex sm:inline-flex w-full sm:w-auto items-center justify-center sm:justify-start px-4 py-2.5 sm:px-0 sm:py-0 bg-gray-100 sm:bg-transparent dark:bg-gray-800 sm:dark:bg-transparent rounded-xl sm:rounded-none text-sm sm:text-xs font-bold text-gray-700 dark:text-gray-300 sm:text-gray-600 sm:dark:text-gray-400 hover:text-blue-600 transition-colors"
           >
             <Edit className="w-4 h-4 mr-1.5" />
-            Edit Game
+            Edit
           </button>
 
           {showEditMenu && (
@@ -318,7 +318,7 @@ function LineupContent() {
                 onClick={() => setShowFieldMap(true)}
                 className="inline-flex items-center justify-center px-3 py-1 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 shadow-sm"
               >
-                Map
+                Field Map
               </button>
             )}
           </div>
@@ -330,7 +330,7 @@ function LineupContent() {
                 <tr>
                   <th 
                     onClick={() => setHighlight(prev => prev === 'col_order' ? null : 'col_order')}
-                    className={`px-2 sm:px-3 py-1.5 sm:py-2.5 w-[90px] sm:w-[150px] cursor-pointer select-none transition-colors tracking-wider uppercase ${highlight === 'col_order' ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
+                    className={`px-2 sm:px-3 py-1.5 sm:py-2.5 w-[90px] sm:w-[150px] cursor-pointer select-none transition-colors tracking-wider ${highlight === 'col_order' ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
                   >
                     Order
                   </th>
