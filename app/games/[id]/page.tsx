@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { Calendar, Clock, MapPin, Users, Cloud, ArrowLeft, Download, Loader2, Edit, Map, X, Share2, Megaphone, Info, Link2 } from 'lucide-react'
+import { Calendar, Clock, MapPin, Users, Cloud, ArrowLeft, Download, Loader2, Edit, Map, X, Share2, Megaphone, Info, Link2, Trees } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
 import { FieldMapModal } from '@/components/FieldMapModal'
@@ -268,6 +268,7 @@ function LineupContent() {
             </div>
 
             <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
+            <Trees className="w-4 h-4 text-blue-200 shrink-0" />
               <span className="text-sm font-bold text-white truncate">{game.field || 'TBD'}</span>
             </div>
           </div>
