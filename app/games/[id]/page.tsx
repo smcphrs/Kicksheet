@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { Calendar, Clock, MapPin, Users, Cloud, ArrowLeft, Download, Loader2, Edit, Map, X, Share2, Megaphone, Info } from 'lucide-react'
+import { Calendar, Clock, MapPin, Users, Cloud, ArrowLeft, Download, Loader2, Edit, Map, X, Share2, Megaphone, Info, Link2, DiagramFlowVertical } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
 import { FieldMapModal } from '@/components/FieldMapModal'
@@ -207,7 +207,7 @@ function LineupContent() {
             target="_blank" 
             className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-full hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all active:scale-95"
           >
-            <Share2 className="w-4 h-4 sm:mr-1.5" />
+            <Link2 className="w-4 h-4 sm:mr-1.5" />
             <span className="hidden sm:inline">Public Link</span>
           </Link>
 
