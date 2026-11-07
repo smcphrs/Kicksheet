@@ -3,10 +3,18 @@
 import { Suspense, useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useParams } from 'next/navigation'
-import { Calendar, Clock, MapPin, Cloud, Download, Loader2, Map, X, Share2, Check, Megaphone, Info, Copy, Printer, Trees } from 'lucide-react'
+import { Calendar, Clock, MapPin, Cloud, Download, Loader2, Trees, X, Share2, Check, Megaphone, Info, Copy, Printer } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
 import { FieldMapModal } from '@/components/FieldMapModal'
+
+const PRINT_STYLES = `
+  @media print {
+    @page { size: auto; margin: 0.5in; }
+    body { background-color: #f8f9fa !important; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  }
+`;
 
 function PublicLineupContent() {
   const params = useParams()
@@ -182,16 +190,7 @@ function PublicLineupContent() {
   return (
     <div className="bg-[#f8f9fa] dark:bg-gray-950 min-h-[100dvh] font-sans pb-10 transition-colors antialiased">
       
-      {/* Print CSS Override (Fixed Turbopack issue by using standard child text) */}
-      <style>
-        {`
-          @media print {
-            @page { size: auto; margin: 0.5in; }
-            body { background-color: #f8f9fa !important; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          }
-        `}
-      </style>
+      <style dangerouslySetInnerHTML={{ __html: PRINT_STYLES }} />
 
       {/* Top Navbar */}
       <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row justify-between items-center px-4 py-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-300 dark:border-gray-800 transition-colors gap-3 sm:gap-0 print:hidden">
@@ -257,7 +256,8 @@ function PublicLineupContent() {
                   <MapPin className="w-4 h-4 text-blue-200 shrink-0" />
                   <span className="text-sm font-bold text-white truncate">{game.location || 'Unknown'}</span>
                 </div>
-                <Trees className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2"/>
+                <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
+                  <Trees className="w-4 h-4 text-blue-200 shrink-0" />
                   <span className="text-sm font-bold text-white truncate">{game.field || 'TBD'}</span>
                 </div>
               </div>
