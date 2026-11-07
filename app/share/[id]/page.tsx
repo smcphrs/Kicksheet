@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useParams } from 'next/navigation'
-import { Calendar, Clock, MapPin, Users, Cloud, Download, Loader2, Map, X, Share2, Check, Megaphone, Info, Copy, Printer, TreeDeciduous } from 'lucide-react'
+import { Calendar, Clock, MapPin, Cloud, Download, Loader2, Map, X, Share2, Check, Megaphone, Info, Copy, Printer } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
 import { FieldMapModal } from '@/components/FieldMapModal'
@@ -111,7 +111,6 @@ function PublicLineupContent() {
   }
 
   const handlePrint = () => {
-    // Temporarily force light mode for the print dialog so it doesn't waste ink!
     const isDark = document.documentElement.classList.contains('dark')
     if (isDark) document.documentElement.classList.remove('dark')
     
@@ -177,18 +176,22 @@ function PublicLineupContent() {
   const formattedDate = game.game_date 
     ? new Date(game.game_date).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
     : 'Unknown Date'
+    
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : ''
 
   return (
     <div className="bg-[#f8f9fa] dark:bg-gray-950 min-h-[100dvh] font-sans pb-10 transition-colors antialiased">
       
-      {/* Print CSS Override */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @media print {
-          @page { size: auto; margin: 0.5in; }
-          body { background-color: #f8f9fa !important; }
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-        }
-      `}} />
+      {/* Print CSS Override (Fixed Turbopack issue by using standard child text) */}
+      <style>
+        {`
+          @media print {
+            @page { size: auto; margin: 0.5in; }
+            body { background-color: #f8f9fa !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          }
+        `}
+      </style>
 
       {/* Top Navbar */}
       <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row justify-between items-center px-4 py-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-300 dark:border-gray-800 transition-colors gap-3 sm:gap-0 print:hidden">
@@ -254,7 +257,7 @@ function PublicLineupContent() {
                   <MapPin className="w-4 h-4 text-blue-200 shrink-0" />
                   <span className="text-sm font-bold text-white truncate">{game.location || 'Unknown'}</span>
                 </div>
-                <TreeDeciduous className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2" />
+                <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
                   <span className="text-sm font-bold text-white truncate">{game.field || 'TBD'}</span>
                 </div>
               </div>
@@ -309,7 +312,7 @@ function PublicLineupContent() {
                 <tr>
                   <th 
                     onClick={() => setHighlight(prev => prev === 'col_order' ? null : 'col_order')}
-                    className={`px-2 sm:px-3 py-1.5 sm:py-2.5 w-[90px] sm:w-[150px] cursor-pointer select-none transition-colors tracking-wider ${highlight === 'col_order' ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
+                    className={`px-2 sm:px-3 py-1.5 sm:py-2.5 w-[90px] sm:w-[150px] cursor-pointer select-none transition-colors tracking-wider uppercase ${highlight === 'col_order' ? 'bg-blue-800' : 'hover:bg-blue-700'}`}
                   >
                     Order
                   </th>
@@ -414,12 +417,12 @@ function PublicLineupContent() {
               <input
                 type="text"
                 readOnly
-                value={window.location.href}
+                value={currentUrl}
                 className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 text-sm rounded-xl px-4 py-3 outline-none font-medium truncate"
               />
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(window.location.href)
+                  navigator.clipboard.writeText(currentUrl)
                   setCopied(true)
                   setTimeout(() => setCopied(false), 2000)
                 }}
@@ -437,7 +440,7 @@ function PublicLineupContent() {
                     navigator.share({
                       title: `${game?.teams?.name} Lineup`,
                       text: 'Check out our lineup for the upcoming game!',
-                      url: window.location.href
+                      url: currentUrl
                     }).catch(() => {})
                   } else {
                     alert('Your browser does not support the native share menu.')
