@@ -254,7 +254,7 @@ function PublicLineupContent() {
                   <MapPin className="w-4 h-4 text-blue-200 shrink-0" />
                   <span className="text-sm font-bold text-white truncate">{game.location || 'Unknown'}</span>
                 </div>
-                <TreeDeciduous className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
+                <TreeDeciduous className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2" />
                   <span className="text-sm font-bold text-white truncate">{game.field || 'TBD'}</span>
                 </div>
               </div>
