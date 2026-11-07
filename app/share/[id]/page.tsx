@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useParams } from 'next/navigation'
-import { Calendar, Clock, MapPin, Users, Cloud, Download, Loader2, Map, X, Share2, Check, Megaphone, Info, Copy, Printer, Link2, TreeDeciduous } from 'lucide-react'
+import { Calendar, Clock, MapPin, Users, Cloud, Download, Loader2, Map, X, Share2, Check, Megaphone, Info, Copy, Printer, TreeDeciduous } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
 import { FieldMapModal } from '@/components/FieldMapModal'
