@@ -155,71 +155,74 @@ function LineupContent() {
 
   return (
     <div className="bg-[#f8f9fa] dark:bg-gray-950 min-h-[100dvh] font-sans pb-10 transition-colors sm:pt-16 antialiased">
-      <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-300 dark:border-gray-800 transition-colors gap-3 sm:gap-0">
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+      <div className="max-w-4xl mx-auto w-full flex flex-wrap sm:flex-nowrap justify-between items-center px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-300 dark:border-gray-800 transition-colors gap-y-3 sm:gap-y-0">
+        
+        {/* 1. Back Link (Top Left) */}
+        <div className="flex items-center gap-3 sm:gap-4 order-1">
           <Link href="/games" className="inline-flex items-center text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back
           </Link>
-          
           <div className="w-px h-4 bg-gray-300 dark:bg-gray-700 hidden sm:block"></div>
-          
-          {/* Dropdown Edit Menu */}
-          <div className="relative">
-            <button 
-              onClick={() => setShowEditMenu(!showEditMenu)}
-              className="inline-flex items-center text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors"
-            >
-              <Edit className="w-4 h-4 mr-1.5" />
-              Edit
-            </button>
-
-            {showEditMenu && (
-              <>
-                <div 
-                  className="fixed inset-0 z-40"
-                  onClick={() => setShowEditMenu(false)}
-                ></div>
-                <div className="absolute left-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-1.5 z-50 overflow-hidden">
-                  <Link 
-                    href={`/games/${game.id}/edit`} 
-                    className="flex items-center px-4 py-2.5 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    onClick={() => setShowEditMenu(false)}
-                  >
-                    Game Details
-                  </Link>
-                  <Link 
-                    href={`/games/new/attendance?id=${game.id}`} 
-                    className="flex items-center px-4 py-2.5 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    onClick={() => setShowEditMenu(false)}
-                  >
-                    Lineup
-                  </Link>
-                </div>
-              </>
-            )}
-          </div>
         </div>
         
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-end">
+        {/* 3. Share & Save Actions (Top Right on Mobile, Right on Desktop) */}
+        <div className="flex items-center gap-2 w-auto order-2 sm:order-3">
           <Link 
             href={`/share/${game.id}`} 
             target="_blank" 
-            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-full hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all active:scale-95"
+            className="inline-flex items-center justify-center px-4 py-2 text-[11px] sm:text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-full hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all active:scale-95"
           >
-            <Link2 className="w-4 h-4 sm:mr-1.5" />
+            <Link2 className="w-3.5 h-3.5 sm:mr-1.5" />
             <span className="hidden sm:inline">Public Link</span>
           </Link>
 
           <button 
             onClick={handleDownload}
             disabled={downloading}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
+            className="inline-flex items-center justify-center px-4 py-2 text-[11px] sm:text-xs font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
           >
-            {downloading ? <Loader2 className="w-4 h-4 sm:mr-1.5 animate-spin" /> : <Download className="w-4 h-4 sm:mr-1.5" />}
+            {downloading ? <Loader2 className="w-3.5 h-3.5 sm:mr-1.5 animate-spin" /> : <Download className="w-3.5 h-3.5 sm:mr-1.5" />}
             <span className="hidden sm:inline">Save Image</span>
           </button>
         </div>
+
+        {/* 2. Dropdown Edit Menu (Full width on Mobile, Inline on Desktop) */}
+        <div className="relative w-full sm:w-auto order-3 sm:order-2 sm:mr-auto sm:ml-4">
+          <button 
+            onClick={() => setShowEditMenu(!showEditMenu)}
+            className="flex sm:inline-flex w-full sm:w-auto items-center justify-center sm:justify-start px-4 py-2.5 sm:px-0 sm:py-0 bg-gray-100 sm:bg-transparent dark:bg-gray-800 sm:dark:bg-transparent rounded-xl sm:rounded-none text-sm sm:text-xs font-bold text-gray-700 dark:text-gray-300 sm:text-gray-600 sm:dark:text-gray-400 hover:text-blue-600 transition-colors"
+          >
+            <Edit className="w-4 h-4 mr-1.5" />
+            Edit Game
+          </button>
+
+          {showEditMenu && (
+            <>
+              <div 
+                className="fixed inset-0 z-40 hidden sm:block"
+                onClick={() => setShowEditMenu(false)}
+              ></div>
+              <div className="sm:absolute left-0 mt-2 w-full sm:w-40 bg-white dark:bg-gray-900 sm:dark:bg-gray-800 rounded-xl sm:shadow-lg border border-gray-200 dark:border-gray-700 sm:py-1.5 sm:z-50 overflow-hidden flex flex-col">
+                <Link 
+                  href={`/games/${game.id}/edit`} 
+                  className="flex items-center justify-center sm:justify-start px-4 py-3 sm:py-2.5 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 sm:dark:hover:bg-gray-700 transition-colors border-b sm:border-b-0 border-gray-100 dark:border-gray-800"
+                  onClick={() => setShowEditMenu(false)}
+                >
+                  Game Details
+                </Link>
+                <Link 
+                  href={`/games/new/attendance?id=${game.id}`} 
+                  className="flex items-center justify-center sm:justify-start px-4 py-3 sm:py-2.5 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 sm:dark:hover:bg-gray-700 transition-colors"
+                  onClick={() => setShowEditMenu(false)}
+                >
+                  Lineup
+                </Link>
+              </div>
+            </>
+          )}
+        </div>
+        
       </div>
 
       <div className="max-w-4xl mx-auto w-full" ref={captureRef}>
@@ -295,15 +298,13 @@ function LineupContent() {
             </div>
           )}
 
-          {/* Tooltip & Header Row */}
+          {/* Lineup Header & Tooltip */}
           <div className="flex items-center justify-between mb-1.5 px-1">
-            
             <div className="relative group flex items-center cursor-help">
               <h2 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-1.5">
                 Lineup
                 {!downloading && <Info className="w-4 h-4 text-gray-400 dark:text-gray-500" />}
               </h2>
-              
               {!downloading && (
                 <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
                   Tap a name to highlight only that row, or tap an Inning number to highlight only that column.
