@@ -238,7 +238,7 @@ function PublicLineupContent() {
                 )}
               </div>
 
-              <h1 className="text-3xl sm:text-4xl font-black tracking-tighter mb-4 flex items-baseline gap-1.5 sm:gap-2">
+              <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-4 flex items-baseline gap-1.5 sm:gap-2">
                 <span className="text-blue-200/80 text-xl sm:text-2xl font-bold tracking-normal">vs</span> 
                 {game.opposing_team || 'TBD'}
               </h1>
