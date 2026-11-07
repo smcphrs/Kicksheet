@@ -254,24 +254,28 @@ export default async function DashboardPage() {
               </div>
               
               {teams && teams.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                  {teams.map(team => (
-                    <Link key={team.id} href={`/teams/${team.id}`} className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 group text-center flex flex-col items-center transition-colors">
-                      <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mb-3 group-hover:bg-[#2563eb] group-hover:scale-110 transition-all duration-300 border border-blue-100 dark:border-blue-900/50 overflow-hidden">
-                        {team.logo_url ? (
-                          <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="text-xl font-black text-[#2563eb] dark:text-blue-400 group-hover:text-white transition-colors uppercase">
-                            {team.name ? team.name.charAt(0) : '?'}
-                          </span>
-                        )}
-                      </div>
-                      
-                      <h3 className="font-extrabold text-gray-900 dark:text-white tracking-tight truncate w-full px-2">{team.name}</h3>
-                      <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1 font-bold uppercase tracking-wider group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Manage Roster</p>
-                    </Link>
-                  ))}
-                </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+              {teams.map(team => (
+                <Link key={team.id} href={`/teams/${team.id}`} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 group text-center flex flex-col items-center transition-colors overflow-hidden">
+                  <div className="w-full aspect-square bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center border-b border-gray-200 dark:border-gray-800 overflow-hidden relative">
+                    {team.logo_url ? (
+                      <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                    ) : (
+                      <span className="text-4xl font-black text-[#2563eb] dark:text-blue-400 group-hover:scale-110 transition-transform duration-300 uppercase">
+                        {team.name ? team.name.charAt(0) : '?'}
+                      </span>
+                    )}
+                    {/* Subtle inner shadow overlay */}
+                    <div className="absolute inset-0 ring-1 ring-inset ring-black/5 dark:ring-white/5 pointer-events-none"></div>
+                  </div>
+                  
+                  <div className="p-4 w-full flex flex-col items-center">
+                    <h3 className="font-extrabold text-gray-900 dark:text-white tracking-tight truncate w-full px-1">{team.name}</h3>
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-bold uppercase tracking-widest group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Manage Roster</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
               ) : (
                 <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center transition-colors">
                   <p className="text-gray-500 dark:text-gray-400 text-sm font-bold tracking-tight mb-3">You haven't created any teams yet.</p>
