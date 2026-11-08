@@ -51,12 +51,21 @@ function JoinTeamContent() {
   }, [teamId])
 
   const togglePosition = (posId: string) => {
-    setFormData(prev => ({
-      ...prev,
-      positions: prev.positions.includes(posId) 
-        ? prev.positions.filter(p => p !== posId)
-        : [...prev.positions, posId]
-    }))
+    setFormData(prev => {
+      const isSelected = prev.positions.includes(posId)
+      
+      // Prevent selecting more than 3, but always allow deselecting
+      if (!isSelected && prev.positions.length >= 3) {
+        return prev
+      }
+      
+      return {
+        ...prev,
+        positions: isSelected 
+          ? prev.positions.filter(p => p !== posId)
+          : [...prev.positions, posId]
+      }
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -178,7 +187,13 @@ function JoinTeamContent() {
         <div className="space-y-4">
           <h3 className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2 flex items-center justify-between">
             <span>2. Field Positions</span>
-            <span className="text-[9px] text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full">Tap all you like</span>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors ${
+              formData.positions.length === 3 
+                ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400' 
+                : 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
+            }`}>
+              {formData.positions.length}/3 Selected
+            </span>
           </h3>
           
           <div className="grid grid-cols-5 gap-2">
