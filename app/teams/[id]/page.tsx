@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, UserPlus, Edit2, Shield, Users } from 'lucide-react'
+import { ArrowLeft, UserPlus, Edit2, Shield, Users, Link2, Check } from 'lucide-react'
 import { DeletePlayerButton } from '@/components/DeletePlayerButton'
 
 const getPosAbbr = (pos: string) => {
@@ -54,6 +54,17 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
     .eq('team_id', id)
     .order('name', { ascending: true })
 
+    const [copied, setCopied] = useState(false)
+
+const handleCopyInvite = () => {
+  // Dynamically builds the correct URL whether on localhost or production
+  const inviteUrl = `${window.location.origin}/join/${team.id}`
+  navigator.clipboard.writeText(inviteUrl)
+  
+  setCopied(true)
+  setTimeout(() => setCopied(false), 2000)
+}
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
       <div className="max-w-4xl mx-auto p-4 sm:p-6 pt-12 sm:pt-24 w-full space-y-6 sm:space-y-8 pb-24 font-sans">
@@ -94,7 +105,21 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
               <UserPlus className="w-5 h-5 mr-2 text-[#2563eb]" />
               Add Player
             </Link>
+            <button
+  onClick={handleCopyInvite}
+  className="inline-flex items-center justify-center px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all active:scale-95 group"
+>
+  {copied ? (
+    <Check className="w-4 h-4 mr-2 text-green-600 dark:text-green-400" />
+  ) : (
+    <Link2 className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
+  )}
+  <span className={copied ? 'text-green-700 dark:text-green-400' : ''}>
+    {copied ? 'Link Copied!' : 'Invite Players'}
+  </span>
+</button>
           </div>
+          
         </header>
 
         <div>
