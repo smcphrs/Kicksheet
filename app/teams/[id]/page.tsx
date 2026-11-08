@@ -111,9 +111,8 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
               Client Component injected here! 
               It safely handles the clipboard action without breaking the Server Page 
             */}
-            <div className="w-full sm:w-auto mt-2 sm:mt-0">
               <CopyInviteButton teamId={team.id} />
-            </div>
+            
           </div>
           
         </header>
