@@ -138,58 +138,71 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
               {players.map((player: any) => {
                 // Combine old manually added positions with new form positions safely
                 const rawPositions = [
-  ...parsePositions(player.positions), 
-  ...parsePositions(player.preferred_positions)
-]
+                  ...parsePositions(player.positions), 
+                  ...parsePositions(player.preferred_positions)
+                ]
                 const uniqueAbbrs = Array.from(new Set(rawPositions.map((pos: string) => getPosAbbr(pos))))
 
                 return (
-                  <div key={player.id} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5 flex items-center justify-between hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all group">
+                  <div key={player.id} className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 p-5 sm:p-6 flex flex-col gap-4 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-lg hover:shadow-blue-900/5 transition-all group">
                     
-                    {/* Left: Number, Name & Kicking Style */}
-                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 font-black text-gray-400 dark:text-gray-500 text-sm sm:text-base group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 transition-colors">
-                        {player.number ? `#${player.number}` : '-'}
-                      </div>
-                      <div className="flex-1 truncate">
-                        <h3 className="font-extrabold text-gray-900 dark:text-white text-base sm:text-lg leading-tight tracking-tight truncate">{player.name}</h3>
-                        {player.kicking_style && (
-                          <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold flex items-center gap-1 mt-1 uppercase tracking-wider truncate">
-                            <Crosshair className="w-3 h-3 text-blue-500 shrink-0" /> {player.kicking_style}
-                          </p>
+                    {/* Top Row: Number, Name & Actions */}
+                    <div className="flex justify-between items-start gap-3">
+                      <div className="flex items-start gap-3 flex-1">
+                        {/* Drastically reduced jersey number size */}
+                        {player.number && (
+                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 font-black text-gray-500 dark:text-gray-400 text-xs mt-0.5 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 group-hover:border-blue-200 dark:group-hover:border-blue-800 transition-colors">
+                            {player.number}
+                          </div>
                         )}
+                        {/* Enlarged Name without truncation */}
+                        <h3 className="font-extrabold text-lg sm:text-xl text-gray-900 dark:text-white leading-tight tracking-tight">
+                          {player.name}
+                        </h3>
+                      </div>
+                      
+                      {/* Actions tucked into the top right */}
+                      <div className="flex items-center gap-1 shrink-0 bg-gray-50 dark:bg-gray-800/50 p-1 rounded-xl border border-gray-100 dark:border-gray-700/50 opacity-80 group-hover:opacity-100 transition-opacity">
+                        <Link 
+                          href={`/players/${player.id}/edit`}
+                          className="p-2 sm:p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all active:scale-95 shrink-0"
+                          title="Edit Player"
+                        >
+                          <Edit2 className="w-4 h-4 sm:w-4 sm:h-4" />
+                        </Link>
+                        <DeletePlayerButton playerId={player.id} playerName={player.name} />
                       </div>
                     </div>
-                    
-                    {/* Right: Position Preferences & Actions */}
-                    <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+
+                    {/* Bottom Row: Kicking Style & Positions */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
                       
-                      <div className="flex flex-wrap justify-end gap-1.5 max-w-[80px] sm:max-w-[140px]">
+                      {/* Kicking Style (Larger and clearer) */}
+                      <div className="flex-1 min-w-[120px]">
+                        {player.kicking_style ? (
+                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-bold flex items-center gap-1.5 uppercase tracking-wider">
+                            <Crosshair className="w-3.5 h-3.5 text-blue-500 shrink-0" /> {player.kicking_style}
+                          </p>
+                        ) : (
+                          <span className="text-[10px] sm:text-xs text-gray-300 dark:text-gray-700 font-bold uppercase tracking-wider">No style set</span>
+                        )}
+                      </div>
+                      
+                      {/* Enlarged Position Pills */}
+                      <div className="flex flex-wrap justify-end gap-1.5">
                         {uniqueAbbrs && uniqueAbbrs.length > 0 ? (
                           uniqueAbbrs.map((pos) => (
-                            <span key={pos as string} className={`inline-flex items-center justify-center w-[24px] h-[16px] sm:w-[28px] sm:h-[20px] rounded sm:rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-tighter ${getPositionColors(pos as string)}`}>
+                            <span key={pos as string} className={`inline-flex items-center justify-center w-[28px] h-[20px] sm:w-[32px] sm:h-[24px] rounded-md sm:rounded-lg text-[10px] sm:text-[11px] font-black uppercase tracking-tighter ${getPositionColors(pos as string)}`}>
                               {pos as string}
                             </span>
                           ))
                         ) : (
-                          <span className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 font-bold italic tracking-tight hidden sm:inline-block">No positions</span>
+                          <span className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 font-bold italic tracking-tight">No positions</span>
                         )}
-                      </div>
-
-                      <div className="flex items-center gap-1 shrink-0 border-l border-gray-100 dark:border-gray-800 pl-3">
-                        <Link 
-                          href={`/players/${player.id}/edit`}
-                          className="p-2 sm:p-2.5 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all active:scale-95 shrink-0"
-                          title="Edit Player"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Link>
-                        
-                        <DeletePlayerButton playerId={player.id} playerName={player.name} />
                       </div>
                     </div>
 
