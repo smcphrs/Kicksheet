@@ -1,12 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useParams } from 'next/navigation'
-import { Loader2, User, Hash, Crosshair, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react'
+import { Loader2, Hash, Crosshair, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react'
 import { joinTeamAction } from '@/app/actions/join-team'
-import Link from 'next/link'
-
 
 const POSITIONS = [
   { id: 'P', name: 'Pitcher', color: 'bg-[#ec0000] text-white' },
@@ -21,7 +19,7 @@ const POSITIONS = [
   { id: 'RF', name: 'Right Field', color: 'bg-[#43a047] text-white' },
 ]
 
-export default function JoinTeamPage() {
+function JoinTeamContent() {
   const params = useParams()
   const teamId = params.team_id as string
   const supabase = createClient()
@@ -120,7 +118,6 @@ export default function JoinTeamPage() {
   return (
     <div className="min-h-[100dvh] bg-[#f8f9fa] dark:bg-gray-950 flex flex-col items-center py-10 px-4 sm:py-20 antialiased transition-colors">
       
-      {/* Header */}
       <div className="max-w-md w-full text-center mb-8 animate-in slide-in-from-bottom-4 fade-in duration-700">
         {team.logo_url ? (
           <img src={team.logo_url} alt={team.name} className="w-20 h-20 mx-auto rounded-2xl object-cover shadow-sm mb-4 border border-gray-200 dark:border-gray-800" />
@@ -136,10 +133,8 @@ export default function JoinTeamPage() {
         <p className="text-gray-500 dark:text-gray-400 font-medium">Fill out your player card to be added to the official roster.</p>
       </div>
 
-      {/* Form Card */}
       <form onSubmit={handleSubmit} className="max-w-md w-full bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-200 dark:border-gray-800 animate-in slide-in-from-bottom-8 fade-in duration-700 delay-150 fill-mode-both space-y-8">
         
-        {/* 1. Basics */}
         <div className="space-y-4">
           <h3 className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">1. The Basics</h3>
           
@@ -182,7 +177,6 @@ export default function JoinTeamPage() {
           </div>
         </div>
 
-        {/* 2. Play Style */}
         <div className="space-y-4">
           <h3 className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2 flex items-center justify-between">
             <span>2. Field Positions</span>
@@ -212,7 +206,6 @@ export default function JoinTeamPage() {
           </div>
         </div>
 
-        {/* 3. At The Plate */}
         <div className="space-y-4">
           <h3 className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2 flex items-center gap-1.5">
             <Crosshair className="w-3.5 h-3.5" /> 3. Kicking Style
@@ -258,5 +251,17 @@ export default function JoinTeamPage() {
         <img src="/assets/kicksheet-logo-white.png" alt="Kicksheet" className="h-4 mx-auto mt-2 opacity-30 hidden dark:block" />
       </div>
     </div>
+  )
+}
+
+export default function JoinTeamPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    }>
+      <JoinTeamContent />
+    </Suspense>
   )
 }
