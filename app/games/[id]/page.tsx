@@ -182,7 +182,7 @@ function LineupContent() {
                 className="fixed inset-0 z-40 hidden sm:block"
                 onClick={() => setShowEditMenu(false)}
               ></div>
-              <div className="sm:absolute left-0 mt-2 w-full sm:w-40 bg-white dark:bg-gray-900 sm:dark:bg-gray-800 rounded-xl sm:shadow-lg border border-gray-200 dark:border-gray-700 sm:py-1.5 sm:z-50 overflow-hidden flex flex-col">
+              <div className="sm:absolute left-0 mt-2 w-full sm:w-40 bg-white dark:bg-gray-900 sm:dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 sm:py-1.5 sm:z-50 overflow-hidden flex flex-col">
                 <Link 
                   href={`/games/${game.id}/edit`} 
                   className="flex items-center justify-center sm:justify-start px-4 py-3 sm:py-2.5 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 sm:dark:hover:bg-gray-700 transition-colors border-b sm:border-b-0 border-gray-100 dark:border-gray-800"
@@ -297,7 +297,7 @@ function LineupContent() {
                 {!downloading && <Info className="w-4 h-4 text-gray-400 dark:text-gray-500" />}
               </h2>
               {!downloading && (
-                <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
+                <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
                   Tap a name to highlight only that row, or tap an Inning number to highlight only that column.
                   <div className="absolute -top-1 left-6 w-3 h-3 bg-gray-900 dark:bg-white rotate-45"></div>
                 </div>
@@ -307,7 +307,7 @@ function LineupContent() {
             {!downloading && (
               <button 
                 onClick={() => setShowFieldMap(true)}
-                className="inline-flex items-center justify-center px-3 py-1 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 shadow-sm"
+                className="inline-flex items-center justify-center px-3 py-1 text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
               >
                 Field Map
               </button>

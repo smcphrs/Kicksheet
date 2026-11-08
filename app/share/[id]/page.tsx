@@ -224,7 +224,7 @@ function PublicLineupContent() {
         <div className={`px-2 sm:px-6 pt-2 sm:pt-6 transform transition-all duration-700 ease-out ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'} print:transform-none print:opacity-100 print:px-0 print:pt-0`}>
           
           {/* Header Card */}
-          <div className="bg-[#2563eb] text-white p-3 sm:p-5 rounded-2xl sm:rounded-3xl mb-3 relative overflow-hidden border border-blue-700 shadow-lg shadow-blue-900/10 print:shadow-none print:border-none">
+          <div className="bg-[#2563eb] text-white p-3 sm:p-5 rounded-2xl sm:rounded-3xl mb-3 relative overflow-hidden border border-blue-700 print:border-none">
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-2">
                 <div className="inline-flex items-center px-3 py-0.5 bg-white/20 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-full border border-white/30 backdrop-blur-sm">
@@ -306,7 +306,7 @@ function PublicLineupContent() {
           </div>
 
           {/* High-Legibility Table */}
-          <div className={`bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-700 delay-300 ease-out border border-gray-300 dark:border-gray-700 shadow-sm ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'} print:shadow-none print:border-none`}>
+          <div className={`bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-700 delay-300 ease-out border border-gray-300 dark:border-gray-700 ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'} print:border-none`}>
             <table className="w-full text-left border-collapse print:w-full">
               <thead className="bg-[#2563eb] text-white text-xs sm:text-sm font-black tracking-tight border-b-2 border-blue-800">
                 <tr>
