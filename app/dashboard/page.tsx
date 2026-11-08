@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
-import { Users, Calendar, Plus, ChevronRight, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap, DiagramFlowHorizontal } from 'lucide-react'
+import { Users, Calendar, Plus, ChevronRight, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap, } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { FieldMapShortcut } from '@/components/FieldMapShortcut' // <-- New Import
 
