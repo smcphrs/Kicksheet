@@ -40,7 +40,6 @@ const parsePositions = (data: any): string[] => {
   if (!data) return []
   if (Array.isArray(data)) return data
   if (typeof data === 'string') {
-    // Safely cleans Postgres array strings like "{P,1B}" or JSON "['P']"
     const cleaned = data.replace(/^\{|\}$|^\[|\]$/g, '').replace(/"|'/g, '')
     return cleaned.split(',').map(s => s.trim()).filter(Boolean)
   }
@@ -75,6 +74,7 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
           Back to Teams
         </Link>
 
+        {/* Team Banner */}
         <header className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#2563eb] text-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-blue-700 overflow-hidden">
           <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl pointer-events-none"></div>
           
@@ -92,7 +92,7 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
             </div>
           </div>
           
-          <div className="relative z-10 flex flex-wrap sm:flex-nowrap gap-2 w-full sm:w-auto">
+          <div className="relative z-10 flex gap-2 w-full sm:w-auto">
             <Link 
               href={`/teams/${team.id}/edit`}
               className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-3 sm:py-2.5 bg-blue-800/50 hover:bg-blue-800 border border-blue-700 text-white font-bold rounded-xl transition-colors active:scale-95"
@@ -104,19 +104,28 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
               className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-3 sm:py-2.5 bg-white text-[#0a192f] hover:bg-gray-100 font-bold rounded-xl transition-colors active:scale-95"
             >
               <UserPlus className="w-5 h-5 mr-2 text-[#2563eb]" />
-              Add
+              Add Player
             </Link>
-            
-            {/* 
-              Client Component injected here! 
-              It safely handles the clipboard action without breaking the Server Page 
-            */}
-              <CopyInviteButton teamId={team.id} />
-            
           </div>
-          
         </header>
 
+        {/* Invite Link & Instructions Banner */}
+        <section className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div className="space-y-1.5 max-w-xl">
+            <h2 className="text-xs font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
+              Invite Players
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
+              <span className="font-bold text-gray-900 dark:text-white">1.</span> Copy team link &nbsp;·&nbsp;
+              <span className="font-bold text-gray-900 dark:text-white">2.</span> Send to group chat &nbsp;·&nbsp;
+              <span className="font-bold text-gray-900 dark:text-white">3.</span> Players submit quick profile &nbsp;·&nbsp;
+              <span className="font-bold text-gray-900 dark:text-white">4.</span> Roster updates automatically.
+            </p>
+          </div>
+          <CopyInviteButton teamId={team.id} />
+        </section>
+
+        {/* Roster Section */}
         <div>
           <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
             <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">
@@ -139,7 +148,6 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
               {players.map((player: any) => {
-                // Combine old manually added positions with new form positions safely
                 const rawPositions = [
                   ...parsePositions(player.positions), 
                   ...parsePositions(player.preferred_positions)
@@ -152,26 +160,23 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
                     {/* Top Row: Number, Name & Actions */}
                     <div className="flex justify-between items-start gap-3">
                       <div className="flex items-start gap-3 flex-1">
-                        {/* Drastically reduced jersey number size */}
                         {player.number && (
                           <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 font-black text-gray-500 dark:text-gray-400 text-xs mt-0.5 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 group-hover:border-blue-200 dark:group-hover:border-blue-800 transition-colors">
                             {player.number}
                           </div>
                         )}
-                        {/* Enlarged Name without truncation */}
                         <div className="flex items-center gap-2 flex-wrap">
-  <h3 className="font-extrabold text-lg sm:text-xl text-gray-900 dark:text-white leading-tight tracking-tight">
-    {player.name}
-  </h3>
-  {player.experience_level === 'New' && (
-    <span className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">
-      Newbie
-    </span>
-  )}
-</div>
+                          <h3 className="font-extrabold text-lg sm:text-xl text-gray-900 dark:text-white leading-tight tracking-tight">
+                            {player.name}
+                          </h3>
+                          {player.experience_level === 'New' && (
+                            <span className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">
+                              Newbie
+                            </span>
+                          )}
+                        </div>
                       </div>
                       
-                      {/* Actions tucked into the top right */}
                       <div className="flex items-center gap-1 shrink-0 bg-gray-50 dark:bg-gray-800/50 p-1 rounded-xl border border-gray-100 dark:border-gray-700/50 opacity-80 group-hover:opacity-100 transition-opacity">
                         <Link 
                           href={`/players/${player.id}/edit`}
@@ -186,8 +191,6 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
 
                     {/* Bottom Row: Kicking Style & Positions */}
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
-                      
-                      {/* Kicking Style (Larger and clearer) */}
                       <div className="flex-1 min-w-[120px]">
                         {player.kicking_style ? (
                           <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-bold flex items-center gap-1.5 uppercase tracking-wider">
@@ -198,7 +201,6 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
                         )}
                       </div>
                       
-                      {/* Enlarged Position Pills */}
                       <div className="flex flex-wrap justify-end gap-1.5">
                         {uniqueAbbrs && uniqueAbbrs.length > 0 ? (
                           uniqueAbbrs.map((pos) => (
