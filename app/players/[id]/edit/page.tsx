@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, Loader2, Save, Hash, Crosshair, User } from 'lucide-react'
@@ -29,7 +29,7 @@ const parsePositions = (data: any): string[] => {
   return []
 }
 
-export default function EditPlayerPage() {
+function EditPlayerContent() {
   const params = useParams()
   const playerId = params.id as string
   const router = useRouter()
@@ -214,5 +214,17 @@ export default function EditPlayerPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function EditPlayerPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    }>
+      <EditPlayerContent />
+    </Suspense>
   )
 }
