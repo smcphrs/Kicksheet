@@ -17,16 +17,18 @@ export function CopyInviteButton({ teamId }: { teamId: string }) {
   return (
     <button
       onClick={handleCopyInvite}
-      className="inline-flex items-center justify-center px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all active:scale-95 group"
+      className={`w-full sm:w-auto inline-flex items-center justify-center px-4 py-3 sm:py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all active:scale-95 border ${
+        copied
+          ? 'bg-emerald-500 border-emerald-400 text-white shadow-md shadow-emerald-950/20'
+          : 'bg-white hover:bg-blue-50 text-[#1e40af] border-white shadow-sm hover:shadow'
+      }`}
     >
       {copied ? (
-        <Check className="w-4 h-4 mr-2 text-green-600 dark:text-green-400" />
+        <Check className="w-4 h-4 mr-1.5 text-white stroke-[2.5]" />
       ) : (
-        <Link2 className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
+        <Link2 className="w-4 h-4 mr-1.5 text-[#2563eb] stroke-[2.5]" />
       )}
-      <span className={copied ? 'text-green-700 dark:text-green-400' : ''}>
-        {copied ? 'Link Copied!' : 'Invite Players'}
-      </span>
+      <span>{copied ? 'Link Copied!' : 'Invite Players'}</span>
     </button>
   )
 }
