@@ -2,6 +2,27 @@
 
 import { createClient } from '@supabase/supabase-js'
 
+// 1. New function to securely fetch the team's public info for the onboarding form
+export async function getTeamDetailsAction(teamId: string) {
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY! 
+  )
+
+  const { data, error } = await supabaseAdmin
+    .from('teams')
+    .select('id, name, logo_url')
+    .eq('id', teamId)
+    .single()
+
+  if (error) {
+    console.error('Failed to fetch team:', error)
+    return null
+  }
+  return data
+}
+
+// 2. Your existing function to securely add the player
 export async function joinTeamAction(data: {
   teamId: string
   firstName: string
@@ -10,7 +31,6 @@ export async function joinTeamAction(data: {
   positions: string[]
   kickingStyle: string
 }) {
-  // Initialize Supabase with the SERVICE ROLE KEY to safely bypass RLS
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY! 
@@ -25,7 +45,6 @@ export async function joinTeamAction(data: {
         team_id: teamId,
         name: `${firstName} ${lastName}`.trim(),
         number: number || null,
-        // Ensure you add these columns to your Supabase 'players' table!
         positions: positions,
         kicking_style: kickingStyle || null,
         is_registered: true

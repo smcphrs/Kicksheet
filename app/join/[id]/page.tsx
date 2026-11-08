@@ -1,10 +1,9 @@
 'use client'
 
 import { Suspense, useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useParams } from 'next/navigation'
 import { Loader2, Hash, Crosshair, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react'
-import { joinTeamAction } from '@/app/actions/join-team'
+import { joinTeamAction, getTeamDetailsAction } from '@/app/actions/join-team'
 
 const POSITIONS = [
   { id: 'P', name: 'Pitcher', color: 'bg-[#ec0000] text-white' },
@@ -21,8 +20,9 @@ const POSITIONS = [
 
 function JoinTeamContent() {
   const params = useParams()
-  const teamId = params.team_id as string
-  const supabase = createClient()
+  
+  // Robustly extract the ID regardless of what the folder is named
+  const teamId = (params.id || Object.values(params)[0]) as string
 
   const [team, setTeam] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -39,18 +39,16 @@ function JoinTeamContent() {
 
   useEffect(() => {
     if (!teamId) return
+    
     async function fetchTeam() {
-      const { data } = await supabase
-        .from('teams')
-        .select('id, name, logo_url')
-        .eq('id', teamId)
-        .single()
-        
+      // Bypasses RLS to securely fetch the team name for the unauthenticated user
+      const data = await getTeamDetailsAction(teamId)
       setTeam(data)
       setLoading(false)
     }
+    
     fetchTeam()
-  }, [teamId, supabase])
+  }, [teamId])
 
   const togglePosition = (posId: string) => {
     setFormData(prev => ({
