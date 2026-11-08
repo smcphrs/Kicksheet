@@ -300,37 +300,46 @@ export default async function DashboardPage() {
             </div>
 
             {recentGames && recentGames.length > 0 ? (
-              <div className="space-y-3">
-                {recentGames.map((game: any) => (
-                  <Link 
-                    key={game.id} 
-                    href={`/games/${game.id}`}
-                    className="flex flex-col bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-[0.98] group transition-colors"
-                  >
-                    <div className="flex justify-between items-start w-full mb-2">
-                      <span className="text-[10px] font-black px-2 py-1 bg-gray-100 dark:bg-gray-800 border border-transparent text-gray-500 dark:text-gray-400 rounded-md uppercase tracking-widest group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                        {new Date(game.game_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </span>
-                      <div className="bg-gray-100 dark:bg-gray-800 rounded-full p-1 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 transition-colors">
-                        <ChevronRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all" />
-                      </div>
+          <div className="space-y-3 sm:space-y-4">
+            {recentGames.map((game: any) => {
+              // Parse the date to extract Month and Day for the thumbnail
+              const d = new Date(game.game_date);
+              const month = d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short' });
+              const day = d.toLocaleDateString('en-US', { timeZone: 'UTC', day: 'numeric' });
+              
+              return (
+                <Link 
+                  key={game.id} 
+                  href={`/games/${game.id}`}
+                  className="flex bg-white dark:bg-gray-900 p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md dark:hover:shadow-blue-900/20 active:scale-[0.98] group transition-all relative overflow-hidden"
+                >
+                  {/* Date Thumbnail */}
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-[#2563eb] text-white flex flex-col items-center justify-center shrink-0 shadow-inner group-hover:scale-105 group-hover:bg-blue-700 transition-all duration-300">
+                    <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest opacity-90">{month}</span>
+                    <span className="text-2xl sm:text-3xl font-black leading-none tracking-tighter">{day}</span>
+                  </div>
+                  
+                  {/* Matchup Details */}
+                  <div className="flex-1 pl-3 sm:pl-4 pr-16 py-1 flex flex-col justify-center">
+                    <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 tracking-tight truncate">{game.teams?.name}</span>
+                    <h4 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white tracking-tight leading-tight truncate mt-0.5">vs {game.opposing_team || 'TBD'}</h4>
+                  </div>
+
+                  {/* Floating Lineup Button */}
+                  <div className="absolute bottom-2.5 sm:bottom-3 right-2.5 sm:right-3">
+                    <div className="inline-flex items-center justify-center px-2.5 py-1.5 sm:px-3 sm:py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
+                      Lineup <ArrowRight className="w-3 h-3 ml-1 sm:ml-1.5 group-hover:translate-x-0.5 transition-transform" />
                     </div>
-                    
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="font-extrabold text-gray-900 dark:text-white truncate tracking-tight">{game.teams?.name}</span>
-                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">vs</span>
-                      <span className="text-sm font-bold text-gray-500 dark:text-gray-400 truncate tracking-tight">
-                        {game.opposing_team || 'TBD'}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center flex flex-col items-center justify-center min-h-[250px] transition-colors">
-                <p className="text-gray-500 dark:text-gray-400 font-bold tracking-tight">No past games yet.</p>
-              </div>
-            )}
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center flex flex-col items-center justify-center min-h-[250px] transition-colors">
+            <p className="text-gray-500 dark:text-gray-400 font-bold tracking-tight">No past games yet.</p>
+          </div>
+        )}
           </div>
           
         </div>
