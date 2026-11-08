@@ -20,9 +20,9 @@ const POSITIONS = [
 
 function JoinTeamContent() {
   const params = useParams()
-  const teamId = (params.id || Object.values(params)[0]) as string
+  const teamId = (params?.id || Object.values(params || {})[0]) as string
 
-  const [team, setTeam] = useState<any>(null)
+  const [team, setTeam] = useState<{ id: string; name: string; logo_url?: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -31,7 +31,7 @@ function JoinTeamContent() {
     firstName: '',
     lastName: '',
     number: '',
-    experienceLevel: 'Experienced', // Default selection
+    experienceLevel: 'Experienced',
     kickingStyle: '',
     positions: [] as string[]
   })
@@ -80,15 +80,42 @@ function JoinTeamContent() {
     }
   }
 
-  if (loading) return <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>
-  if (!team && !loading) return <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 flex flex-col items-center justify-center p-6 text-center"><ShieldCheck className="w-16 h-16 text-gray-400 mb-4" /><h1 className="text-2xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">Team Not Found</h1><p className="text-gray-500 font-medium">This invite link is invalid or has expired.</p></div>
-  if (success) return <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-500"><div className="w-24 h-24 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6"><CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400" /></div><h1 className="text-3xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">You're on the roster!</h1><p className="text-gray-600 dark:text-gray-400 font-medium text-lg max-w-sm">Your profile has been added to <strong>{team.name}</strong>. The captain now has your info.</p></div>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    )
+  }
+
+  if (!team && !loading) {
+    return (
+      <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 flex flex-col items-center justify-center p-6 text-center">
+        <ShieldCheck className="w-16 h-16 text-gray-400 mb-4" />
+        <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">Team Not Found</h1>
+        <p className="text-gray-500 font-medium">This invite link is invalid or has expired.</p>
+      </div>
+    )
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-500">
+        <div className="w-24 h-24 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6">
+          <CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400" />
+        </div>
+        <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">You're on the roster!</h1>
+        <p className="text-gray-600 dark:text-gray-400 font-medium text-lg max-w-sm">
+          Your profile has been added to <strong>{team?.name}</strong>. The captain now has your info.
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-[100dvh] bg-[#f8f9fa] dark:bg-gray-950 flex flex-col items-center py-10 px-4 sm:py-20 antialiased transition-colors">
-      
       <div className="max-w-md w-full text-center mb-8 animate-in slide-in-from-bottom-4 fade-in duration-700">
-        {team.logo_url ? (
+        {team?.logo_url ? (
           <img src={team.logo_url} alt={team.name} className="w-20 h-20 mx-auto rounded-2xl object-cover shadow-sm mb-4 border border-gray-200 dark:border-gray-800" />
         ) : (
           <div className="w-20 h-20 mx-auto rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4 border border-blue-200 dark:border-blue-800/50">
@@ -96,27 +123,50 @@ function JoinTeamContent() {
           </div>
         )}
         <h2 className="text-sm font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2">You're Invited</h2>
-        <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-none mb-3">Join {team.name}</h1>
+        <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-none mb-3">
+          Join {team?.name}
+        </h1>
         <p className="text-gray-500 dark:text-gray-400 font-medium">Fill out your player card to be added to the official roster.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="max-w-md w-full bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-200 dark:border-gray-800 animate-in slide-in-from-bottom-8 fade-in duration-700 delay-150 fill-mode-both space-y-8">
-        
         <div className="space-y-4">
           <h3 className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">1. The Basics</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1">First Name</label>
-              <input required type="text" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" placeholder="Jane" />
+              <input 
+                required 
+                type="text" 
+                value={formData.firstName} 
+                onChange={e => setFormData({ ...formData, firstName: e.target.value })} 
+                className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
+                placeholder="Jane" 
+              />
             </div>
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1">Last Name</label>
-              <input required type="text" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" placeholder="Doe" />
+              <input 
+                required 
+                type="text" 
+                value={formData.lastName} 
+                onChange={e => setFormData({ ...formData, lastName: e.target.value })} 
+                className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
+                placeholder="Doe" 
+              />
             </div>
           </div>
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1.5"><Hash className="w-3.5 h-3.5" /> Preferred Jersey #</label>
-            <input type="number" value={formData.number} onChange={e => setFormData({...formData, number: e.target.value})} className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" placeholder="e.g. 99" />
+            <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
+              <Hash className="w-3.5 h-3.5" /> Preferred Jersey #
+            </label>
+            <input 
+              type="number" 
+              value={formData.number} 
+              onChange={e => setFormData({ ...formData, number: e.target.value })} 
+              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
+              placeholder="e.g. 99" 
+            />
           </div>
         </div>
 
@@ -125,7 +175,7 @@ function JoinTeamContent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => setFormData({...formData, experienceLevel: 'Experienced'})}
+              onClick={() => setFormData({ ...formData, experienceLevel: 'Experienced' })}
               className={`px-4 py-3 rounded-xl text-sm font-bold transition-all border active:scale-95 flex items-center justify-center gap-2 ${
                 formData.experienceLevel === 'Experienced'
                   ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-400 ring-1 ring-blue-500'
@@ -136,7 +186,7 @@ function JoinTeamContent() {
             </button>
             <button
               type="button"
-              onClick={() => setFormData({...formData, experienceLevel: 'New', positions: [], kickingStyle: ''})}
+              onClick={() => setFormData({ ...formData, experienceLevel: 'New', positions: [], kickingStyle: '' })}
               className={`px-4 py-3 rounded-xl text-sm font-bold transition-all border active:scale-95 flex items-center justify-center gap-2 ${
                 formData.experienceLevel === 'New'
                   ? 'bg-green-50 dark:bg-green-900/30 border-green-500 text-green-700 dark:text-green-400 ring-1 ring-green-500'
@@ -168,8 +218,19 @@ function JoinTeamContent() {
                 {POSITIONS.map(pos => {
                   const isSelected = formData.positions.includes(pos.id)
                   return (
-                    <button key={pos.id} type="button" onClick={() => togglePosition(pos.id)} className={`flex flex-col items-center justify-center aspect-square rounded-xl transition-all duration-200 active:scale-95 border ${isSelected ? `${pos.color.split(' ')[0]} border-transparent shadow-md ring-2 ring-blue-500/30 ring-offset-1 dark:ring-offset-gray-900` : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'}`}>
-                      <span className={`text-sm sm:text-base font-black tracking-tighter ${isSelected ? pos.color.split(' ')[1] : 'text-gray-400 dark:text-gray-500'}`}>{pos.id}</span>
+                    <button 
+                      key={pos.id} 
+                      type="button" 
+                      onClick={() => togglePosition(pos.id)} 
+                      className={`flex flex-col items-center justify-center aspect-square rounded-xl transition-all duration-200 active:scale-95 border ${
+                        isSelected 
+                          ? `${pos.color.split(' ')[0]} border-transparent shadow-md ring-2 ring-blue-500/30 ring-offset-1 dark:ring-offset-gray-900` 
+                          : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      <span className={`text-sm sm:text-base font-black tracking-tighter ${isSelected ? pos.color.split(' ')[1] : 'text-gray-400 dark:text-gray-500'}`}>
+                        {pos.id}
+                      </span>
                     </button>
                   )
                 })}
@@ -177,10 +238,21 @@ function JoinTeamContent() {
             </div>
 
             <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
-              <h3 className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2 flex items-center gap-1.5"><Crosshair className="w-3.5 h-3.5" /> 4. Kicking Style</h3>
+              <h3 className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2 flex items-center gap-1.5">
+                <Crosshair className="w-3.5 h-3.5" /> 4. Kicking Style
+              </h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                 {['Power', 'Placement', 'Bunt', 'Mixed Bag'].map(style => (
-                  <button key={style} type="button" onClick={() => setFormData({...formData, kickingStyle: style})} className={`px-2 py-3 rounded-xl text-[11px] sm:text-xs font-bold transition-all border active:scale-95 ${formData.kickingStyle === style ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-400 ring-1 ring-blue-500' : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}>
+                  <button 
+                    key={style} 
+                    type="button" 
+                    onClick={() => setFormData({ ...formData, kickingStyle: style })} 
+                    className={`px-2 py-3 rounded-xl text-[11px] sm:text-xs font-bold transition-all border active:scale-95 ${
+                      formData.kickingStyle === style 
+                        ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-400 ring-1 ring-blue-500' 
+                        : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
                     {style}
                   </button>
                 ))}
@@ -189,10 +261,32 @@ function JoinTeamContent() {
           </>
         )}
 
-        <button type="submit" disabled={submitting || !formData.firstName || !formData.lastName} className="w-full flex items-center justify-center gap-2 bg-[#2563eb] text-white text-base font-bold py-4 rounded-2xl hover:bg-blue-700 active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 group mt-4 shadow-lg shadow-blue-600/20">
-          {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Join Team Roster <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>}
+        <button 
+          type="submit" 
+          disabled={submitting || !formData.firstName || !formData.lastName} 
+          className="w-full flex items-center justify-center gap-2 bg-[#2563eb] text-white text-base font-bold py-4 rounded-2xl hover:bg-blue-700 active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 group mt-4 shadow-lg shadow-blue-600/20"
+        >
+          {submitting ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <>
+              Join Team Roster <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </>
+          )}
         </button>
       </form>
     </div>
+  )
+}
+
+export default function JoinTeamPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    }>
+      <JoinTeamContent />
+    </Suspense>
   )
 }
