@@ -36,6 +36,17 @@ const getPositionColors = (pos: string) => {
   }
 }
 
+const parsePositions = (data: any): string[] => {
+  if (!data) return []
+  if (Array.isArray(data)) return data
+  if (typeof data === 'string') {
+    // Safely cleans Postgres array strings like "{P,1B}" or JSON "['P']"
+    const cleaned = data.replace(/^\{|\}$|^\[|\]$/g, '').replace(/"|'/g, '')
+    return cleaned.split(',').map(s => s.trim()).filter(Boolean)
+  }
+  return []
+}
+
 export default async function TeamRosterPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const cookieStore = await cookies()
@@ -130,7 +141,10 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               {players.map((player: any) => {
                 // Combine old manually added positions with new form positions safely
-                const rawPositions = player.positions || player.preferred_positions || []
+                const rawPositions = [
+  ...parsePositions(player.positions), 
+  ...parsePositions(player.preferred_positions)
+]
                 const uniqueAbbrs = Array.from(new Set(rawPositions.map((pos: string) => getPosAbbr(pos))))
 
                 return (
