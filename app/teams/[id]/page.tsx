@@ -2,8 +2,9 @@ import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, UserPlus, Edit2, Shield, Users, Link2, Check } from 'lucide-react'
+import { ArrowLeft, UserPlus, Edit2, Shield, Users, Crosshair } from 'lucide-react'
 import { DeletePlayerButton } from '@/components/DeletePlayerButton'
+import { CopyInviteButton } from '@/components/CopyInviteButton'
 
 const getPosAbbr = (pos: string) => {
   const map: Record<string, string> = {
@@ -18,22 +19,22 @@ const getPosAbbr = (pos: string) => {
 }
 
 const getPositionColors = (pos: string) => {
-    switch (pos) {
-      case 'LF': return 'bg-[#1e40af] text-white' 
-      case 'LC': return 'bg-[#03a9f4] text-white' 
-      case 'RC': return 'bg-[#00be99] text-white' 
-      case 'RF': return 'bg-[#43a047] text-white'
-      case 'P':  return 'bg-[#ec0000] text-white'
-      case 'C':  return 'bg-[#9942cc] text-white' 
-      case '1B': return 'bg-[#ff6a66] text-white' 
-      case '2B': return 'bg-[#ff8800] text-white' 
-      case '3B': return 'bg-[#e3005c] text-white' 
-      case 'SS': return 'bg-[#dbcc07] text-white' // Dark text for legibility on bright yellow
-      case 'Bench':
-      case 'OUT': return 'bg-[#757575] text-white' 
-      default: return 'bg-gray-400 dark:bg-gray-600 text-white'
-    }
+  switch (pos) {
+    case 'LF': return 'bg-[#1e40af] text-white' 
+    case 'LC': return 'bg-[#03a9f4] text-white' 
+    case 'RC': return 'bg-[#00be99] text-white' 
+    case 'RF': return 'bg-[#43a047] text-white'
+    case 'P':  return 'bg-[#ec0000] text-white'
+    case 'C':  return 'bg-[#9942cc] text-white' 
+    case '1B': return 'bg-[#ff6a66] text-white' 
+    case '2B': return 'bg-[#ff8800] text-white' 
+    case '3B': return 'bg-[#e3005c] text-white' 
+    case 'SS': return 'bg-[#dbcc07] text-gray-900' 
+    case 'Bench':
+    case 'OUT': return 'bg-[#757575] text-white' 
+    default: return 'bg-gray-400 dark:bg-gray-600 text-white'
   }
+}
 
 export default async function TeamRosterPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -53,17 +54,6 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
     .select('*')
     .eq('team_id', id)
     .order('name', { ascending: true })
-
-    const [copied, setCopied] = useState(false)
-
-const handleCopyInvite = () => {
-  // Dynamically builds the correct URL whether on localhost or production
-  const inviteUrl = `${window.location.origin}/join/${team.id}`
-  navigator.clipboard.writeText(inviteUrl)
-  
-  setCopied(true)
-  setTimeout(() => setCopied(false), 2000)
-}
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
@@ -91,39 +81,33 @@ const handleCopyInvite = () => {
             </div>
           </div>
           
-          <div className="relative z-10 flex gap-2 w-full sm:w-auto">
+          <div className="relative z-10 flex flex-wrap sm:flex-nowrap gap-2 w-full sm:w-auto">
             <Link 
               href={`/teams/${team.id}/edit`}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-3 bg-blue-800/50 hover:bg-blue-800 border border-blue-700 text-white font-bold rounded-xl transition-colors active:scale-95"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-3 sm:py-2.5 bg-blue-800/50 hover:bg-blue-800 border border-blue-700 text-white font-bold rounded-xl transition-colors active:scale-95"
             >
-              Edit Team
+              Edit
             </Link>
             <Link 
               href={`/players/new?team_id=${team.id}`}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-3 bg-white text-[#0a192f] hover:bg-gray-100 font-bold rounded-xl transition-colors active:scale-95"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-3 sm:py-2.5 bg-white text-[#0a192f] hover:bg-gray-100 font-bold rounded-xl transition-colors active:scale-95"
             >
               <UserPlus className="w-5 h-5 mr-2 text-[#2563eb]" />
-              Add Player
+              Add
             </Link>
-            <button
-  onClick={handleCopyInvite}
-  className="inline-flex items-center justify-center px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all active:scale-95 group"
->
-  {copied ? (
-    <Check className="w-4 h-4 mr-2 text-green-600 dark:text-green-400" />
-  ) : (
-    <Link2 className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
-  )}
-  <span className={copied ? 'text-green-700 dark:text-green-400' : ''}>
-    {copied ? 'Link Copied!' : 'Invite Players'}
-  </span>
-</button>
+            
+            {/* 
+              Client Component injected here! 
+              It safely handles the clipboard action without breaking the Server Page 
+            */}
+            <div className="w-full sm:w-auto mt-2 sm:mt-0">
+              <CopyInviteButton teamId={team.id} />
+            </div>
           </div>
           
         </header>
 
         <div>
-          {/* Structural Section Header */}
           <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
             <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">
               Roster
@@ -143,53 +127,58 @@ const handleCopyInvite = () => {
               </Link>
             </div>
           ) : (
-            <div className="grid gap-3">
-              {players.map((player) => {
-                const rawPositions = player.preferred_positions || []
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              {players.map((player: any) => {
+                // Combine old manually added positions with new form positions safely
+                const rawPositions = player.positions || player.preferred_positions || []
                 const uniqueAbbrs = Array.from(new Set(rawPositions.map((pos: string) => getPosAbbr(pos))))
 
                 return (
-                  <div key={player.id} className="bg-white dark:bg-gray-900 p-3 sm:p-4 rounded-2xl border border-gray-300 dark:border-gray-700 flex items-center justify-between gap-3 sm:gap-4 group hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                  <div key={player.id} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5 flex items-center justify-between hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all group">
                     
+                    {/* Left: Number, Name & Kicking Style */}
                     <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                      {/* ONLY show the number block if a number exists */}
-                      {player.number && (
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 font-black text-gray-600 dark:text-gray-400 text-base sm:text-lg">
-                          {player.number}
-                        </div>
-                      )}
-                      
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 font-black text-gray-400 dark:text-gray-500 text-sm sm:text-base group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 transition-colors">
+                        {player.number ? `#${player.number}` : '-'}
+                      </div>
                       <div className="flex-1 truncate">
-                        <h3 className="font-extrabold text-base sm:text-lg text-gray-900 dark:text-white tracking-tight truncate">{player.name}</h3>
-                        <div className="flex flex-wrap gap-1.5 mt-1">
-                          {uniqueAbbrs.length > 0 ? (
-                            uniqueAbbrs.map((abbr) => {
-                              const colors = getPositionColors(abbr as string);
-                              return (
-                                <span key={abbr as string} className={`inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded text-[10px] sm:text-xs font-bold transition-colors uppercase tracking-wider ${colors}`}>
-                                  {abbr as string}
-                                </span>
-                              )
-                            })
-                          ) : (
-                            <span className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider">No preferred positions</span>
-                          )}
-                        </div>
+                        <h3 className="font-extrabold text-gray-900 dark:text-white text-base sm:text-lg leading-tight tracking-tight truncate">{player.name}</h3>
+                        {player.kicking_style && (
+                          <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold flex items-center gap-1 mt-1 uppercase tracking-wider truncate">
+                            <Crosshair className="w-3 h-3 text-blue-500 shrink-0" /> {player.kicking_style}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Right: Position Preferences & Actions */}
+                    <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+                      
+                      <div className="flex flex-wrap justify-end gap-1.5 max-w-[80px] sm:max-w-[140px]">
+                        {uniqueAbbrs && uniqueAbbrs.length > 0 ? (
+                          uniqueAbbrs.map((pos) => (
+                            <span key={pos as string} className={`inline-flex items-center justify-center w-[24px] h-[16px] sm:w-[28px] sm:h-[20px] rounded sm:rounded-md text-[9px] sm:text-[10px] font-black uppercase tracking-tighter ${getPositionColors(pos as string)}`}>
+                              {pos as string}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 font-bold italic tracking-tight hidden sm:inline-block">No positions</span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-1 shrink-0 border-l border-gray-100 dark:border-gray-800 pl-3">
+                        <Link 
+                          href={`/players/${player.id}/edit`}
+                          className="p-2 sm:p-2.5 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all active:scale-95 shrink-0"
+                          title="Edit Player"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Link>
+                        
+                        <DeletePlayerButton playerId={player.id} playerName={player.name} />
                       </div>
                     </div>
 
-                    {/* Discreet Actions Container */}
-                    <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-                      <Link 
-                        href={`/players/${player.id}/edit`}
-                        className="p-2 sm:p-2.5 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all active:scale-95 shrink-0"
-                        title="Edit Player"
-                      >
-                        <Edit2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </Link>
-                      
-                      <DeletePlayerButton playerId={player.id} playerName={player.name} />
-                    </div>
                   </div>
                 )
               })}
