@@ -7,12 +7,13 @@ import { LayoutDashboard, Shield, Calendar, Settings } from 'lucide-react'
 export default function Navigation() {
   const pathname = usePathname()
 
-  // 🚨 Hide navigation on auth pages, landing page, and public share links
+  // 🚨 Hide navigation on auth pages, landing page, and public share/join links
   if (
     pathname === '/login' || 
     pathname === '/signup' || 
     pathname === '/' || 
-    pathname?.startsWith('/share')
+    pathname?.startsWith('/share') ||
+    pathname?.startsWith('/join')
   ) {
     return null
   }
