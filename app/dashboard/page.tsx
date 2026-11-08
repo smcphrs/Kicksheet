@@ -319,10 +319,10 @@ export default async function DashboardPage() {
                     <span className="text-2xl sm:text-3xl font-black leading-none tracking-tighter">{day}</span>
                   </div>
                   
-                  {/* Matchup Details */}
-                  <div className="flex-1 pl-3 sm:pl-4 pr-16 py-1 flex flex-col justify-center">
+                  {/* Matchup Details (Aligned to top) */}
+                  <div className="flex-1 pl-3 sm:pl-4 pr-10 sm:pr-16 py-0.5 sm:py-1 flex flex-col justify-start">
                     <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 tracking-tight truncate">{game.teams?.name}</span>
-                    <h4 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white tracking-tight leading-tight truncate mt-0.5">vs {game.opposing_team || 'TBD'}</h4>
+                    <h4 className="text-base sm:text-xl font-black text-gray-900 dark:text-white tracking-tight leading-tight truncate mt-0.5 sm:mt-1">vs {game.opposing_team || 'TBD'}</h4>
                   </div>
 
                   {/* Floating Lineup Button */}
