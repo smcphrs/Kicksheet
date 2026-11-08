@@ -30,13 +30,14 @@ export async function joinTeamAction(data: {
   number: string
   positions: string[]
   kickingStyle: string
+  experienceLevel: string // NEW
 }) {
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY! 
   )
 
-  const { teamId, firstName, lastName, number, positions, kickingStyle } = data
+  const { teamId, firstName, lastName, number, positions, kickingStyle, experienceLevel } = data
 
   const { error } = await supabaseAdmin
     .from('players')
@@ -45,8 +46,9 @@ export async function joinTeamAction(data: {
         team_id: teamId,
         name: `${firstName} ${lastName}`.trim(),
         number: number || null,
-        positions: positions,
-        kicking_style: kickingStyle || null,
+        positions: experienceLevel === 'New' ? [] : positions,
+        kicking_style: experienceLevel === 'New' ? null : (kickingStyle || null),
+        experience_level: experienceLevel || 'Experienced',
         is_registered: true
       }
     ])

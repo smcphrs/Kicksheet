@@ -42,6 +42,7 @@ function EditPlayerContent() {
 
   const [name, setName] = useState('')
   const [number, setNumber] = useState('')
+  const [experienceLevel, setExperienceLevel] = useState('Experienced')
   const [positions, setPositions] = useState<string[]>([])
   const [kickingStyle, setKickingStyle] = useState('')
 
@@ -85,6 +86,7 @@ function EditPlayerContent() {
       .update({
         name: name.trim(),
         number: number ? parseInt(number, 10) : null,
+        experience_level: experienceLevel,
         positions: positions,
         kicking_style: kickingStyle || null
       })
@@ -183,7 +185,7 @@ function EditPlayerContent() {
                 <Crosshair className="w-3.5 h-3.5" /> Kicking Style
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
-                {['Power', 'Placement', 'Bunt / Speed'].map(style => (
+                {['Power', 'Placement', 'Bunt', 'Mixed Bag'].map(style => (
                   <button
                     key={style}
                     type="button"

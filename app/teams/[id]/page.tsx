@@ -160,9 +160,16 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
                           </div>
                         )}
                         {/* Enlarged Name without truncation */}
-                        <h3 className="font-extrabold text-lg sm:text-xl text-gray-900 dark:text-white leading-tight tracking-tight">
-                          {player.name}
-                        </h3>
+                        <div className="flex items-center gap-2 flex-wrap">
+  <h3 className="font-extrabold text-lg sm:text-xl text-gray-900 dark:text-white leading-tight tracking-tight">
+    {player.name}
+  </h3>
+  {player.experience_level === 'New' && (
+    <span className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">
+      Newbie
+    </span>
+  )}
+</div>
                       </div>
                       
                       {/* Actions tucked into the top right */}

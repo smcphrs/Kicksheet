@@ -29,6 +29,7 @@ function NewPlayerContent() {
   const [teamName, setTeamName] = useState('')
   const [name, setName] = useState('')
   const [number, setNumber] = useState('')
+  const [experienceLevel, setExperienceLevel] = useState('Experienced')
   const [positions, setPositions] = useState<string[]>([])
   const [kickingStyle, setKickingStyle] = useState('')
 
@@ -41,6 +42,8 @@ function NewPlayerContent() {
     fetchTeamName()
   }, [teamId, supabase])
 
+  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!teamId) return
@@ -52,6 +55,7 @@ function NewPlayerContent() {
         team_id: teamId,
         name: name.trim(),
         number: number ? parseInt(number, 10) : null,
+        experience_level: experienceLevel,
         positions: positions,
         kicking_style: kickingStyle || null,
         is_registered: false // False because captain added them manually
@@ -143,7 +147,7 @@ function NewPlayerContent() {
                 <Crosshair className="w-3.5 h-3.5" /> Kicking Style
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
-                {['Power', 'Placement', 'Bunt / Speed'].map(style => (
+                {['Power', 'Placement', 'Bunt', 'Mixed Bag'].map(style => (
                   <button
                     key={style}
                     type="button"
