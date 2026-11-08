@@ -1,264 +1,218 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useRouter, useParams } from 'next/navigation'
+import { ArrowLeft, Loader2, Save, Hash, Crosshair, User } from 'lucide-react'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, Archive, UserCheck } from 'lucide-react'
 
-const POSITIONS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'LC', 'RC', 'RF']
+const POSITIONS = [
+  { id: 'P', name: 'Pitcher', color: 'bg-[#ec0000] text-white' },
+  { id: 'C', name: 'Catcher', color: 'bg-[#9942cc] text-white' },
+  { id: '1B', name: '1st Base', color: 'bg-[#ff6a66] text-white' },
+  { id: '2B', name: '2nd Base', color: 'bg-[#ff8800] text-white' },
+  { id: '3B', name: '3rd Base', color: 'bg-[#e3005c] text-white' },
+  { id: 'SS', name: 'Short Stop', color: 'bg-[#dbcc07] text-gray-900' },
+  { id: 'LF', name: 'Left Field', color: 'bg-[#1e40af] text-white' },
+  { id: 'LC', name: 'Left Center', color: 'bg-[#03a9f4] text-white' },
+  { id: 'RC', name: 'Right Center', color: 'bg-[#00be99] text-white' },
+  { id: 'RF', name: 'Right Field', color: 'bg-[#43a047] text-white' },
+]
 
-function EditPlayerContent() {
+const parsePositions = (data: any): string[] => {
+  if (!data) return []
+  if (Array.isArray(data)) return data
+  if (typeof data === 'string') {
+    const cleaned = data.replace(/^\{|\}$|^\[|\]$/g, '').replace(/"|'/g, '')
+    return cleaned.split(',').map(s => s.trim()).filter(Boolean)
+  }
+  return []
+}
+
+export default function EditPlayerPage() {
   const params = useParams()
-  const id = params.id as string 
+  const playerId = params.id as string
   const router = useRouter()
   const supabase = createClient()
-  
+
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [teamId, setTeamId] = useState<string | null>(null)
+  const [teamName, setTeamName] = useState('')
 
-  // Player Data States
-  const [teamId, setTeamId] = useState<string>('')
   const [name, setName] = useState('')
   const [number, setNumber] = useState('')
-  const [selectedPositions, setSelectedPositions] = useState<string[]>([])
-  const [status, setStatus] = useState<'active' | 'archived'>('active')
+  const [positions, setPositions] = useState<string[]>([])
+  const [kickingStyle, setKickingStyle] = useState('')
 
-  // Fetch existing player data on load
   useEffect(() => {
+    if (!playerId) return
+
     async function fetchPlayer() {
-      try {
-        const { data: player, error: fetchError } = await supabase
-          .from('players')
-          .select('*')
-          .eq('id', id)
-          .single()
+      const { data, error } = await supabase
+        .from('players')
+        .select('*, teams(name)')
+        .eq('id', playerId)
+        .single()
 
-        if (fetchError) throw fetchError
-
-        if (player) {
-          setName(player.name)
-          setNumber(player.number || '')
-          setSelectedPositions(player.preferred_positions || [])
-          setStatus(player.status || 'active')
-          setTeamId(player.team_id)
-        }
-      } catch (err: any) {
-        console.error('Error fetching player:', err)
-        setError('Failed to load player data.')
-      } finally {
-        setLoading(false)
+      if (data && !error) {
+        setName(data.name || '')
+        setNumber(data.number ? String(data.number) : '')
+        
+        // Merge legacy preferred_positions and new positions fields securely
+        const mergedPositions = [
+          ...parsePositions(data.positions),
+          ...parsePositions(data.preferred_positions)
+        ]
+        setPositions(Array.from(new Set(mergedPositions)))
+        
+        setKickingStyle(data.kicking_style || '')
+        setTeamId(data.team_id)
+        if (data.teams) setTeamName(data.teams.name)
       }
+      setLoading(false)
     }
-
+    
     fetchPlayer()
-  }, [id, supabase])
-
-  const togglePosition = (pos: string) => {
-    setSelectedPositions(prev => 
-      prev.includes(pos) 
-        ? prev.filter(p => p !== pos)
-        : [...prev, pos]
-    )
-  }
+  }, [playerId, supabase])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    const trimmedName = name.trim()
-    if (!trimmedName) return
-
     setSaving(true)
-    setError(null)
 
-    try {
-      const { error: updateError } = await supabase
-        .from('players')
-        .update({ 
-          name: trimmedName,
-          number: number.trim() || null,
-          preferred_positions: selectedPositions,
-          status: status
-        })
-        .eq('id', id)
+    const { error } = await supabase
+      .from('players')
+      .update({
+        name: name.trim(),
+        number: number ? parseInt(number, 10) : null,
+        positions: positions,
+        kicking_style: kickingStyle || null
+      })
+      .eq('id', playerId)
 
-      if (updateError) throw updateError
-
-      router.refresh()
-      router.push(`/teams/${teamId}`)
-      
-    } catch (err: any) {
-      console.error('Error updating player:', err)
-      setError(err.message || 'Failed to update player. Please try again.')
+    if (error) {
+      console.error(error)
+      alert('Failed to update player')
       setSaving(false)
+    } else {
+      router.push(`/teams/${teamId}`)
+      router.refresh()
     }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 flex items-center justify-center transition-colors">
+      <div className="min-h-screen bg-[#f8f9fa] dark:bg-gray-950 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
-      <div className="max-w-2xl mx-auto p-4 sm:p-6 pt-12 sm:pt-24 w-full pb-24">
-        {/* Back Navigation */}
-        <Link 
-          href={`/teams/${teamId}`} 
-          className="inline-flex items-center text-sm font-bold text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 transition-colors mb-6"
-        >
+    <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors py-10 px-4 sm:py-20">
+      <div className="max-w-xl mx-auto space-y-6">
+        
+        <Link href={`/teams/${teamId}`} className="inline-flex items-center text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
           <ArrowLeft className="w-4 h-4 mr-1" />
-          Back to Team
+          Back to {teamName || 'Roster'}
         </Link>
 
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white">Edit Player</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg tracking-tight">Update player details and preferred positions.</p>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-3xl border border-gray-300 dark:border-gray-700 space-y-8 transition-colors">
-          {error && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm font-bold">
-              {error}
-            </div>
-          )}
-
-          {/* Status Toggle */}
-          <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-300 dark:border-gray-700">
-            <label className="block text-sm font-bold text-gray-900 dark:text-gray-300 mb-3">
-              Player Status
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setStatus('active')}
-                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-bold text-sm transition-all border active:scale-95 ${
-                  status === 'active'
-                    ? 'bg-blue-600 text-white border-blue-700 dark:border-blue-500'
-                    : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'
-                }`}
-              >
-                <UserCheck className="w-4 h-4" />
-                Active
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatus('archived')}
-                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-bold text-sm transition-all border active:scale-95 ${
-                  status === 'archived'
-                    ? 'bg-gray-800 dark:bg-gray-700 text-white border-gray-900 dark:border-gray-600'
-                    : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'
-                }`}
-              >
-                <Archive className="w-4 h-4" />
-                Archived
-              </button>
-            </div>
-            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-3 text-center">
-              Archived players keep their historical stats but are hidden from active game lineups.
-            </p>
+        <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800 shadow-sm">
+          <div className="mb-6">
+            <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none mb-2">Edit Player</h1>
+            <p className="text-gray-500 dark:text-gray-400 font-medium">Update profile details and preferences.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="space-y-2 sm:col-span-2">
-              <label htmlFor="name" className="block text-sm font-bold text-gray-700 dark:text-gray-300">
-                Player Name *
-              </label>
-              <input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                maxLength={50}
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-600/20 font-bold transition-all placeholder:text-gray-400"
-              />
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid sm:grid-cols-3 gap-4">
+              <div className="sm:col-span-2 space-y-1.5">
+                <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5" /> Full Name
+                </label>
+                <input 
+                  required 
+                  type="text" 
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
+                  <Hash className="w-3.5 h-3.5" /> Jersey #
+                </label>
+                <input 
+                  type="number" 
+                  value={number}
+                  onChange={e => setNumber(e.target.value)}
+                  className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="number" className="block text-sm font-bold text-gray-700 dark:text-gray-300">
-                Jersey Number <span className="font-medium text-gray-400 dark:text-gray-500">(Optional)</span>
-              </label>
-              <input
-                id="number"
-                type="text"
-                value={number}
-                onChange={(e) => setNumber(e.target.value)}
-                maxLength={5}
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-600/20 font-bold transition-all placeholder:text-gray-400"
-              />
+            <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+              <h3 className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center justify-between">
+                <span>Field Positions</span>
+                <span className="text-[9px] text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full">Tap to toggle</span>
+              </h3>
+              <div className="grid grid-cols-5 gap-2">
+                {POSITIONS.map(pos => {
+                  const isSelected = positions.includes(pos.id)
+                  return (
+                    <button
+                      key={pos.id}
+                      type="button"
+                      onClick={() => setPositions(prev => prev.includes(pos.id) ? prev.filter(p => p !== pos.id) : [...prev, pos.id])}
+                      className={`flex flex-col items-center justify-center aspect-square rounded-xl transition-all duration-200 active:scale-95 border ${
+                        isSelected 
+                          ? `${pos.color.split(' ')[0]} border-transparent shadow-md ring-2 ring-blue-500/30 ring-offset-1 dark:ring-offset-gray-900` 
+                          : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      <span className={`text-sm sm:text-base font-black tracking-tighter ${isSelected ? pos.color.split(' ')[1] : 'text-gray-400 dark:text-gray-500'}`}>
+                        {pos.id}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
-          </div>
 
-          {/* Position Selector */}
-          <div className="space-y-3">
-            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">
-              Preferred Positions
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {POSITIONS.map(pos => {
-                const isSelected = selectedPositions.includes(pos)
-                return (
+            <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+              <h3 className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
+                <Crosshair className="w-3.5 h-3.5" /> Kicking Style
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+                {['Power', 'Placement', 'Bunt / Speed'].map(style => (
                   <button
-                    key={pos}
+                    key={style}
                     type="button"
-                    onClick={() => togglePosition(pos)}
-                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border active:scale-95 ${
-                      isSelected 
-                        ? 'bg-blue-600 text-white border-blue-700 dark:border-blue-500' 
-                        : 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    onClick={() => setKickingStyle(style)}
+                    className={`px-3 py-3 rounded-xl text-sm font-bold transition-all border active:scale-95 ${
+                      kickingStyle === style
+                        ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-400 ring-1 ring-blue-500'
+                        : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                   >
-                    {pos}
+                    {style}
                   </button>
-                )
-              })}
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Actions */}
-          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-gray-300 dark:border-gray-700">
-            <Link
-              href={`/teams/${teamId}`}
-              className="px-6 py-3.5 text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 font-bold rounded-xl text-center transition-colors border border-gray-300 dark:border-gray-700 active:scale-95"
-            >
-              Cancel
-            </Link>
-            <button
-              type="submit"
-              disabled={saving || !name.trim()}
-              className="px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
-            >
-              {saving ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                'Save Changes'
-              )}
-            </button>
-          </div>
-        </form>
+            <div className="pt-6 border-t border-gray-100 dark:border-gray-800">
+              <button 
+                type="submit"
+                disabled={saving || !name}
+                className="w-full flex items-center justify-center gap-2 bg-[#2563eb] text-white text-base font-bold py-4 rounded-xl hover:bg-blue-700 active:scale-95 transition-all disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5" /> Save Changes</>}
+              </button>
+            </div>
+
+          </form>
+        </div>
       </div>
     </div>
-  )
-}
-
-export default function EditPlayerPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 flex items-center justify-center transition-colors">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-      </div>
-    }>
-      <EditPlayerContent />
-    </Suspense>
   )
 }
