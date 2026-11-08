@@ -211,7 +211,7 @@ function LineupContent() {
           >
             <Share2 className="w-4 h-4 mr-1.5" />
             <span className="sm:hidden">Link</span>
-            <span className="hidden sm:inline">Public Link</span>
+            <span className="hidden sm:inline">Player Link</span>
           </Link>
 
           <button 
