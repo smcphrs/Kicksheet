@@ -252,7 +252,14 @@ function PositionsContent() {
   }
 
   const currentInningAssignments = assignments[activeInning] || {}
-  const takenPositions = Object.values(currentInningAssignments).filter(pos => pos !== 'Bench')
+
+// 🚨 FIX: Extract a list of IDs for players currently in the game
+const activePlayerIds = players.map(p => p.id)
+
+// Only count a position as taken if it belongs to someone actually on the roster
+const takenPositions = Object.entries(currentInningAssignments)
+  .filter(([playerId, pos]) => pos !== 'Bench' && activePlayerIds.includes(playerId))
+  .map(([_, pos]) => pos)
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
