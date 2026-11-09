@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { Calendar, Clock, MapPin, Users, Cloud, ArrowLeft, Download, Loader2, Edit, Map, X, Share2, Megaphone, Info, Link2, Trees } from 'lucide-react'
+import { Calendar, Clock, MapPin, Cloud, ArrowLeft, Download, Loader2, Edit, X, Share2, Megaphone, Info, Link2, Trees, User } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
 import { FieldMapModal } from '@/components/FieldMapModal'
@@ -52,7 +52,8 @@ function LineupContent() {
 
       const ordered = (gameData.kicking_order || []).map((pid: string) => {
         if (pid.startsWith('sub-')) {
-           return (gameData.subs || []).find((s: any) => s.id === pid) || { id: pid, name: 'Unknown Sub', isSub: true }
+           const foundSub = (gameData.subs || []).find((s: any) => s.id === pid)
+           return foundSub ? { ...foundSub, isSub: true } : { id: pid, name: 'Unknown Sub', isSub: true }
         }
         return roster.find(p => p.id === pid) || { id: pid, name: 'Unknown Player' }
       })
@@ -120,7 +121,7 @@ function LineupContent() {
       case '1B': return 'bg-[#ff6a66] text-white' 
       case '2B': return 'bg-[#ff8800] text-white' 
       case '3B': return 'bg-[#e3005c] text-white' 
-      case 'SS': return 'bg-[#dbcc07] text-white' // Dark text for legibility on bright yellow
+      case 'SS': return 'bg-[#dbcc07] text-gray-900' 
       case 'Bench':
       case 'OUT': return 'bg-[#757575] text-white' 
       default: return 'bg-gray-400 dark:bg-gray-600 text-white'
@@ -128,22 +129,19 @@ function LineupContent() {
   }
 
   const formatName = (name: string) => {
-  if (!name) return 'Unknown'
-  
-  // Strip out manually typed "(Sub)" if the captain added it to the name
-  const cleanName = name.replace(/\s*\(?sub\)?\s*/i, '').trim()
-  const parts = cleanName.split(' ')
-  
-  if (parts.length > 1) {
-    // Safely grab the first actual letter of the last name, ignoring symbols
-    const lastWord = parts[parts.length - 1]
-    const letterMatch = lastWord.match(/[a-zA-Z]/)
-    const lastInitial = letterMatch ? letterMatch[0].toUpperCase() : ''
-    return `${parts[0]} ${lastInitial}.`
+    if (!name) return 'Unknown'
+    // Strip out manually typed "(Sub)" if the captain added it to the name
+    const cleanName = name.replace(/\s*\(?sub\)?\s*/i, '').trim()
+    const parts = cleanName.split(' ')
+    if (parts.length > 1) {
+      // Safely grab the first actual letter of the last name, ignoring symbols
+      const lastWord = parts[parts.length - 1]
+      const letterMatch = lastWord.match(/[a-zA-Z]/)
+      const lastInitial = letterMatch ? letterMatch[0].toUpperCase() : ''
+      return `${parts[0]} ${lastInitial}.`
+    }
+    return cleanName
   }
-  
-  return cleanName
-}
 
   const formatTime = (timeString: string) => {
     if (!timeString) return 'TBD'
@@ -167,7 +165,6 @@ function LineupContent() {
     <div className="bg-[#f8f9fa] dark:bg-gray-950 min-h-[100dvh] font-sans pb-10 transition-colors sm:pt-16 antialiased">
       <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 py-3 sm:py-3 bg-white dark:bg-gray-900 border-b border-gray-300 dark:border-gray-800 transition-colors gap-3 sm:gap-0">
         
-        {/* 1. Back Link (Top Left) */}
         <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto order-1">
           <Link href="/games" className="inline-flex items-center text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
             <ArrowLeft className="w-4 h-4 mr-1" />
@@ -176,7 +173,6 @@ function LineupContent() {
           <div className="w-px h-4 bg-gray-300 dark:bg-gray-700 hidden sm:block"></div>
         </div>
 
-        {/* 2. Dropdown Edit Menu (Row 2 on Mobile, Inline on Desktop) */}
         <div className="relative w-full sm:w-auto order-2 sm:mr-auto sm:ml-4">
           <button 
             onClick={() => setShowEditMenu(!showEditMenu)}
@@ -212,7 +208,6 @@ function LineupContent() {
           )}
         </div>
         
-        {/* 3. Share & Save Actions (Row 3 on Mobile half-width, Right on Desktop) */}
         <div className="flex items-center gap-2 w-full sm:w-auto order-3">
           <Link 
             href={`/share/${game.id}`} 
@@ -240,7 +235,6 @@ function LineupContent() {
       <div className="max-w-4xl mx-auto w-full" ref={captureRef}>
         <div className="px-2 sm:px-6 pt-2 sm:pt-6">
           
-          {/* Header Card with Compartmentalized Grid Details */}
           <div className="bg-[#2563eb] text-white p-3 sm:p-5 rounded-2xl sm:rounded-3xl mb-3 relative overflow-hidden border border-blue-700">
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-2">
@@ -260,32 +254,30 @@ function LineupContent() {
                 {game.opposing_team || 'TBD'}
               </h1>
 
-              {/* Grid layout for distinct separate inline cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-            <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-blue-200 shrink-0" />
-              <span className="text-sm font-bold text-white truncate">{formattedDate}</span>
-            </div>
-            
-            <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-blue-200 shrink-0" />
-              <span className="text-sm font-bold text-white truncate">{formatTime(game.game_time)}</span>
-            </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-blue-200 shrink-0" />
+                  <span className="text-sm font-bold text-white truncate">{formattedDate}</span>
+                </div>
+                
+                <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-blue-200 shrink-0" />
+                  <span className="text-sm font-bold text-white truncate">{formatTime(game.game_time)}</span>
+                </div>
 
-            <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-blue-200 shrink-0" />
-              <span className="text-sm font-bold text-white truncate">{game.location || 'Unknown'}</span>
-            </div>
+                <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-blue-200 shrink-0" />
+                  <span className="text-sm font-bold text-white truncate">{game.location || 'Unknown'}</span>
+                </div>
 
-            <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
-            <Trees className="w-4 h-4 text-blue-200 shrink-0" />
-              <span className="text-sm font-bold text-white truncate">{game.field || 'TBD'}</span>
+                <div className="bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
+                <Trees className="w-4 h-4 text-blue-200 shrink-0" />
+                  <span className="text-sm font-bold text-white truncate">{game.field || 'TBD'}</span>
+                </div>
+              </div>
             </div>
           </div>
-            </div>
-          </div>
 
-          {/* Tightened Notes Box */}
           {game.notes && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl p-3 mb-3 flex items-start gap-3">
               <div className="bg-red-100 dark:bg-red-900/50 p-1.5 rounded-full shrink-0 mt-0.5">
@@ -299,7 +291,6 @@ function LineupContent() {
             </div>
           )}
 
-          {/* Lineup Header & Tooltip */}
           <div className="flex items-center justify-between mb-1.5 px-1">
             <div className="relative group flex items-center cursor-help">
               <h2 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-1.5">
@@ -324,7 +315,6 @@ function LineupContent() {
             )}
           </div>
 
-          {/* Tightened High-Legibility Table (No Shadows) */}
           <div className="bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-700 delay-300 ease-out border border-gray-300 dark:border-gray-700">
             <table className="w-full text-left border-collapse">
               <thead className="bg-[#2563eb] text-white text-xs sm:text-sm font-black tracking-tight border-b-2 border-blue-800">
@@ -362,18 +352,18 @@ function LineupContent() {
                         isRowDimmed ? 'opacity-25 grayscale' : 'opacity-100'
                       } ${isRowHighlighted ? 'relative z-10 bg-white dark:bg-gray-800' : ''}`}
                     >
-                      <td className={`px-2 sm:px-3 py-2 sm:py-2 truncate max-w-[90px] sm:max-w-[150px] transition-all duration-300 border-r border-gray-200 dark:border-gray-800 ${isRowHighlighted ? 'text-blue-700 dark:text-blue-400 font-black' : 'font-extrabold tracking-tight'}`}>
-  <div className="flex items-center gap-1.5 truncate">
-    <span className="text-[13px] sm:text-base font-black tracking-tight leading-none truncate">
-      {formatName(player.name)}
-    </span>
-    {player.id?.startsWith('sub-') && (
-      <span className="inline-flex px-1.5 py-[2px] rounded-md bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400 text-[8px] sm:text-[9px] font-black uppercase tracking-widest shrink-0 leading-none shadow-sm">
-        SUB
-      </span>
-    )}
-  </div>
-</td>
+                      <td className={`px-2 sm:px-3 py-2 sm:py-2 max-w-[90px] sm:max-w-[150px] transition-all duration-300 border-r border-gray-200 dark:border-gray-800 ${isRowHighlighted ? 'text-blue-700 dark:text-blue-400 font-black' : 'font-extrabold tracking-tight'}`}>
+                        <div className="flex items-center gap-1.5 w-full min-w-0">
+                          <span className="text-[13px] sm:text-base font-black tracking-tight leading-none truncate">
+                            {formatName(player.name)}
+                          </span>
+                          {(player.isSub || player.id?.startsWith('sub-')) && (
+                            <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400 text-[8px] sm:text-[9px] font-black uppercase tracking-widest shrink-0 leading-none shadow-sm mt-0.5">
+                              SUB
+                           </span>
+                          )}
+                        </div>
+                      </td>
                       {INNINGS.map(inning => {
                          let pos = getPosition(inning, player.id)
                          if (pos === 'Bench') pos = 'OUT'
@@ -397,7 +387,6 @@ function LineupContent() {
             </table>
           </div>
 
-          {/* Tightened Legend */}
           <div className="mt-3 sm:mt-5 mb-4 px-1">
             <h3 className="text-[10px] sm:text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2 sm:mb-3">Legend</h3>
             <div className="flex flex-wrap gap-x-2.5 gap-y-2 sm:gap-4 text-[10px] sm:text-xs font-bold text-gray-600 dark:text-gray-400">
