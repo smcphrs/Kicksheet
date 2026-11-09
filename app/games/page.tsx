@@ -3,10 +3,13 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { Calendar, Clock, MapPin, Trash2, Plus, ArrowLeft, Loader2, AlertCircle, Filter, ArrowDownAZ } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Calendar, Clock, MapPin, Trash2, Plus, ArrowLeft, Loader2, AlertCircle, Filter, ArrowDownAZ, Copy } from 'lucide-react'
 
 export default function GamesPage() {
   const supabase = createClient()
+  const router = useRouter()
+  
   const [games, setGames] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   
@@ -16,6 +19,9 @@ export default function GamesPage() {
   
   const [gameToDelete, setGameToDelete] = useState<any>(null) 
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  
+  // Duplication State
+  const [duplicatingId, setDuplicatingId] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchGames() {
@@ -51,6 +57,42 @@ export default function GamesPage() {
       alert('Failed to delete game.')
     }
     setDeletingId(null)
+  }
+
+  const handleDuplicate = async (game: any) => {
+    setDuplicatingId(game.id)
+    
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      setDuplicatingId(null)
+      return
+    }
+
+    // Insert a new game with the same lineup and attendance, but wipe the game details
+    const { data, error } = await supabase
+      .from('games')
+      .insert([{
+        user_id: user.id,
+        team_id: game.team_id,
+        lineup: game.lineup,
+        attendance: game.attendance,
+        game_date: null,
+        game_time: null,
+        opposing_team: 'TBD',
+        location: null,
+        field: null
+      }])
+      .select()
+      .single()
+
+    if (!error && data) {
+      // Instantly route to the new game's edit page so the captain can fill in the blanks
+      router.push(`/games/${data.id}/edit`)
+    } else {
+      console.error(error)
+      alert('Failed to duplicate game.')
+      setDuplicatingId(null)
+    }
   }
 
   const formatTime = (timeString: string) => {
@@ -124,7 +166,6 @@ export default function GamesPage() {
             </h2>
             
             <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
-              {/* Filter Dropdown */}
               <div className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-2.5 py-1.5 flex-1 sm:flex-none">
                 <Filter className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
                 <select
@@ -139,7 +180,6 @@ export default function GamesPage() {
                 </select>
               </div>
 
-              {/* Sort Dropdown */}
               <div className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-2.5 py-1.5 flex-1 sm:flex-none">
                 {sortOrder === 'recent' ? (
                   <Clock className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
@@ -225,6 +265,20 @@ export default function GamesPage() {
                       >
                         Lineup
                       </Link>
+                      
+                      <button 
+                        onClick={() => handleDuplicate(game)}
+                        disabled={duplicatingId === game.id}
+                        className="inline-flex items-center justify-center p-2.5 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-xl transition-colors border border-blue-200 dark:border-blue-900/50 active:scale-95 disabled:opacity-50"
+                        title="Duplicate Game & Lineup"
+                      >
+                        {duplicatingId === game.id ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <Copy className="w-5 h-5" />
+                        )}
+                      </button>
+
                       <button 
                         onClick={() => setGameToDelete(game)}
                         className="inline-flex items-center justify-center p-2.5 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 rounded-xl transition-colors border border-red-200 dark:border-red-900/50 active:scale-95"
