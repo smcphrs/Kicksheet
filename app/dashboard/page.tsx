@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
-import { Users, Calendar, Plus, ChevronRight, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap, } from 'lucide-react'
+import { Users, Calendar, Plus, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap, } from 'lucide-react'
 import { redirect } from 'next/navigation'
-import { FieldMapShortcut } from '@/components/FieldMapShortcut' // <-- New Import
+import { FieldMapShortcut } from '@/components/FieldMapShortcut'
 
 export default async function DashboardPage() {
   const cookieStore = await cookies()
@@ -35,15 +35,27 @@ export default async function DashboardPage() {
   }
 
   // 4. Fetch All Games for stats and sorting
-  const today = new Date().toISOString().split('T')[0]
   const { data: allGames } = await supabase
     .from('games')
     .select('*, teams(name)')
     .eq('user_id', user.id)
     .order('game_date', { ascending: true })
 
-  const upcomingGames = allGames?.filter(g => g.game_date >= today) || []
-  const pastGames = allGames?.filter(g => g.game_date < today).reverse() || [] 
+  // --- NEW 1 HOUR THRESHOLD LOGIC ---
+  const currentUtcMs = Date.now()
+  const ONE_HOUR_MS = 60 * 60 * 1000
+
+  const sortedGames = (allGames || []).map(g => {
+    // If no time is set, assume midnight UTC for sorting
+    const gameDateStr = g.game_time ? `${g.game_date}T${g.game_time}:00Z` : `${g.game_date}T00:00:00Z`
+    const gameStartMs = new Date(gameDateStr).getTime()
+    return { ...g, gameStartMs }
+  })
+
+  // A game is upcoming until 1 hour *after* its start time
+  const upcomingGames = sortedGames.filter(g => (g.gameStartMs + ONE_HOUR_MS) > currentUtcMs).sort((a, b) => a.gameStartMs - b.gameStartMs)
+  // A game is past once it is 1 hour *after* its start time
+  const pastGames = sortedGames.filter(g => (g.gameStartMs + ONE_HOUR_MS) <= currentUtcMs).sort((a, b) => b.gameStartMs - a.gameStartMs)
   
   const nextGame = upcomingGames.length > 0 ? upcomingGames[0] : null
   const recentGames = pastGames.slice(0, 4)
@@ -110,7 +122,7 @@ export default async function DashboardPage() {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
             
-            {/* Total Teams - Deep Royal Blue (LF) */}
+            {/* Total Teams */}
             <div className="group relative bg-[#1e40af] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#1e40af] flex flex-col justify-between transition-all cursor-default overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-20 h-20 bg-white opacity-10 rounded-full blur-2xl pointer-events-none transition-transform duration-500"></div>
               <div className="flex items-center gap-3 mb-4 relative z-10">
@@ -122,7 +134,7 @@ export default async function DashboardPage() {
               <p className="text-3xl sm:text-4xl font-black text-white tracking-tight relative z-10">{teams?.length || 0}</p>
             </div>
 
-            {/* Players - Green (RF) */}
+            {/* Players */}
             <div className="group relative bg-[#43a047] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#43a047] flex flex-col justify-between transition-all cursor-default overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-20 h-20 bg-white opacity-10 rounded-full blur-2xl pointer-events-none transition-transform duration-500"></div>
               <div className="flex items-center gap-3 mb-4 relative z-10">
@@ -134,7 +146,7 @@ export default async function DashboardPage() {
               <p className="text-3xl sm:text-4xl font-black text-white tracking-tight relative z-10">{playersCount}</p>
             </div>
 
-            {/* Upcoming - Orange (2B) */}
+            {/* Upcoming */}
             <div className="group relative bg-[#ff9800] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#ff9800] flex flex-col justify-between transition-all cursor-default overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-20 h-20 bg-white opacity-10 rounded-full blur-2xl pointer-events-none transition-transform duration-500"></div>
               <div className="flex items-center gap-3 mb-4 relative z-10">
@@ -146,7 +158,7 @@ export default async function DashboardPage() {
               <p className="text-3xl sm:text-4xl font-black text-white tracking-tight relative z-10">{upcomingGames.length}</p>
             </div>
 
-            {/* Games Played - Deep Pink/Magenta (C) */}
+            {/* Games Played */}
             <div className="group relative bg-[#c2185b] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#c2185b] flex flex-col justify-between transition-all cursor-default overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-20 h-20 bg-white opacity-10 rounded-full blur-2xl pointer-events-none transition-transform duration-500"></div>
               <div className="flex items-center gap-3 mb-4 relative z-10">
@@ -167,7 +179,6 @@ export default async function DashboardPage() {
             <Calendar className="w-4 h-4 text-orange-500 group-hover:scale-110 transition-transform" /> League Lobster
           </Link>
           
-          {/* Inserted the new Client Component here */}
           <FieldMapShortcut />
           
           <Link href="/settings" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors">
@@ -216,7 +227,7 @@ export default async function DashboardPage() {
                       </div>
                       <div className="flex items-center text-gray-700 dark:text-gray-200 font-bold">
                         <Clock className="w-5 h-5 mr-3 text-orange-500" />
-                        <span>{formatTime(nextGame?.game_time)}</span>
+                        <span>{formatTime(nextGame.game_time)}</span>
                       </div>
                       {nextGame.field && (
                         <div className="flex items-center text-gray-700 dark:text-gray-200 font-bold">
@@ -254,28 +265,27 @@ export default async function DashboardPage() {
               </div>
               
               {teams && teams.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-              {teams.map(team => (
-                <Link key={team.id} href={`/teams/${team.id}`} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 group text-center flex flex-col items-center transition-colors overflow-hidden">
-                  <div className="w-full aspect-square bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center border-b border-gray-200 dark:border-gray-800 overflow-hidden relative">
-                    {team.logo_url ? (
-                      <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                    ) : (
-                      <span className="text-4xl font-black text-[#2563eb] dark:text-blue-400 group-hover:scale-110 transition-transform duration-300 uppercase">
-                        {team.name ? team.name.charAt(0) : '?'}
-                      </span>
-                    )}
-                    {/* Subtle inner shadow overlay */}
-                    <div className="absolute inset-0 ring-1 ring-inset ring-black/5 dark:ring-white/5 pointer-events-none"></div>
-                  </div>
-                  
-                  <div className="p-4 w-full flex flex-col items-center">
-                    <h3 className="font-extrabold text-gray-900 dark:text-white tracking-tight truncate w-full px-1">{team.name}</h3>
-                    <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-bold uppercase tracking-widest group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Manage Roster</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                  {teams.map(team => (
+                    <Link key={team.id} href={`/teams/${team.id}`} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 group text-center flex flex-col items-center transition-colors overflow-hidden">
+                      <div className="w-full aspect-square bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center border-b border-gray-200 dark:border-gray-800 overflow-hidden relative">
+                        {team.logo_url ? (
+                          <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        ) : (
+                          <span className="text-4xl font-black text-[#2563eb] dark:text-blue-400 group-hover:scale-110 transition-transform duration-300 uppercase">
+                            {team.name ? team.name.charAt(0) : '?'}
+                          </span>
+                        )}
+                        <div className="absolute inset-0 ring-1 ring-inset ring-black/5 dark:ring-white/5 pointer-events-none"></div>
+                      </div>
+                      
+                      <div className="p-4 w-full flex flex-col items-center">
+                        <h3 className="font-extrabold text-gray-900 dark:text-white tracking-tight truncate w-full px-1">{team.name}</h3>
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-bold uppercase tracking-widest group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Manage Roster</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               ) : (
                 <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center transition-colors">
                   <p className="text-gray-500 dark:text-gray-400 text-sm font-bold tracking-tight mb-3">You haven't created any teams yet.</p>
@@ -300,46 +310,42 @@ export default async function DashboardPage() {
             </div>
 
             {recentGames && recentGames.length > 0 ? (
-          <div className="space-y-3 sm:space-y-4">
-            {recentGames.map((game: any) => {
-              // Parse the date to extract Month and Day for the thumbnail
-              const d = new Date(game.game_date);
-              const month = d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short' });
-              const day = d.toLocaleDateString('en-US', { timeZone: 'UTC', day: 'numeric' });
-              
-              return (
-                <Link 
-                  key={game.id} 
-                  href={`/games/${game.id}`}
-                  className="flex bg-white dark:bg-gray-900 p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md dark:hover:shadow-blue-900/20 active:scale-[0.98] group transition-all relative overflow-hidden"
-                >
-                  {/* Date Thumbnail */}
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-[#2563eb] text-white flex flex-col items-center justify-center shrink-0 shadow-inner group-hover:scale-105 group-hover:bg-blue-700 transition-all duration-300">
-                    <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest opacity-90">{month}</span>
-                    <span className="text-2xl sm:text-3xl font-black leading-none tracking-tighter">{day}</span>
-                  </div>
+              <div className="space-y-3 sm:space-y-4">
+                {recentGames.map((game: any) => {
+                  const d = new Date(game.game_date);
+                  const month = d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short' });
+                  const day = d.toLocaleDateString('en-US', { timeZone: 'UTC', day: 'numeric' });
                   
-                  {/* Matchup Details (Aligned to top) */}
-                  <div className="flex-1 pl-3 sm:pl-4 pr-10 sm:pr-16 py-0.5 sm:py-1 flex flex-col justify-start">
-                    <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 tracking-tight truncate">{game.teams?.name}</span>
-                    <h4 className="text-base sm:text-xl font-black text-gray-900 dark:text-white tracking-tight leading-tight truncate mt-0.5 sm:mt-1">vs {game.opposing_team || 'TBD'}</h4>
-                  </div>
+                  return (
+                    <Link 
+                      key={game.id} 
+                      href={`/games/${game.id}`}
+                      className="flex bg-white dark:bg-gray-900 p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md dark:hover:shadow-blue-900/20 active:scale-[0.98] group transition-all relative overflow-hidden"
+                    >
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-[#2563eb] text-white flex flex-col items-center justify-center shrink-0 shadow-inner group-hover:scale-105 group-hover:bg-blue-700 transition-all duration-300">
+                        <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest opacity-90">{month}</span>
+                        <span className="text-2xl sm:text-3xl font-black leading-none tracking-tighter">{day}</span>
+                      </div>
+                      
+                      <div className="flex-1 pl-3 sm:pl-4 pr-10 sm:pr-16 py-0.5 sm:py-1 flex flex-col justify-start">
+                        <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 tracking-tight truncate">{game.teams?.name}</span>
+                        <h4 className="text-base sm:text-xl font-black text-gray-900 dark:text-white tracking-tight leading-tight truncate mt-0.5 sm:mt-1">vs {game.opposing_team || 'TBD'}</h4>
+                      </div>
 
-                  {/* Floating Lineup Button */}
-                  <div className="absolute bottom-2.5 sm:bottom-3 right-2.5 sm:right-3">
-                    <div className="inline-flex items-center justify-center px-2.5 py-1.5 sm:px-3 sm:py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
-                      Lineup <ArrowRight className="w-3 h-3 ml-1 sm:ml-1.5 group-hover:translate-x-0.5 transition-transform" />
-                    </div>
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
-        ) : (
-          <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center flex flex-col items-center justify-center min-h-[250px] transition-colors">
-            <p className="text-gray-500 dark:text-gray-400 font-bold tracking-tight">No past games yet.</p>
-          </div>
-        )}
+                      <div className="absolute bottom-2.5 sm:bottom-3 right-2.5 sm:right-3">
+                        <div className="inline-flex items-center justify-center px-2.5 py-1.5 sm:px-3 sm:py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
+                          Lineup <ArrowRight className="w-3 h-3 ml-1 sm:ml-1.5 group-hover:translate-x-0.5 transition-transform" />
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center flex flex-col items-center justify-center min-h-[250px] transition-colors">
+                <p className="text-gray-500 dark:text-gray-400 font-bold tracking-tight">No past games yet.</p>
+              </div>
+            )}
           </div>
           
         </div>

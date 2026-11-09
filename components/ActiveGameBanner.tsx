@@ -33,12 +33,12 @@ export function ActiveGameBanner() {
         for (const game of games) {
           if (!game.game_time) continue
           
-          // Parse the game time as local time
-          const gameStart = new Date(`${game.game_date}T${game.game_time}`)
+          // Parse the game time as UTC since timezone handling is native in the browser
+          const gameStart = new Date(`${game.game_date}T${game.game_time}:00Z`)
           
-          // Define the "Active" Window: 30 mins before start -> 90 mins after start
+          // Define the "Active" Window: 30 mins before start -> 60 mins after start
           const startTimeMs = gameStart.getTime() - (30 * 60 * 1000) 
-          const endTimeMs = gameStart.getTime() + (90 * 60 * 1000)
+          const endTimeMs = gameStart.getTime() + (60 * 60 * 1000) // Updated to 60 minutes
           const currentMs = now.getTime()
 
           if (currentMs >= startTimeMs && currentMs <= endTimeMs) {
@@ -81,7 +81,8 @@ export function ActiveGameBanner() {
             </span>
           </div>
           <span className="text-xs sm:text-sm font-medium text-green-100 truncate">
-            vs {activeGame.opposing_team || 'TBD'} • {activeGame.location ? `${activeGame.location} ${activeGame.field ? `(${activeGame.field})` : ''}` : activeGame.field || 'Field TBD'}
+             vs {activeGame.opposing_team || 'TBD'}
+             {activeGame.location ? ` @ ${activeGame.location} ${activeGame.field ? `(${activeGame.field})` : ''}` : activeGame.field ? ` @ ${activeGame.field}` : ''}
           </span>
         </div>
 
