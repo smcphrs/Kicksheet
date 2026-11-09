@@ -60,38 +60,41 @@ export default function GamesPage() {
   }
 
   const handleDuplicate = async (game: any) => {
-    setDuplicatingId(game.id)
-    
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      setDuplicatingId(null)
-      return
-    }
-
-    const { data, error } = await supabase
-      .from('games')
-      .insert([{
-        user_id: user.id,
-        team_id: game.team_id || null,
-        lineup: game.lineup || null,
-        attendance: game.attendance || null, // 👈 Added this safely back in!
-        game_date: game.game_date || null, 
-        game_time: game.game_time || null,
-        opposing_team: `${game.opposing_team || 'TBD'} (Copy)`,
-        location: game.location || null,
-        field: game.field || null
-      }])
-      .select()
-      .single()
-
-    if (!error && data) {
-      router.push(`/games/${data.id}/edit`)
-    } else {
-      console.error('Supabase Error Details:', error)
-      alert(`Failed to duplicate: ${error?.message || 'Unknown Database Error'}`)
-      setDuplicatingId(null)
-    }
+  setDuplicatingId(game.id)
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    setDuplicatingId(null)
+    return
   }
+
+  // Copying the specific structural columns used by the Lineup page
+  const { data, error } = await supabase
+    .from('games')
+    .insert([{
+      user_id: user.id,
+      team_id: game.team_id || null,
+      attendance: game.attendance || null,
+      kicking_order: game.kicking_order || null,
+      innings: game.innings || null,
+      subs: game.subs || null,
+      game_date: game.game_date || null, 
+      game_time: game.game_time || null,
+      opposing_team: `${game.opposing_team || 'TBD'} (Copy)`,
+      location: game.location || null,
+      field: game.field || null
+    }])
+    .select()
+    .single()
+
+  if (!error && data) {
+    router.push(`/games/${data.id}/edit`)
+  } else {
+    console.error('Supabase Error Details:', error)
+    alert(`Failed to duplicate: ${error?.message || 'Unknown Database Error'}`)
+    setDuplicatingId(null)
+  }
+}
   
   const formatTime = (timeString: string) => {
     if (!timeString) return 'TBD'
