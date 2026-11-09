@@ -3,12 +3,16 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { Calendar, Clock, MapPin, Trash2, Plus, ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
+import { Calendar, Clock, MapPin, Trash2, Plus, ArrowLeft, Loader2, AlertCircle, Filter, ArrowDownAZ } from 'lucide-react'
 
 export default function GamesPage() {
   const supabase = createClient()
   const [games, setGames] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  
+  // Filtering & Sorting State
+  const [filterTeam, setFilterTeam] = useState('All')
+  const [sortOrder, setSortOrder] = useState('recent') // 'recent' or 'alpha'
   
   const [gameToDelete, setGameToDelete] = useState<any>(null) 
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -58,6 +62,25 @@ export default function GamesPage() {
     return `${formattedHour}:${minute} ${ampm}`
   }
 
+  // Derive unique teams for the filter dropdown
+  const uniqueTeams = Array.from(new Set(games.map(g => g.teams?.name).filter(Boolean))) as string[]
+
+  // Apply filtering and sorting dynamically
+  const filteredAndSortedGames = [...games]
+    .filter(g => filterTeam === 'All' ? true : g.teams?.name === filterTeam)
+    .sort((a, b) => {
+      if (sortOrder === 'recent') {
+        const dateA = new Date(a.game_date || 0).getTime()
+        const dateB = new Date(b.game_date || 0).getTime()
+        return dateB - dateA
+      } else if (sortOrder === 'alpha') {
+        const teamA = (a.opposing_team || 'TBD').toLowerCase()
+        const teamB = (b.opposing_team || 'TBD').toLowerCase()
+        return teamA.localeCompare(teamB)
+      }
+      return 0
+    })
+
   if (loading) return (
     <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 flex items-center justify-center transition-colors">
       <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
@@ -93,28 +116,74 @@ export default function GamesPage() {
         </header>
 
         <div className="space-y-3 sm:space-y-4">
-          {/* Structural Header Bar */}
-          <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
-            <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">
+          
+          {/* Enhanced Filter & Sort Header Bar */}
+          <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest hidden sm:block">
               Active Schedule
             </h2>
+            
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
+              {/* Filter Dropdown */}
+              <div className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-2.5 py-1.5 flex-1 sm:flex-none">
+                <Filter className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
+                <select
+                  value={filterTeam}
+                  onChange={(e) => setFilterTeam(e.target.value)}
+                  className="bg-transparent text-xs font-bold text-gray-700 dark:text-gray-200 outline-none w-full cursor-pointer appearance-none"
+                >
+                  <option value="All">All Teams</option>
+                  {uniqueTeams.map(team => (
+                    <option key={team} value={team}>{team}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Sort Dropdown */}
+              <div className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-2.5 py-1.5 flex-1 sm:flex-none">
+                {sortOrder === 'recent' ? (
+                  <Clock className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
+                ) : (
+                  <ArrowDownAZ className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
+                )}
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  className="bg-transparent text-xs font-bold text-gray-700 dark:text-gray-200 outline-none w-full cursor-pointer appearance-none"
+                >
+                  <option value="recent">Most Recent</option>
+                  <option value="alpha">Opponent (A-Z)</option>
+                </select>
+              </div>
+            </div>
           </div>
 
-          {games.length === 0 ? (
+          {filteredAndSortedGames.length === 0 ? (
             <div className="bg-white dark:bg-gray-900 p-10 text-center border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-3xl transition-colors">
               <Calendar className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No games yet</h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto font-medium">Create your first game to start building your lineup.</p>
-              <Link 
-                href="/games/new"
-                className="inline-flex bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] border border-gray-300 dark:border-gray-700 px-6 py-3 rounded-xl font-bold hover:bg-gray-800 dark:hover:bg-blue-300 transition-colors active:scale-95"
-              >
-                Create First Game
-              </Link>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No games found</h3>
+              <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto font-medium">
+                {games.length === 0 ? "Create your first game to start building your lineup." : "Try adjusting your team filters."}
+              </p>
+              {games.length === 0 ? (
+                <Link 
+                  href="/games/new"
+                  className="inline-flex bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] border border-gray-300 dark:border-gray-700 px-6 py-3 rounded-xl font-bold hover:bg-gray-800 dark:hover:bg-blue-300 transition-colors active:scale-95"
+                >
+                  Create First Game
+                </Link>
+              ) : (
+                <button 
+                  onClick={() => { setFilterTeam('All'); setSortOrder('recent'); }}
+                  className="inline-flex bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 px-6 py-3 rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors active:scale-95"
+                >
+                  Clear Filters
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid gap-4">
-              {games.map(game => {
+              {filteredAndSortedGames.map(game => {
                 const formattedDate = game.game_date 
                   ? new Date(game.game_date).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
                   : 'Unknown Date'
