@@ -128,12 +128,22 @@ function LineupContent() {
   }
 
   const formatName = (name: string) => {
-    const parts = name.split(' ')
-    if (parts.length > 1) {
-       return `${parts[0]} ${parts[parts.length - 1][0]}.`
-    }
-    return name
+  if (!name) return 'Unknown'
+  
+  // Strip out manually typed "(Sub)" if the captain added it to the name
+  const cleanName = name.replace(/\s*\(?sub\)?\s*/i, '').trim()
+  const parts = cleanName.split(' ')
+  
+  if (parts.length > 1) {
+    // Safely grab the first actual letter of the last name, ignoring symbols
+    const lastWord = parts[parts.length - 1]
+    const letterMatch = lastWord.match(/[a-zA-Z]/)
+    const lastInitial = letterMatch ? letterMatch[0].toUpperCase() : ''
+    return `${parts[0]} ${lastInitial}.`
   }
+  
+  return cleanName
+}
 
   const formatTime = (timeString: string) => {
     if (!timeString) return 'TBD'
@@ -353,10 +363,17 @@ function LineupContent() {
                       } ${isRowHighlighted ? 'relative z-10 bg-white dark:bg-gray-800' : ''}`}
                     >
                       <td className={`px-2 sm:px-3 py-2 sm:py-2 truncate max-w-[90px] sm:max-w-[150px] transition-all duration-300 border-r border-gray-200 dark:border-gray-800 ${isRowHighlighted ? 'text-blue-700 dark:text-blue-400 font-black' : 'font-extrabold tracking-tight'}`}>
-                        <span className="text-[13px] sm:text-base font-black tracking-tight leading-none">
-                          {formatName(player.name)}
-                        </span>
-                      </td>
+  <div className="flex items-center gap-1.5 truncate">
+    <span className="text-[13px] sm:text-base font-black tracking-tight leading-none truncate">
+      {formatName(player.name)}
+    </span>
+    {player.id?.startsWith('sub-') && (
+      <span className="inline-flex px-1.5 py-[2px] rounded-md bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400 text-[8px] sm:text-[9px] font-black uppercase tracking-widest shrink-0 leading-none shadow-sm">
+        SUB
+      </span>
+    )}
+  </div>
+</td>
                       {INNINGS.map(inning => {
                          let pos = getPosition(inning, player.id)
                          if (pos === 'Bench') pos = 'OUT'
