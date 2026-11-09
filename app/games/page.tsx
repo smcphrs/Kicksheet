@@ -68,14 +68,13 @@ export default function GamesPage() {
       return
     }
 
-    // Adding strict fallback values (|| null) prevents 'undefined' crashes in the Supabase client
     const { data, error } = await supabase
       .from('games')
       .insert([{
         user_id: user.id,
         team_id: game.team_id || null,
         lineup: game.lineup || null,
-        attendance: game.attendance || null,
+        attendance: game.attendance || null, // 👈 Added this safely back in!
         game_date: game.game_date || null, 
         game_time: game.game_time || null,
         opposing_team: `${game.opposing_team || 'TBD'} (Copy)`,
@@ -89,7 +88,6 @@ export default function GamesPage() {
       router.push(`/games/${data.id}/edit`)
     } else {
       console.error('Supabase Error Details:', error)
-      // This will now output the EXACT reason the database rejected the copy
       alert(`Failed to duplicate: ${error?.message || 'Unknown Database Error'}`)
       setDuplicatingId(null)
     }
