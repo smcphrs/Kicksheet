@@ -60,42 +60,41 @@ export default function GamesPage() {
   }
 
   const handleDuplicate = async (game: any) => {
-  setDuplicatingId(game.id)
+    setDuplicatingId(game.id)
+    
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      setDuplicatingId(null)
+      return
+    }
+
+    // Adding strict fallback values (|| null) prevents 'undefined' crashes in the Supabase client
+    const { data, error } = await supabase
+      .from('games')
+      .insert([{
+        user_id: user.id,
+        team_id: game.team_id || null,
+        lineup: game.lineup || null,
+        attendance: game.attendance || null,
+        game_date: game.game_date || null, 
+        game_time: game.game_time || null,
+        opposing_team: `${game.opposing_team || 'TBD'} (Copy)`,
+        location: game.location || null,
+        field: game.field || null
+      }])
+      .select()
+      .single()
+
+    if (!error && data) {
+      router.push(`/games/${data.id}/edit`)
+    } else {
+      console.error('Supabase Error Details:', error)
+      // This will now output the EXACT reason the database rejected the copy
+      alert(`Failed to duplicate: ${error?.message || 'Unknown Database Error'}`)
+      setDuplicatingId(null)
+    }
+  }
   
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    setDuplicatingId(null)
-    return
-  }
-
-  // We copy the existing date/time to satisfy strict database constraints,
-  // but append "(Copy)" so it is immediately obvious which is the duplicate.
-  const { data, error } = await supabase
-    .from('games')
-    .insert([{
-      user_id: user.id,
-      team_id: game.team_id,
-      lineup: game.lineup,
-      attendance: game.attendance,
-      game_date: game.game_date, 
-      game_time: game.game_time,
-      opposing_team: `${game.opposing_team || 'TBD'} (Copy)`,
-      location: game.location,
-      field: game.field
-    }])
-    .select()
-    .single()
-
-  if (!error && data) {
-    // Instantly route to the new game's edit page so you can update the date/time
-    router.push(`/games/${data.id}/edit`)
-  } else {
-    console.error(error)
-    alert('Failed to duplicate game.')
-    setDuplicatingId(null)
-  }
-}
-
   const formatTime = (timeString: string) => {
     if (!timeString) return 'TBD'
     const [hourString, minute] = timeString.split(':')
