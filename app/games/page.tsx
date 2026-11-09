@@ -60,40 +60,41 @@ export default function GamesPage() {
   }
 
   const handleDuplicate = async (game: any) => {
-    setDuplicatingId(game.id)
-    
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      setDuplicatingId(null)
-      return
-    }
-
-    // Insert a new game with the same lineup and attendance, but wipe the game details
-    const { data, error } = await supabase
-      .from('games')
-      .insert([{
-        user_id: user.id,
-        team_id: game.team_id,
-        lineup: game.lineup,
-        attendance: game.attendance,
-        game_date: null,
-        game_time: null,
-        opposing_team: 'TBD',
-        location: null,
-        field: null
-      }])
-      .select()
-      .single()
-
-    if (!error && data) {
-      // Instantly route to the new game's edit page so the captain can fill in the blanks
-      router.push(`/games/${data.id}/edit`)
-    } else {
-      console.error(error)
-      alert('Failed to duplicate game.')
-      setDuplicatingId(null)
-    }
+  setDuplicatingId(game.id)
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    setDuplicatingId(null)
+    return
   }
+
+  // We copy the existing date/time to satisfy strict database constraints,
+  // but append "(Copy)" so it is immediately obvious which is the duplicate.
+  const { data, error } = await supabase
+    .from('games')
+    .insert([{
+      user_id: user.id,
+      team_id: game.team_id,
+      lineup: game.lineup,
+      attendance: game.attendance,
+      game_date: game.game_date, 
+      game_time: game.game_time,
+      opposing_team: `${game.opposing_team || 'TBD'} (Copy)`,
+      location: game.location,
+      field: game.field
+    }])
+    .select()
+    .single()
+
+  if (!error && data) {
+    // Instantly route to the new game's edit page so you can update the date/time
+    router.push(`/games/${data.id}/edit`)
+  } else {
+    console.error(error)
+    alert('Failed to duplicate game.')
+    setDuplicatingId(null)
+  }
+}
 
   const formatTime = (timeString: string) => {
     if (!timeString) return 'TBD'
