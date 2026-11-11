@@ -2,10 +2,33 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Shield, Calendar, Settings } from 'lucide-react'
+import { LayoutDashboard, Shield, Calendar, Settings, Lock } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 export default function Navigation() {
   const pathname = usePathname()
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  useEffect(() => {
+    async function checkAdminStatus() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('is_admin')
+          .eq('id', user.id)
+          .single()
+        
+        if (data?.is_admin) {
+          setIsAdmin(true)
+        }
+      }
+    }
+    checkAdminStatus()
+  }, [])
 
   // 🚨 Hide navigation on auth pages, landing page, and public share/join links
   if (
@@ -18,12 +41,17 @@ export default function Navigation() {
     return null
   }
 
-  const navItems = [
+  const baseNavItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Teams', href: '/teams', icon: Shield },
     { name: 'Games', href: '/games', icon: Calendar },
     { name: 'Settings', href: '/settings', icon: Settings },
   ]
+
+  // Dynamically inject the Admin route if the user is an admin
+  const navItems = isAdmin 
+    ? [...baseNavItems, { name: 'Admin', href: '/admin', icon: Lock }]
+    : baseNavItems
 
   return (
     <>
@@ -56,7 +84,6 @@ export default function Navigation() {
       </nav>
 
       {/* Mobile Bottom Nav */}
-      
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 w-full bg-[#111827] border-t border-gray-800 pb-[env(safe-area-inset-bottom)]">
         <div className="flex justify-around items-center h-16 px-2">
           {navItems.map((item) => {
