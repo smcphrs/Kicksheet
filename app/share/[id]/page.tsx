@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useParams } from 'next/navigation'
-import { Calendar, Clock, MapPin, Cloud, Download, Loader2, Megaphone, Info, Trees, User } from 'lucide-react'
+import { Calendar, Clock, MapPin, Cloud, Download, Loader2, Megaphone, Info, Trees, User, Share2 } from 'lucide-react'
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
 import { FieldMapModal } from '@/components/FieldMapModal'
@@ -98,6 +98,27 @@ function ShareContent() {
     }
   }
 
+  // --- NATIVE SHARE API ---
+  const handleNativeShare = async () => {
+    const shareData = {
+      title: `Lineup vs ${game?.opposing_team || 'TBD'}`,
+      text: `Check out the lineup for our game against ${game?.opposing_team || 'TBD'}!`,
+      url: window.location.href, // This shares the public page link
+    }
+    
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData)
+      } catch (err) {
+        console.log("Error sharing:", err)
+      }
+    } else {
+      // Fallback if browser doesn't support native sharing (e.g. older desktop browsers)
+      navigator.clipboard.writeText(window.location.href)
+      alert("Link copied to clipboard!")
+    }
+  }
+
   const getPosition = (inning: number, playerId: string) => {
      const innData = (game?.innings || []).find((i: any) => i.inning === inning)
      return innData?.assignments?.[playerId] || 'OUT'
@@ -154,16 +175,37 @@ function ShareContent() {
 
   return (
     <div className="bg-[#f8f9fa] dark:bg-gray-950 min-h-[100dvh] font-sans pb-10 transition-colors sm:pt-16 antialiased">
-      <div className="max-w-4xl mx-auto w-full flex justify-end px-4 py-3 sm:py-3 bg-white dark:bg-gray-900 border-b border-gray-300 dark:border-gray-800 transition-colors">
-        <button 
-          onClick={handleDownload}
-          disabled={downloading}
-          className="inline-flex items-center justify-center px-4 py-2.5 sm:py-2 text-[13px] sm:text-xs font-bold text-white bg-blue-600 rounded-xl sm:rounded-full hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
-        >
-          {downloading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Download className="w-4 h-4 mr-1.5" />}
-          <span className="sm:hidden">{downloading ? 'Saving' : 'Save'}</span>
-          <span className="hidden sm:inline">{downloading ? 'Saving' : 'Save Image'}</span>
-        </button>
+      
+      {/* TOP ACTION BAR */}
+      <div className="max-w-4xl mx-auto w-full flex items-center justify-between px-4 py-3 sm:py-3 bg-white dark:bg-gray-900 border-b border-gray-300 dark:border-gray-800 transition-colors">
+        
+        {/* BRAND LOGO */}
+        <div className="flex items-center">
+          <img src="/assets/kicksheet-logo.png" alt="Kicksheet" className="h-6 sm:h-7 dark:hidden" />
+          <img src="/assets/kicksheet-logo-white.png" alt="Kicksheet" className="h-6 sm:h-7 hidden dark:block" />
+        </div>
+
+        {/* ACTION BUTTONS */}
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={handleNativeShare}
+            className="inline-flex items-center justify-center px-4 py-2.5 sm:py-2 text-[13px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl sm:rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all active:scale-95"
+          >
+            <Share2 className="w-4 h-4 sm:mr-1.5" />
+            <span className="hidden sm:inline">Share Link</span>
+          </button>
+
+          <button 
+            onClick={handleDownload}
+            disabled={downloading}
+            className="inline-flex items-center justify-center px-4 py-2.5 sm:py-2 text-[13px] sm:text-xs font-bold text-white bg-blue-600 rounded-xl sm:rounded-full hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
+          >
+            {downloading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Download className="w-4 h-4 mr-1.5" />}
+            <span className="sm:hidden">{downloading ? 'Saving' : 'Save'}</span>
+            <span className="hidden sm:inline">{downloading ? 'Saving' : 'Save Image'}</span>
+          </button>
+        </div>
+
       </div>
 
       <div className="max-w-4xl mx-auto w-full" ref={captureRef}>
@@ -339,9 +381,12 @@ function ShareContent() {
               ))}
             </div>
           </div>
+          
+          {/* Optional: We leave the text signature at the bottom so it prints when saving the image */}
           <div className="text-center text-[10px] sm:text-xs font-semibold text-gray-400 dark:text-gray-600 pb-2 sm:pb-8">
             Created using Kicksheet
           </div>
+
         </div>
       </div>
 
