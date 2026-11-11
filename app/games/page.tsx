@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Calendar, Clock, MapPin, Trash2, Plus, ArrowLeft, Loader2, AlertCircle, Filter, ArrowDownAZ, Copy } from 'lucide-react'
+import { Calendar, Clock, MapPin, Trash2, Plus, ArrowLeft, Loader2, AlertCircle, Filter, ArrowDownAZ, Copy, Trophy } from 'lucide-react'
 
 export default function GamesPage() {
   const supabase = createClient()
@@ -15,13 +15,13 @@ export default function GamesPage() {
   
   // Filtering & Sorting State
   const [filterTeam, setFilterTeam] = useState('All')
-  const [sortOrder, setSortOrder] = useState('recent') // 'recent' or 'alpha'
+  const [sortOrder, setSortOrder] = useState('recent') 
   
   const [gameToDelete, setGameToDelete] = useState<any>(null) 
   const [deletingId, setDeletingId] = useState<string | null>(null)
   
-  // Duplication State
   const [duplicatingId, setDuplicatingId] = useState<string | null>(null)
+  const [updatingResultId, setUpdatingResultId] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchGames() {
@@ -60,42 +60,56 @@ export default function GamesPage() {
   }
 
   const handleDuplicate = async (game: any) => {
-  setDuplicatingId(game.id)
-  
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    setDuplicatingId(null)
-    return
+    setDuplicatingId(game.id)
+    
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      setDuplicatingId(null)
+      return
+    }
+
+    const { data, error } = await supabase
+      .from('games')
+      .insert([{
+        user_id: user.id,
+        team_id: game.team_id || null,
+        attendance: game.attendance || null,
+        kicking_order: game.kicking_order || null,
+        innings: game.innings || null,
+        subs: game.subs || null,
+        game_date: game.game_date || null, 
+        game_time: game.game_time || null,
+        opposing_team: `${game.opposing_team || 'TBD'} (Copy)`,
+        location: game.location || null,
+        field: game.field || null
+      }])
+      .select()
+      .single()
+
+    if (!error && data) {
+      router.push(`/games/${data.id}/edit`)
+    } else {
+      console.error('Supabase Error Details:', error)
+      alert(`Failed to duplicate: ${error?.message || 'Unknown Database Error'}`)
+      setDuplicatingId(null)
+    }
   }
 
-  // Copying the specific structural columns used by the Lineup page
-  const { data, error } = await supabase
-    .from('games')
-    .insert([{
-      user_id: user.id,
-      team_id: game.team_id || null,
-      attendance: game.attendance || null,
-      kicking_order: game.kicking_order || null,
-      innings: game.innings || null,
-      subs: game.subs || null,
-      game_date: game.game_date || null, 
-      game_time: game.game_time || null,
-      opposing_team: `${game.opposing_team || 'TBD'} (Copy)`,
-      location: game.location || null,
-      field: game.field || null
-    }])
-    .select()
-    .single()
+  const handleUpdateResult = async (gameId: string, result: 'W' | 'L' | 'D' | null) => {
+    setUpdatingResultId(gameId)
+    const { error } = await supabase
+      .from('games')
+      .update({ result })
+      .eq('id', gameId)
 
-  if (!error && data) {
-    router.push(`/games/${data.id}/edit`)
-  } else {
-    console.error('Supabase Error Details:', error)
-    alert(`Failed to duplicate: ${error?.message || 'Unknown Database Error'}`)
-    setDuplicatingId(null)
+    if (!error) {
+      setGames(games.map(g => g.id === gameId ? { ...g, result } : g))
+    } else {
+      alert('Failed to save result.')
+    }
+    setUpdatingResultId(null)
   }
-}
-  
+
   const formatTime = (timeString: string) => {
     if (!timeString) return 'TBD'
     const [hourString, minute] = timeString.split(':')
@@ -105,10 +119,17 @@ export default function GamesPage() {
     return `${formattedHour}:${minute} ${ampm}`
   }
 
-  // Derive unique teams for the filter dropdown
+  const getResultColors = (result: string | null) => {
+    switch (result) {
+      case 'W': return 'bg-emerald-500 hover:bg-emerald-600 border-emerald-600 shadow-emerald-500/20'
+      case 'L': return 'bg-rose-500 hover:bg-rose-600 border-rose-600 shadow-rose-500/20'
+      case 'D': return 'bg-slate-500 hover:bg-slate-600 border-slate-600 shadow-slate-500/20'
+      default: return 'bg-[#2563eb] hover:bg-blue-700 border-blue-700 shadow-blue-500/20' // Default Blue
+    }
+  }
+
   const uniqueTeams = Array.from(new Set(games.map(g => g.teams?.name).filter(Boolean))) as string[]
 
-  // Apply filtering and sorting dynamically
   const filteredAndSortedGames = [...games]
     .filter(g => filterTeam === 'All' ? true : g.teams?.name === filterTeam)
     .sort((a, b) => {
@@ -160,7 +181,6 @@ export default function GamesPage() {
 
         <div className="space-y-3 sm:space-y-4">
           
-          {/* Enhanced Filter & Sort Header Bar */}
           <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest hidden sm:block">
               Active Schedule
@@ -223,70 +243,115 @@ export default function GamesPage() {
               )}
             </div>
           ) : (
-            <div className="grid gap-4">
+            <div className="grid gap-4 sm:gap-6">
               {filteredAndSortedGames.map(game => {
-                const formattedDate = game.game_date 
-                  ? new Date(game.game_date).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
-                  : 'Unknown Date'
+                const d = new Date(game.game_date)
+                const month = game.game_date ? d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short' }) : 'TBD'
+                const day = game.game_date ? d.toLocaleDateString('en-US', { timeZone: 'UTC', day: 'numeric' }) : '-'
+                const isPast = game.game_date && (new Date(`${game.game_date}T23:59:59Z`).getTime() < Date.now())
+                const isUpdating = updatingResultId === game.id
 
                 return (
-                  <div key={game.id} className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-300 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                  <div key={game.id} className="relative bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg dark:hover:shadow-none transition-all flex flex-col sm:flex-row overflow-hidden group">
                     
-                    <Link href={`/games/${game.id}`} className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-black px-2 py-1 bg-gray-100 dark:bg-gray-800 border border-transparent text-gray-500 dark:text-gray-400 rounded-md uppercase tracking-widest group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                          {game.teams?.name || 'Team'}
-                        </span>
-                        <span className="text-gray-400 dark:text-gray-500 font-bold text-xs uppercase tracking-widest">vs</span>
-                        <span className="text-lg font-extrabold text-gray-900 dark:text-white tracking-tight">{game.opposing_team || 'TBD'}</span>
+                    {/* Ticket Stub Date Block */}
+                    <div className={`w-full sm:w-32 p-4 sm:p-0 flex flex-row sm:flex-col items-center justify-between sm:justify-center shrink-0 border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10 transition-colors duration-300 ${getResultColors(game.result)} text-white relative`}>
+                      <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"></div>
+                      
+                      <div className="flex flex-row sm:flex-col items-center gap-2 sm:gap-0 relative z-10">
+                        <span className="text-xs sm:text-sm font-black uppercase tracking-widest opacity-90">{month}</span>
+                        <span className="text-2xl sm:text-4xl font-black leading-none tracking-tighter">{day}</span>
                       </div>
                       
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-sm font-bold text-gray-500 dark:text-gray-400 tracking-tight">
-                        <div className="flex items-center gap-1.5">
-                          <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                          {formattedDate}
+                      {/* Mobile-only compact result indicator */}
+                      <div className="sm:hidden font-black text-xl opacity-90">
+                        {game.result === 'W' && 'WIN'}
+                        {game.result === 'L' && 'LOSS'}
+                        {game.result === 'D' && 'DRAW'}
+                      </div>
+                    </div>
+
+                    {/* Card Body */}
+                    <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between bg-white dark:bg-gray-900">
+                      
+                      {/* Top: Info & Results */}
+                      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
+                        <div className="flex-1">
+                          <span className="text-[10px] sm:text-xs font-black px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-md uppercase tracking-widest mb-2 inline-block">
+                            {game.teams?.name || 'Team'}
+                          </span>
+                          <h3 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight leading-none mb-1.5 flex items-center flex-wrap gap-2">
+                            <span className="text-gray-400 text-base sm:text-lg">vs</span> {game.opposing_team || 'TBD'}
+                          </h3>
+                          
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2 text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 tracking-tight">
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-3.5 h-3.5 opacity-70" />
+                              {formatTime(game.game_time)}
+                            </div>
+                            {(game.location || game.field) && (
+                              <div className="flex items-center gap-1">
+                                <MapPin className="w-3.5 h-3.5 opacity-70" />
+                                {game.location} {game.field ? `• ${game.field}` : ''}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1.5">
-                          <Clock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                          {formatTime(game.game_time)}
-                        </div>
-                        {(game.location || game.field) && (
-                          <div className="flex items-center gap-1.5">
-                            <MapPin className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                            {game.location} {game.field ? `• ${game.field}` : ''}
+
+                        {/* Result Toggles (Desktop only inline, Mobile below info) */}
+                        {isPast && (
+                          <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-800/50 p-1 rounded-xl border border-gray-200 dark:border-gray-700 w-full sm:w-auto">
+                            {isUpdating ? (
+                              <div className="w-[120px] h-[34px] flex items-center justify-center">
+                                <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                              </div>
+                            ) : (
+                              <>
+                                <button 
+                                  onClick={() => handleUpdateResult(game.id, game.result === 'W' ? null : 'W')}
+                                  className={`flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-xs font-black transition-all ${game.result === 'W' ? 'bg-emerald-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                                >W</button>
+                                <button 
+                                  onClick={() => handleUpdateResult(game.id, game.result === 'L' ? null : 'L')}
+                                  className={`flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-xs font-black transition-all ${game.result === 'L' ? 'bg-rose-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                                >L</button>
+                                <button 
+                                  onClick={() => handleUpdateResult(game.id, game.result === 'D' ? null : 'D')}
+                                  className={`flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-xs font-black transition-all ${game.result === 'D' ? 'bg-slate-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                                >D</button>
+                              </>
+                            )}
                           </div>
                         )}
                       </div>
-                    </Link>
 
-                    <div className="flex items-center gap-2 w-full sm:w-auto pt-4 sm:pt-0 border-t sm:border-0 border-gray-200 dark:border-gray-800">
-                      <Link 
-                        href={`/games/${game.id}`}
-                        className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl transition-colors border border-gray-300 dark:border-gray-700 active:scale-95"
-                      >
-                        Lineup
-                      </Link>
+                      {/* Bottom Actions */}
+                      <div className="flex items-center gap-2 pt-4 border-t border-gray-100 dark:border-gray-800">
+                        <Link 
+                          href={`/games/${game.id}`}
+                          className="flex-1 inline-flex items-center justify-center px-4 py-2.5 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl transition-colors border border-gray-200 dark:border-gray-700 active:scale-95 text-sm"
+                        >
+                          Open Lineup
+                        </Link>
+                        
+                        <button 
+                          onClick={() => handleDuplicate(game)}
+                          disabled={duplicatingId === game.id}
+                          className="inline-flex items-center justify-center p-2.5 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-xl transition-colors border border-blue-200 dark:border-blue-900/50 active:scale-95 disabled:opacity-50"
+                          title="Duplicate Game & Lineup"
+                        >
+                          {duplicatingId === game.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <Copy className="w-5 h-5" />}
+                        </button>
+
+                        <button 
+                          onClick={() => setGameToDelete(game)}
+                          className="inline-flex items-center justify-center p-2.5 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 rounded-xl transition-colors border border-red-200 dark:border-red-900/50 active:scale-95"
+                          title="Delete Game"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
                       
-                      <button 
-                        onClick={() => handleDuplicate(game)}
-                        disabled={duplicatingId === game.id}
-                        className="inline-flex items-center justify-center p-2.5 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-xl transition-colors border border-blue-200 dark:border-blue-900/50 active:scale-95 disabled:opacity-50"
-                        title="Duplicate Game & Lineup"
-                      >
-                        {duplicatingId === game.id ? (
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                        ) : (
-                          <Copy className="w-5 h-5" />
-                        )}
-                      </button>
-
-                      <button 
-                        onClick={() => setGameToDelete(game)}
-                        className="inline-flex items-center justify-center p-2.5 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 rounded-xl transition-colors border border-red-200 dark:border-red-900/50 active:scale-95"
-                        title="Delete Game"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
                     </div>
                   </div>
                 )
@@ -318,11 +383,7 @@ export default function GamesPage() {
                   disabled={deletingId !== null}
                   className="flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center disabled:opacity-50 active:scale-95"
                 >
-                  {deletingId === gameToDelete.id ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    'Delete'
-                  )}
+                  {deletingId === gameToDelete.id ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Delete'}
                 </button>
               </div>
             </div>
