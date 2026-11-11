@@ -12,6 +12,7 @@ import { FieldMapModal } from '@/components/FieldMapModal'
 function LineupContent() {
   const params = useParams()
   const id = params.id as string
+  const [isAdmin, setIsAdmin] = useState(false)
 
   const supabase = createClient()
   const { resolvedTheme } = useTheme()
@@ -63,6 +64,22 @@ function LineupContent() {
     }
     fetchGame()
   }, [id, supabase])
+
+  useEffect(() => {
+  async function checkAdminStatus() {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const { data } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single()
+      
+      if (data?.is_admin) setIsAdmin(true)
+    }
+  }
+  checkAdminStatus()
+}, [supabase])
 
   const handleDownload = async () => {
     if (!captureRef.current) return
@@ -161,8 +178,8 @@ function LineupContent() {
     ? new Date(game.game_date).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
     : 'Unknown Date'
 
-  return (
-    <div className="bg-[#f8f9fa] dark:bg-gray-950 min-h-[100dvh] font-sans pb-10 transition-colors sm:pt-16 antialiased">
+return (
+  <div className={`bg-[#f8f9fa] dark:bg-gray-950 min-h-[100dvh] font-sans pb-10 transition-colors antialiased ${isAdmin ? 'pt-14 sm:pt-28' : 'sm:pt-16'}`}>
       <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 py-3 sm:py-3 bg-white dark:bg-gray-900 border-b border-gray-300 dark:border-gray-800 transition-colors gap-3 sm:gap-0">
         
         <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto order-1 mt-4">
