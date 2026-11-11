@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Shield, Calendar, Settings, Lock } from 'lucide-react'
+import { LayoutDashboard, Shield, Calendar, Settings, ShieldAlert } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -41,50 +41,61 @@ export default function Navigation() {
     return null
   }
 
-  const baseNavItems = [
+  // Base nav items (Admin removed from here)
+  const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Teams', href: '/teams', icon: Shield },
     { name: 'Games', href: '/games', icon: Calendar },
     { name: 'Settings', href: '/settings', icon: Settings },
   ]
 
-  // Dynamically inject the Admin route if the user is an admin
-  const navItems = isAdmin 
-    ? [...baseNavItems, { name: 'Admin', href: '/admin', icon: Lock }]
-    : baseNavItems
-
   return (
     <>
-      {/* Desktop Top Nav */}
-      <nav className="hidden sm:block fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <img src="/assets/kicksheet-logo.png" alt="Logo" className="h-8 dark:hidden" />
-            <img src="/assets/kicksheet-logo-white.png" alt="Logo" className="h-8 hidden dark:block" />
+      {/* Top Fixed Container (Stacks Admin Bar + Desktop Nav) */}
+      <div className="fixed top-0 left-0 right-0 z-[100] flex flex-col">
+        
+        {/* Admin VIP Bar (Shows on Mobile & Desktop if Admin) */}
+        {isAdmin && (
+          <Link 
+            href="/admin" 
+            className="w-full bg-[#2563eb] hover:bg-blue-700 text-white h-8 sm:h-9 flex items-center justify-center text-[10px] sm:text-xs font-black uppercase tracking-widest transition-colors gap-2 shadow-sm"
+          >
+            <ShieldAlert className="w-3.5 h-3.5" />
+            Go to Admin Dashboard
           </Link>
-          <div className="flex space-x-8">
-            {navItems.map((item) => {
-              const isActive = pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')
-              const Icon = item.icon
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`flex items-center space-x-2 text-sm font-bold transition-colors ${
-                    isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span>{item.name}</span>
-                </Link>
-              )
-            })}
+        )}
+
+        {/* Desktop Top Nav */}
+        <nav className="hidden sm:block w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+          <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <img src="/assets/kicksheet-logo.png" alt="Logo" className="h-8 dark:hidden" />
+              <img src="/assets/kicksheet-logo-white.png" alt="Logo" className="h-8 hidden dark:block" />
+            </Link>
+            <div className="flex space-x-8">
+              {navItems.map((item) => {
+                const isActive = pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')
+                const Icon = item.icon
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`flex items-center space-x-2 text-sm font-bold transition-colors ${
+                      isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{item.name}</span>
+                  </Link>
+                )
+              })}
+            </div>
           </div>
-        </div>
-      </nav>
+        </nav>
+      </div>
 
       {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 w-full bg-[#111827] border-t border-gray-800 pb-[env(safe-area-inset-bottom)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[100] w-full bg-[#111827] border-t border-gray-800 pb-[env(safe-area-inset-bottom)]">
         <div className="flex justify-around items-center h-16 px-2">
           {navItems.map((item) => {
             const isActive = pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')
