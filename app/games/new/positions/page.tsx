@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useSettingsStore } from '@/store/useSettingsStore'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, Save, User, Sparkles, AlertTriangle, RotateCcw, Map } from 'lucide-react'
+import { ArrowLeft, Loader2, Save, User, Wand2, AlertTriangle, RotateCcw, Map } from 'lucide-react'
 import { FieldMapModal } from '@/components/FieldMapModal'
 
 const POSITIONS = {
@@ -121,96 +121,91 @@ function PositionsContent() {
     }))
   }
 
-  // --- SMART AI ALGORITHM ---
-  const handleAutoSetInning = () => {
-    const historicalBenchCounts: Record<string, number> = {}
-    const historicalPosCounts: Record<string, Record<string, number>> = {}
+  // --- SMART AI ALGORITHM: FULL GAME AUTO-FILL ---
+  const handleAutoFillAllInnings = () => {
+    if (!window.confirm("This will auto-generate positions for the ENTIRE game, overwriting your current assignments. Continue?")) return
+
+    const newAssignments: Record<number, Record<string, string>> = {}
+    const tempBenchCounts: Record<string, number> = {}
+    const tempPosCounts: Record<string, Record<string, number>> = {}
     
     players.forEach(p => {
-      historicalBenchCounts[p.id] = 0
-      historicalPosCounts[p.id] = {}
+      tempBenchCounts[p.id] = 0
+      tempPosCounts[p.id] = {}
     })
 
-    Object.entries(assignments).forEach(([inningStr, inningAssignments]) => {
-      if (parseInt(inningStr) === activeInning) return 
-      Object.entries(inningAssignments).forEach(([playerId, pos]) => {
-        if (pos === 'Bench') {
-          historicalBenchCounts[playerId]++
-        } else {
-          historicalPosCounts[playerId][pos] = (historicalPosCounts[playerId][pos] || 0) + 1
-        }
-      })
-    })
+    INNINGS.forEach(inningNum => {
+      newAssignments[inningNum] = {}
+      let availablePositions = [...FIELD_POSITIONS]
+      let unassignedPlayers = [...players]
 
-    let unassignedPlayers = [...players]
-    const newInningAssignments: Record<string, string> = {}
-    const availablePositions = [...FIELD_POSITIONS]
-
-    const numToBench = Math.max(0, players.length - FIELD_POSITIONS.length)
-    if (numToBench > 0) {
-      unassignedPlayers.sort((a, b) => {
-        if (fairPlayEnabled) {
-          const aBenches = historicalBenchCounts[a.id]
-          const bBenches = historicalBenchCounts[b.id]
-          if (aBenches !== bBenches) return aBenches - bBenches
-        }
-        if (a.isSub && !b.isSub) return -1
-        if (!a.isSub && b.isSub) return 1
+      // 1. FAIR PLAY BENCH ROTATION
+      const numToBench = Math.max(0, players.length - FIELD_POSITIONS.length)
+      if (numToBench > 0) {
+        unassignedPlayers.sort((a, b) => {
+          const aBenches = tempBenchCounts[a.id]
+          const bBenches = tempBenchCounts[b.id]
+          // Prioritize sitting players who have sat the LEAST
+          if (aBenches !== bBenches) return bBenches - aBenches
+          return 0.5 - Math.random() // Random tie-breaker
+        })
         
-        const indexA = players.findIndex(p => p.id === a.id)
-        const indexB = players.findIndex(p => p.id === b.id)
-        return indexB - indexA 
+        const benched = unassignedPlayers.splice(unassignedPlayers.length - numToBench, numToBench)
+        benched.forEach(p => { 
+          newAssignments[inningNum][p.id] = 'Bench'
+          tempBenchCounts[p.id]++
+        })
+      }
+
+      // 2. ASSIGN PREFERRED POSITIONS
+      unassignedPlayers.sort((a, b) => {
+        const aPrefCount = a.preferred_positions?.length || 0
+        const bPrefCount = b.preferred_positions?.length || 0
+        if (aPrefCount === 0) return 1
+        if (bPrefCount === 0) return -1
+        return aPrefCount - bPrefCount // Strictest preferences get placed first
       })
 
-      const benched = unassignedPlayers.splice(0, numToBench)
-      benched.forEach(p => { newInningAssignments[p.id] = 'Bench' })
-    }
+      for (let i = unassignedPlayers.length - 1; i >= 0; i--) {
+        const p = unassignedPlayers[i]
+        const prefs = p.preferred_positions || []
+        
+        // Try to assign a preference they haven't played much today
+        const sortedPrefs = [...prefs].sort((posA, posB) => {
+          const countA = tempPosCounts[p.id][posA] || 0
+          const countB = tempPosCounts[p.id][posB] || 0
+          return countA - countB
+        })
 
-    unassignedPlayers.sort((a, b) => {
-      const aPrefCount = a.preferred_positions?.length || 0
-      const bPrefCount = b.preferred_positions?.length || 0
-      if (aPrefCount === 0) return 1
-      if (bPrefCount === 0) return -1
-      return aPrefCount - bPrefCount
+        const chosenPos = sortedPrefs.find(pos => availablePositions.includes(pos))
+        if (chosenPos) {
+          newAssignments[inningNum][p.id] = chosenPos
+          tempPosCounts[p.id][chosenPos] = (tempPosCounts[p.id][chosenPos] || 0) + 1
+          availablePositions.splice(availablePositions.indexOf(chosenPos), 1)
+          unassignedPlayers.splice(i, 1)
+        }
+      }
+
+      // 3. FILL REMAINDER
+      unassignedPlayers.forEach(p => {
+        availablePositions.sort((posA, posB) => {
+          const countA = tempPosCounts[p.id][posA] || 0
+          const countB = tempPosCounts[p.id][posB] || 0
+          return countA - countB
+        })
+
+        const pos = availablePositions.shift()
+        if (pos) {
+          newAssignments[inningNum][p.id] = pos
+          tempPosCounts[p.id][pos] = (tempPosCounts[p.id][pos] || 0) + 1
+        } else {
+          newAssignments[inningNum][p.id] = 'Bench' // Fallback for rovers/extras
+        }
+      })
     })
 
-    for (let i = unassignedPlayers.length - 1; i >= 0; i--) {
-      const p = unassignedPlayers[i]
-      const prefs = p.preferred_positions || []
-
-      const sortedPrefs = [...prefs].sort((posA, posB) => {
-        const countA = historicalPosCounts[p.id][posA] || 0
-        const countB = historicalPosCounts[p.id][posB] || 0
-        return countA - countB
-      })
-
-      const chosenPos = sortedPrefs.find(pos => availablePositions.includes(pos))
-      if (chosenPos) {
-        newInningAssignments[p.id] = chosenPos
-        availablePositions.splice(availablePositions.indexOf(chosenPos), 1)
-        unassignedPlayers.splice(i, 1)
-      }
-    }
-
-    unassignedPlayers.forEach(p => {
-      availablePositions.sort((posA, posB) => {
-        const countA = historicalPosCounts[p.id][posA] || 0
-        const countB = historicalPosCounts[p.id][posB] || 0
-        return countA - countB
-      })
-
-      const pos = availablePositions.shift()
-      if (pos) {
-        newInningAssignments[p.id] = pos
-      } else {
-        newInningAssignments[p.id] = 'Bench'
-      }
-    })
-
-    setAssignments(prev => ({
-      ...prev,
-      [activeInning]: newInningAssignments
-    }))
+    setAssignments(newAssignments)
+    setActiveInning(1) // Jump back to inning 1 so they can review the results
   }
 
   const handleSaveGame = async () => {
@@ -252,14 +247,10 @@ function PositionsContent() {
   }
 
   const currentInningAssignments = assignments[activeInning] || {}
-
-// 🚨 FIX: Extract a list of IDs for players currently in the game
-const activePlayerIds = players.map(p => p.id)
-
-// Only count a position as taken if it belongs to someone actually on the roster
-const takenPositions = Object.entries(currentInningAssignments)
-  .filter(([playerId, pos]) => pos !== 'Bench' && activePlayerIds.includes(playerId))
-  .map(([_, pos]) => pos)
+  const activePlayerIds = players.map(p => p.id)
+  const takenPositions = Object.entries(currentInningAssignments)
+    .filter(([playerId, pos]) => pos !== 'Bench' && activePlayerIds.includes(playerId))
+    .map(([_, pos]) => pos)
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
@@ -277,7 +268,7 @@ const takenPositions = Object.entries(currentInningAssignments)
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white">Field Positions</h1>
           <p className="text-gray-500 dark:text-gray-400 font-medium mt-2 text-lg">Assign the positions for each inning.</p>
           
-          {/* Slim, Subtle Action Buttons */}
+          {/* Action Buttons */}
           <div className="flex items-center justify-center gap-2 mt-5 w-full">
             <button
               onClick={() => setShowMap(true)}
@@ -293,11 +284,11 @@ const takenPositions = Object.entries(currentInningAssignments)
               Reset
             </button>
             <button
-              onClick={handleAutoSetInning}
-              className="inline-flex items-center justify-center px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-50 dark:bg-[#2563eb]/10 hover:bg-blue-100 dark:hover:bg-[#2563eb]/20 text-[#2563eb] dark:text-blue-400 border border-blue-200 dark:border-blue-800 font-bold rounded-lg transition-all active:scale-95 shadow-sm text-xs sm:text-sm"
+              onClick={handleAutoFillAllInnings}
+              className="inline-flex items-center justify-center px-4 py-1.5 sm:px-5 sm:py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition-all active:scale-95 shadow-md shadow-purple-900/20 text-xs sm:text-sm"
             >
-              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5" />
-              Auto Set
+              <Wand2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5" />
+              Auto-Fill Game
             </button>
           </div>
         </div>
