@@ -117,11 +117,12 @@ export default async function DashboardPage() {
         </div>
 
         <div className="space-y-3 sm:space-y-4">
-          <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center">
-            <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">Stats</h2>
+          {/* CLEAN HEADER: Stats */}
+          <div className="w-full flex items-center mb-1 px-1">
+            <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Stats</h2>
           </div>
 
-          {/* Compact Horizontal Stat Cards - Added 'items-start' to prevent CSS Grid from stretching them */}
+          {/* Compact Horizontal Stat Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 items-start">
             
             {/* Active Teams */}
@@ -172,7 +173,7 @@ export default async function DashboardPage() {
               </div>
             </div>
             
-            {/* Record Stat Card (Inline to match perfectly) */}
+            {/* Record Stat Card */}
             <div className="group relative bg-[#1f2937] px-4 py-3 rounded-xl border border-[#1f2937] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm col-span-2 lg:col-span-1">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
               <div className="relative z-10 flex flex-col">
@@ -194,11 +195,11 @@ export default async function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <Link href="https://scheduler.leaguelobster.com/o/586394/big-apple-recreational-sports/" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors">
+          <Link href="https://scheduler.leaguelobster.com/o/586394/big-apple-recreational-sports/" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors shadow-sm">
             <Calendar className="w-4 h-4 text-orange-500 group-hover:scale-110 transition-transform" /> League Lobster
           </Link>
           <FieldMapShortcut />
-          <Link href="/settings" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors">
+          <Link href="/settings" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors shadow-sm">
             <Settings className="w-4 h-4 text-gray-500 group-hover:rotate-90 transition-transform duration-500" /> Settings
           </Link>
         </div>
@@ -208,8 +209,9 @@ export default async function DashboardPage() {
           <div className="lg:col-span-2 space-y-8">
             
             <section>
-              <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
-                <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
+              {/* CLEAN HEADER: Next Up */}
+              <div className="w-full flex items-center justify-between mb-3 px-1">
+                <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest flex items-center gap-2">
                   <Zap className="w-4 h-4 text-amber-500 fill-amber-500" /> Next Up
                 </h2>
               </div>
@@ -300,12 +302,13 @@ export default async function DashboardPage() {
             </section>
 
             <section>
-              <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
-                <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">
+              {/* CLEAN HEADER: Your Teams */}
+              <div className="w-full flex items-center justify-between mb-3 px-1">
+                <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                   Your Teams
                 </h2>
                 {archivedTeams.length > 0 && (
-                  <Link href="/teams/archived" className="text-xs font-bold text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1 transition-colors">
+                  <Link href="/teams/archived" className="text-xs font-bold text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1 transition-colors">
                     <Archive className="w-3.5 h-3.5" />
                     Archived ({archivedTeams.length})
                   </Link>
@@ -343,8 +346,9 @@ export default async function DashboardPage() {
           </div>
 
           <div className="space-y-4 lg:pl-4">
-            <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
-              <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">
+            {/* CLEAN HEADER: Recent Games */}
+            <div className="w-full flex items-center justify-between mb-3 px-1">
+              <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                 Recent Games
               </h2>
               <Link href="/games" className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
