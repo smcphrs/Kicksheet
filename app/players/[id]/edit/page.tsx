@@ -89,7 +89,7 @@ function EditPlayerContent() {
       .update({
         name: name.trim(),
         number: number ? parseInt(number, 10) : null,
-        pronouns: pronouns.trim()
+        pronouns: pronouns.trim(),
         experience_level: experienceLevel,
         positions: positions,
         kicking_style: kickingStyle || null
