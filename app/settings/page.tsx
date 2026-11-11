@@ -161,6 +161,7 @@ export default function SettingsPage() {
                     <div className="w-14 h-7 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#2563eb]"></div>
                   </label>
                 </div>
+                
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 gap-4 transition-colors">
                   <div className="flex-1">
@@ -202,6 +203,23 @@ export default function SettingsPage() {
                 <div className="w-14 h-7 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#2563eb]"></div>
               </label>
             </div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 gap-4 transition-colors mt-4">
+  <div className="flex-1">
+    <h3 className="font-extrabold text-gray-900 dark:text-white text-lg">Display Pronouns</h3>
+    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed pr-4">
+      When active, player pronouns (if provided) will be subtly displayed next to their names on rosters and lineups.
+    </p>
+  </div>
+  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+    <input 
+      type="checkbox" 
+      className="sr-only peer"
+      checked={useSettingsStore(state => state.showPronouns)}
+      onChange={(e) => useSettingsStore.getState().setShowPronouns(e.target.checked)}
+    />
+    <div className="w-14 h-7 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#2563eb]"></div>
+  </label>
+</div>
           </section>
 
           {/* App Preferences */}

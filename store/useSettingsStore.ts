@@ -8,6 +8,8 @@ interface SettingsStore {
   setInningsCount: (count: number) => void
   askForJerseyNumbers: boolean 
   setAskForJerseyNumbers: (ask: boolean) => void 
+  showPronouns: boolean;
+  setShowPronouns: (val: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -19,6 +21,8 @@ export const useSettingsStore = create<SettingsStore>()(
       setInningsCount: (count) => set({ inningsCount: count }),
       askForJerseyNumbers: true, // <-- DEFAULT TO TRUE
       setAskForJerseyNumbers: (ask) => set({ askForJerseyNumbers: ask }),
+      showPronouns: true,
+      setShowPronouns: (val) => set({ showPronouns: val }),
     }),
     {
       name: 'kicksheet-settings',

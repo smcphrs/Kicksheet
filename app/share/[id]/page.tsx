@@ -7,10 +7,12 @@ import { Calendar, Clock, MapPin, Cloud, Download, Loader2, Megaphone, Info, Tre
 import { toBlob } from 'html-to-image'
 import { useTheme } from 'next-themes'
 import { FieldMapModal } from '@/components/FieldMapModal'
+import { useSettingsStore } from '@/store/useSettingsStore'
 
 function ShareContent() {
   const params = useParams()
   const id = params.id as string
+  const { showPronouns } = useSettingsStore()
 
   const supabase = createClient()
   const { resolvedTheme } = useTheme()
@@ -42,7 +44,7 @@ function ShareContent() {
       if (regularIds.length > 0) {
          const { data: players } = await supabase
           .from('players')
-          .select('id, name, number')
+          .select('id, name, pronouns, number')
           .in('id', regularIds)
          if (players) roster = players
       }
@@ -333,6 +335,11 @@ function ShareContent() {
                           <span className="text-[13px] sm:text-base font-black tracking-tight leading-none truncate">
                             {formatName(player.name)}
                           </span>
+                          {showPronouns && player.pronouns && (
+    <span className="text-[10px] sm:text-[11px] font-bold text-gray-400 dark:text-gray-500 tracking-tight lowercase shrink-0">
+      ({player.pronouns})
+    </span>
+  )}
                           {(player.isSub || player.id?.startsWith('sub-')) && (
                             <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400 text-[8px] sm:text-[9px] font-black uppercase tracking-widest shrink-0 leading-none shadow-sm mt-0.5">
                               SUB

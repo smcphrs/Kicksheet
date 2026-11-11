@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ArrowLeft, Loader2, UserPlus, Hash, Crosshair, User } from 'lucide-react'
+import { ArrowLeft, Loader2, UserPlus, Hash, Crosshair, User, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useSettingsStore } from '@/store/useSettingsStore'
 
@@ -30,7 +30,9 @@ function NewPlayerContent() {
   const [teamName, setTeamName] = useState('')
   const [name, setName] = useState('')
   const [number, setNumber] = useState('')
-  const { askForJerseyNumbers } = useSettingsStore()
+  const [pronouns, setPronouns] = useState('') // <-- NEW STATE
+  
+  const { askForJerseyNumbers, showPronouns } = useSettingsStore() // <-- IMPORT BOTH SETTINGS
   const [experienceLevel, setExperienceLevel] = useState('Experienced')
   const [positions, setPositions] = useState<string[]>([])
   const [kickingStyle, setKickingStyle] = useState('')
@@ -44,8 +46,6 @@ function NewPlayerContent() {
     fetchTeamName()
   }, [teamId, supabase])
 
-  
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!teamId) return
@@ -57,10 +57,11 @@ function NewPlayerContent() {
         team_id: teamId,
         name: name.trim(),
         number: number ? parseInt(number, 10) : null,
+        pronouns: pronouns.trim() || null, // <-- SUBMIT TO DATABASE
         experience_level: experienceLevel,
         positions: positions,
         kicking_style: kickingStyle || null,
-        is_registered: false // False because captain added them manually
+        is_registered: false
       }])
 
     if (error) {
@@ -71,6 +72,17 @@ function NewPlayerContent() {
       router.push(`/teams/${teamId}`)
       router.refresh()
     }
+  }
+
+  // Dynamically calculate grid columns based on active settings
+  let gridCols = 'grid-cols-1'
+  let nameColSpan = ''
+  if (askForJerseyNumbers && showPronouns) {
+    gridCols = 'sm:grid-cols-4' // Name gets 2, Jersey gets 1, Pronouns gets 1
+    nameColSpan = 'sm:col-span-2'
+  } else if (askForJerseyNumbers || showPronouns) {
+    gridCols = 'sm:grid-cols-3' // Name gets 2, Other gets 1
+    nameColSpan = 'sm:col-span-2'
   }
 
   return (
@@ -89,35 +101,52 @@ function NewPlayerContent() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className={`grid gap-4 ${askForJerseyNumbers ? 'sm:grid-cols-3' : 'grid-cols-1'}`}>
-  <div className={`${askForJerseyNumbers ? 'sm:col-span-2' : ''} space-y-1.5`}>
-    <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
-      <User className="w-3.5 h-3.5" /> Full Name
-    </label>
-    <input 
-      required 
-      type="text" 
-      value={name}
-      onChange={e => setName(e.target.value)}
-      className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
-      placeholder="e.g. John Doe"
-    />
-  </div>
-  
-  {askForJerseyNumbers && (
-    <div className="space-y-1.5">
-      <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
-        <Hash className="w-3.5 h-3.5" /> Jersey #
-      </label>
-      <input 
-        type="number" 
-        value={number}
-        onChange={e => setNumber(e.target.value)}
-        className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
-      />
-    </div>
-  )}
-</div>
+            
+            {/* DYNAMIC GRID LAYOUT */}
+            <div className={`grid gap-4 ${gridCols}`}>
+              <div className={`${nameColSpan} space-y-1.5`}>
+                <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5" /> Full Name
+                </label>
+                <input 
+                  required 
+                  type="text" 
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
+                  placeholder="e.g. John Doe"
+                />
+              </div>
+              
+              {askForJerseyNumbers && (
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
+                    <Hash className="w-3.5 h-3.5" /> Jersey #
+                  </label>
+                  <input 
+                    type="number" 
+                    value={number}
+                    onChange={e => setNumber(e.target.value)}
+                    className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
+                  />
+                </div>
+              )}
+
+              {showPronouns && (
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
+                    <MessageCircle className="w-3.5 h-3.5" /> Pronouns
+                  </label>
+                  <input 
+                    type="text" 
+                    value={pronouns}
+                    onChange={e => setPronouns(e.target.value)}
+                    placeholder="e.g. they/them"
+                    className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
+                  />
+                </div>
+              )}
+            </div>
 
             <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
               <h3 className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center justify-between">
