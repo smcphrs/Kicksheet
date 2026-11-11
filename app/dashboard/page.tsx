@@ -4,18 +4,17 @@ import Link from 'next/link'
 import { Users, Calendar, Plus, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap, } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { FieldMapShortcut } from '@/components/FieldMapShortcut'
+import { RecordStatCard } from '@/components/RecordStatCard' // <-- New Import
 
 export default async function DashboardPage() {
   const cookieStore = await cookies()
   const supabase = createClient(cookieStore)
 
-  // 1. Authenticate user
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     redirect('/login')
   }
 
-  // 2. Fetch Teams first
   const { data: teams } = await supabase
     .from('teams')
     .select('*')
@@ -24,7 +23,6 @@ export default async function DashboardPage() {
 
   const teamIds = teams?.map(t => t.id) || []
 
-  // 3. Fetch Accurate Player Count
   let playersCount = 0
   if (teamIds.length > 0) {
     const { count } = await supabase
@@ -34,31 +32,31 @@ export default async function DashboardPage() {
     playersCount = count || 0
   }
 
-  // 4. Fetch All Games for stats and sorting
   const { data: allGames } = await supabase
     .from('games')
     .select('*, teams(name)')
     .eq('user_id', user.id)
     .order('game_date', { ascending: true })
 
-  // --- NEW 1 HOUR THRESHOLD LOGIC ---
   const currentUtcMs = Date.now()
   const ONE_HOUR_MS = 60 * 60 * 1000
 
   const sortedGames = (allGames || []).map(g => {
-    // If no time is set, assume midnight UTC for sorting
     const gameDateStr = g.game_time ? `${g.game_date}T${g.game_time}:00Z` : `${g.game_date}T00:00:00Z`
     const gameStartMs = new Date(gameDateStr).getTime()
     return { ...g, gameStartMs }
   })
 
-  // A game is upcoming until 1 hour *after* its start time
   const upcomingGames = sortedGames.filter(g => (g.gameStartMs + ONE_HOUR_MS) > currentUtcMs).sort((a, b) => a.gameStartMs - b.gameStartMs)
-  // A game is past once it is 1 hour *after* its start time
   const pastGames = sortedGames.filter(g => (g.gameStartMs + ONE_HOUR_MS) <= currentUtcMs).sort((a, b) => b.gameStartMs - a.gameStartMs)
   
   const nextGame = upcomingGames.length > 0 ? upcomingGames[0] : null
   const recentGames = pastGames.slice(0, 4)
+
+  // --- W-L-T CALCULATIONS ---
+  const totalWins = allGames?.filter(g => g.result === 'W').length || 0
+  const totalLosses = allGames?.filter(g => g.result === 'L').length || 0
+  const totalTies = allGames?.filter(g => g.result === 'T').length || 0
 
   const formatTime = (timeString: string) => {
     if (!timeString) return 'TBD'
@@ -73,60 +71,43 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
       <div className="max-w-6xl mx-auto px-4 pt-12 pb-24 sm:px-6 sm:pt-28 w-full space-y-8 sm:space-y-10">
         
-        {/* Mobile-Only Logo Header */}
         <div className="sm:hidden flex flex-col gap-1 pb-2">
-          <img 
-            src="/assets/kicksheet-logo.png" 
-            alt="Kicksheet" 
-            className="h-12 w-auto object-contain dark:hidden" 
-          />
-          <img 
-            src="/assets/kicksheet-logo-white.png" 
-            alt="Kicksheet" 
-            className="h-12 w-auto object-contain hidden dark:block" 
-          />
+          <img src="/assets/kicksheet-logo.png" alt="Kicksheet" className="h-12 w-auto object-contain dark:hidden" />
+          <img src="/assets/kicksheet-logo-white.png" alt="Kicksheet" className="h-12 w-auto object-contain hidden dark:block" />
           <p className="text-gray-500 dark:text-gray-400 font-regular text-sm tracking-tight mt-1">
             <center>Create winning kickball lineups in minutes.</center>
           </p>
         </div>
 
-        {/* Header & Main Actions */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
           <div>
             <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg tracking-tight"></p>
           </div>
           
           <div className="flex flex-wrap gap-3 w-full sm:w-auto">
-            <Link 
-              href="/teams/new"
-              className="flex-1 sm:flex-none text-center bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] border border-gray-300 dark:border-gray-700 px-5 py-3 rounded-xl hover:bg-gray-800 dark:hover:bg-blue-300 font-bold transition-colors active:scale-95 inline-flex items-center justify-center gap-2 group"
-            >
+            <Link href="/teams/new" className="flex-1 sm:flex-none text-center bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] border border-gray-300 dark:border-gray-700 px-5 py-3 rounded-xl hover:bg-gray-800 dark:hover:bg-blue-300 font-bold transition-colors active:scale-95 inline-flex items-center justify-center gap-2 group">
               <Shield className="w-4 h-4 text-white dark:text-[#0a192f] transition-colors" />
               New Team
             </Link>
-            <Link 
-              href="/games/new"
-              className="flex-1 sm:flex-none text-center bg-[#2563eb] text-white px-6 py-3 rounded-xl hover:bg-blue-700 font-bold transition-colors active:scale-95 inline-flex items-center justify-center gap-2"
-            >
+            <Link href="/games/new" className="flex-1 sm:flex-none text-center bg-[#2563eb] text-white px-6 py-3 rounded-xl hover:bg-blue-700 font-bold transition-colors active:scale-95 inline-flex items-center justify-center gap-2">
               <Plus className="w-5 h-5" />
               New Game
             </Link>
           </div>
         </div>
 
-        {/* STATS SECTION */}
         <div className="space-y-3 sm:space-y-4">
           <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center">
             <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">Stats</h2>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+          {/* Enhanced 5-Column Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-5">
             
-            {/* Total Teams */}
             <div className="group relative bg-[#1e40af] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#1e40af] flex flex-col justify-between transition-all cursor-default overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-20 h-20 bg-white opacity-10 rounded-full blur-2xl pointer-events-none transition-transform duration-500"></div>
               <div className="flex items-center gap-3 mb-4 relative z-10">
-                <div className="w-10 h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm transition-all duration-300">
+                <div className="w-10 h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm">
                   <Shield className="w-5 h-5 text-white" />
                 </div>
                 <h3 className="text-xs sm:text-sm font-bold text-blue-100 uppercase tracking-widest">Total Teams</h3>
@@ -134,11 +115,10 @@ export default async function DashboardPage() {
               <p className="text-3xl sm:text-4xl font-black text-white tracking-tight relative z-10">{teams?.length || 0}</p>
             </div>
 
-            {/* Players */}
             <div className="group relative bg-[#43a047] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#43a047] flex flex-col justify-between transition-all cursor-default overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-20 h-20 bg-white opacity-10 rounded-full blur-2xl pointer-events-none transition-transform duration-500"></div>
               <div className="flex items-center gap-3 mb-4 relative z-10">
-                <div className="w-10 h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm transition-all duration-300">
+                <div className="w-10 h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm">
                   <Users className="w-5 h-5 text-white" />
                 </div>
                 <h3 className="text-xs sm:text-sm font-bold text-green-100 uppercase tracking-widest">Players</h3>
@@ -146,11 +126,10 @@ export default async function DashboardPage() {
               <p className="text-3xl sm:text-4xl font-black text-white tracking-tight relative z-10">{playersCount}</p>
             </div>
 
-            {/* Upcoming */}
             <div className="group relative bg-[#ff9800] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#ff9800] flex flex-col justify-between transition-all cursor-default overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-20 h-20 bg-white opacity-10 rounded-full blur-2xl pointer-events-none transition-transform duration-500"></div>
               <div className="flex items-center gap-3 mb-4 relative z-10">
-                <div className="w-10 h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm transition-all duration-300">
+                <div className="w-10 h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm">
                   <Calendar className="w-5 h-5 text-white" />
                 </div>
                 <h3 className="text-xs sm:text-sm font-bold text-orange-50 uppercase tracking-widest">Upcoming</h3>
@@ -158,29 +137,30 @@ export default async function DashboardPage() {
               <p className="text-3xl sm:text-4xl font-black text-white tracking-tight relative z-10">{upcomingGames.length}</p>
             </div>
 
-            {/* Games Played */}
             <div className="group relative bg-[#c2185b] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#c2185b] flex flex-col justify-between transition-all cursor-default overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-20 h-20 bg-white opacity-10 rounded-full blur-2xl pointer-events-none transition-transform duration-500"></div>
               <div className="flex items-center gap-3 mb-4 relative z-10">
-                <div className="w-10 h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm transition-all duration-300">
+                <div className="w-10 h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm">
                   <Trophy className="w-5 h-5 text-white" />
                 </div>
                 <h3 className="text-xs sm:text-sm font-bold text-pink-100 uppercase tracking-widest">Games Played</h3>
               </div>
               <p className="text-3xl sm:text-4xl font-black text-white tracking-tight relative z-10">{pastGames.length}</p>
             </div>
+            
+            {/* 5th Column - Record & Reset Tool */}
+            <div className="col-span-2 lg:col-span-1">
+              <RecordStatCard wins={totalWins} losses={totalLosses} ties={totalTies} />
+            </div>
 
           </div>
         </div>
 
-        {/* Quick Hub Shortcuts */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <Link href="https://scheduler.leaguelobster.com/o/586394/big-apple-recreational-sports/" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors">
             <Calendar className="w-4 h-4 text-orange-500 group-hover:scale-110 transition-transform" /> League Lobster
           </Link>
-          
           <FieldMapShortcut />
-          
           <Link href="/settings" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors">
             <Settings className="w-4 h-4 text-gray-500 group-hover:rotate-90 transition-transform duration-500" /> Settings
           </Link>
@@ -188,50 +168,65 @@ export default async function DashboardPage() {
 
         <div className="grid lg:grid-cols-3 gap-8 items-start">
           
-          {/* Left Column: Next Game & Teams Hub */}
           <div className="lg:col-span-2 space-y-8">
             
-            {/* Next Game Hero */}
+            {/* Upgraded Ticket Stub Next Game Hero */}
             <section>
               <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
                 <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
-                  Next Up
+                  <Zap className="w-4 h-4 text-amber-500 fill-amber-500" /> Next Up
                 </h2>
               </div>
               
               {nextGame ? (
-                <div className="group bg-white dark:bg-gray-900 rounded-3xl border border-gray-300 dark:border-gray-700 overflow-hidden flex flex-col sm:flex-row transition-colors">
-                  <div className="bg-[#2563eb] p-6 sm:p-8 flex-1 flex flex-col justify-center relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
-                      <Calendar className="w-40 h-40 text-white" />
+                <div className="group bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 overflow-hidden flex flex-col sm:flex-row shadow-sm transition-all">
+                  
+                  {/* Vibrant Ticket Edge */}
+                  <div className="w-full sm:w-48 p-6 flex flex-row sm:flex-col items-center justify-between sm:justify-center shrink-0 bg-[#ff9800] text-white relative border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10 overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"></div>
+                    <div className="absolute -bottom-6 -right-6 opacity-20 group-hover:scale-110 transition-transform duration-700 hidden sm:block">
+                      <Zap className="w-32 h-32 text-white fill-white" />
                     </div>
-                    <div className="relative z-10">
-                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-black/10 text-white text-[10px] font-bold uppercase tracking-widest rounded-full mb-4 border border-white/20">
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                        </span>
-                        Scheduled
-                      </div>
-                      <h3 className="text-3xl sm:text-4xl font-black text-white mb-1.5 leading-none tracking-tight">{nextGame.teams?.name}</h3>
-                      <p className="text-blue-100 font-semibold text-lg sm:text-xl tracking-tight mb-0">vs {nextGame.opposing_team || 'TBD'}</p>
+                    <div className="flex flex-row sm:flex-col items-center gap-2 sm:gap-0 relative z-10">
+                      <span className="text-sm font-black uppercase tracking-widest opacity-90">
+                        {nextGame.game_date ? new Date(nextGame.game_date).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short' }) : 'TBD'}
+                      </span>
+                      <span className="text-3xl sm:text-5xl font-black leading-none tracking-tighter">
+                        {nextGame.game_date ? new Date(nextGame.game_date).toLocaleDateString('en-US', { timeZone: 'UTC', day: 'numeric' }) : '-'}
+                      </span>
+                    </div>
+                    <div className="sm:hidden inline-flex items-center gap-1.5 px-3 py-1 bg-black/10 text-white text-[10px] font-bold uppercase tracking-widest rounded-full border border-white/20 relative z-10">
+                      <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span> LIVE
                     </div>
                   </div>
                   
-                  <div className="p-6 sm:p-8 flex-1 flex flex-col justify-between bg-white dark:bg-gray-900 relative border-t sm:border-t-0 sm:border-l border-gray-300 dark:border-gray-700">
-                    <div className="space-y-4 mb-6 relative z-10">
-                      <div className="flex items-center text-gray-700 dark:text-gray-200 font-bold">
-                        <Calendar className="w-5 h-5 mr-3 text-blue-500" />
+                  {/* Match Details Area */}
+                  <div className="p-6 sm:p-8 flex-1 flex flex-col justify-between bg-white dark:bg-gray-900 relative">
+                    <div className="hidden sm:inline-flex absolute top-6 right-6 items-center gap-1.5 px-3 py-1 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800 text-[10px] font-bold uppercase tracking-widest rounded-full z-10 shadow-sm">
+                      <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span> SCHEDULED
+                    </div>
+                    
+                    <div className="relative z-10 mb-6 sm:mb-8 pr-0 sm:pr-24">
+                      <span className="text-xs font-black px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-md uppercase tracking-widest mb-3 inline-block">
+                        {nextGame.teams?.name}
+                      </span>
+                      <h3 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white mb-2 leading-none tracking-tight flex items-center flex-wrap gap-2">
+                        <span className="text-gray-400 font-bold text-lg sm:text-2xl">vs</span> {nextGame.opposing_team || 'TBD'}
+                      </h3>
+                    </div>
+                    
+                    <div className="space-y-3 mb-6 sm:mb-8 text-sm sm:text-base font-bold text-gray-600 dark:text-gray-300">
+                      <div className="flex items-center">
+                        <Calendar className="w-5 h-5 mr-3 text-blue-500 shrink-0" />
                         {new Date(nextGame.game_date).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'long', month: 'long', day: 'numeric' })}
                       </div>
-                      <div className="flex items-center text-gray-700 dark:text-gray-200 font-bold">
-                        <Clock className="w-5 h-5 mr-3 text-orange-500" />
+                      <div className="flex items-center">
+                        <Clock className="w-5 h-5 mr-3 text-orange-500 shrink-0" />
                         <span>{formatTime(nextGame.game_time)}</span>
                       </div>
                       {nextGame.field && (
-                        <div className="flex items-center text-gray-700 dark:text-gray-200 font-bold">
-                          <MapPin className="w-5 h-5 mr-3 text-green-500" />
+                        <div className="flex items-center">
+                          <MapPin className="w-5 h-5 mr-3 text-green-500 shrink-0" />
                           {nextGame.location ? `${nextGame.location} (${nextGame.field})` : nextGame.field}
                         </div>
                       )}
@@ -239,7 +234,7 @@ export default async function DashboardPage() {
                     
                     <Link 
                       href={`/games/${nextGame.id}`} 
-                      className="w-full text-center bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 px-5 py-3.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 font-extrabold tracking-wide transition-colors active:scale-95 inline-flex items-center justify-center gap-2 group/btn"
+                      className="w-full text-center bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 px-5 py-4 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 font-black tracking-wide transition-colors active:scale-95 inline-flex items-center justify-center gap-2 group/btn"
                     >
                       Manage Lineup <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                     </Link>
@@ -249,14 +244,11 @@ export default async function DashboardPage() {
                 <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center flex flex-col items-center justify-center min-h-[200px] transition-colors">
                   <Calendar className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-3" />
                   <p className="text-gray-500 dark:text-gray-400 font-bold tracking-tight mb-4">No upcoming games scheduled.</p>
-                  <Link href="/games/new" className="text-blue-600 dark:text-blue-400 font-extrabold hover:underline">
-                    Schedule one now
-                  </Link>
+                  <Link href="/games/new" className="text-blue-600 dark:text-blue-400 font-extrabold hover:underline">Schedule one now</Link>
                 </div>
               )}
             </section>
 
-            {/* Teams Thumbnails Hub */}
             <section>
               <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
                 <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">
@@ -267,7 +259,7 @@ export default async function DashboardPage() {
               {teams && teams.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                   {teams.map(team => (
-                    <Link key={team.id} href={`/teams/${team.id}`} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 group text-center flex flex-col items-center transition-colors overflow-hidden">
+                    <Link key={team.id} href={`/teams/${team.id}`} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 group text-center flex flex-col items-center transition-colors overflow-hidden shadow-sm">
                       <div className="w-full aspect-square bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center border-b border-gray-200 dark:border-gray-800 overflow-hidden relative">
                         {team.logo_url ? (
                           <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -276,7 +268,6 @@ export default async function DashboardPage() {
                             {team.name ? team.name.charAt(0) : '?'}
                           </span>
                         )}
-                        <div className="absolute inset-0 ring-1 ring-inset ring-black/5 dark:ring-white/5 pointer-events-none"></div>
                       </div>
                       
                       <div className="p-4 w-full flex flex-col items-center">
@@ -289,16 +280,12 @@ export default async function DashboardPage() {
               ) : (
                 <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center transition-colors">
                   <p className="text-gray-500 dark:text-gray-400 text-sm font-bold tracking-tight mb-3">You haven't created any teams yet.</p>
-                  <Link href="/teams/new" className="text-blue-600 dark:text-blue-400 font-extrabold hover:underline text-sm">
-                    Create your first team
-                  </Link>
+                  <Link href="/teams/new" className="text-blue-600 dark:text-blue-400 font-extrabold hover:underline text-sm">Create your first team</Link>
                 </div>
               )}
             </section>
-
           </div>
 
-          {/* Right Column: Recent Games */}
           <div className="space-y-4 lg:pl-4">
             <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
               <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">
@@ -316,15 +303,21 @@ export default async function DashboardPage() {
                   const month = d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short' });
                   const day = d.toLocaleDateString('en-US', { timeZone: 'UTC', day: 'numeric' });
                   
+                  let resultColor = "bg-[#2563eb]"
+                  if (game.result === 'W') resultColor = "bg-emerald-500"
+                  if (game.result === 'L') resultColor = "bg-rose-500"
+                  if (game.result === 'T') resultColor = "bg-slate-500"
+                  
                   return (
                     <Link 
                       key={game.id} 
                       href={`/games/${game.id}`}
                       className="flex bg-white dark:bg-gray-900 p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md dark:hover:shadow-blue-900/20 active:scale-[0.98] group transition-all relative overflow-hidden"
                     >
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-[#2563eb] text-white flex flex-col items-center justify-center shrink-0 shadow-inner group-hover:scale-105 group-hover:bg-blue-700 transition-all duration-300">
-                        <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest opacity-90">{month}</span>
-                        <span className="text-2xl sm:text-3xl font-black leading-none tracking-tighter">{day}</span>
+                      <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl ${resultColor} text-white flex flex-col items-center justify-center shrink-0 shadow-inner group-hover:scale-105 transition-all duration-300 relative overflow-hidden`}>
+                        <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest opacity-90 z-10">{month}</span>
+                        <span className="text-2xl sm:text-3xl font-black leading-none tracking-tighter z-10">{day}</span>
+                        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       </div>
                       
                       <div className="flex-1 pl-3 sm:pl-4 pr-10 sm:pr-16 py-0.5 sm:py-1 flex flex-col justify-start">
