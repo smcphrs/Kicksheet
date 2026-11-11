@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import Link from 'next/link'
 import { Users, Calendar, Plus, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap, Archive } from 'lucide-react'
 import { redirect } from 'next/navigation'
@@ -14,6 +14,20 @@ export default async function DashboardPage() {
   if (!user) {
     redirect('/login')
   }
+  // --- AUTO-CAPTURE LOCATION ---
+  const headerStore = await headers()
+  const city = headerStore.get('x-vercel-ip-city')
+  const region = headerStore.get('x-vercel-ip-country-region')
+  
+  if (city && region) {
+    // Fire and forget: Update location if we have it
+    const locationString = `${decodeURIComponent(city)}, ${region}`
+    await supabase
+      .from('profiles')
+      .update({ location: locationString })
+      .eq('id', user.id)
+  }
+  // -----------------------------
 
   const { data: teams } = await supabase
     .from('teams')

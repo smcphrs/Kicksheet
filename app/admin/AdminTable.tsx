@@ -67,6 +67,7 @@ export function AdminTable({ users }: { users: any[] }) {
           <thead className="bg-gray-50 border-b border-gray-200 text-xs sm:text-sm uppercase tracking-wider text-gray-500 font-black">
             <tr>
               <th className="px-4 sm:px-6 py-4">Account Email</th>
+              <th className="px-4 sm:px-6 py-4 hidden lg:table-cell">Location</th>
               <th className="px-4 sm:px-6 py-4 hidden sm:table-cell">Sign Up Date</th>
               <th className="px-4 sm:px-6 py-4 text-center">Teams</th>
               <th className="px-4 sm:px-6 py-4 text-center">Games</th>
@@ -77,6 +78,7 @@ export function AdminTable({ users }: { users: any[] }) {
             {users.map((user, idx) => (
               <tr key={idx} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 sm:px-6 py-4 font-bold truncate max-w-[150px] sm:max-w-xs">{user.email}</td>
+                <td className="px-4 sm:px-6 py-4 hidden lg:table-cell text-gray-600 font-medium">{user.location}</td>
                 <td className="px-4 sm:px-6 py-4 hidden sm:table-cell text-gray-500">{user.created}</td>
                 <td className="px-4 sm:px-6 py-4 text-center">{user.teams}</td>
                 <td className="px-4 sm:px-6 py-4 text-center">{user.games}</td>

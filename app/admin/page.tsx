@@ -21,21 +21,27 @@ export default async function AdminDashboard() {
 
   if (!profile?.is_admin) redirect('/dashboard')
 
-  // 3. Fetch Global Data using the Admin Client
+  / 3. Fetch Global Data using the Admin Client
   const { data: usersData } = await supabaseAdmin.auth.admin.listUsers()
   const { data: teams } = await supabaseAdmin.from('teams').select('id, owner_id')
   const { data: games } = await supabaseAdmin.from('games').select('id, user_id, result')
+  
+  // 🚨 NEW: Fetch all profiles to get location data
+  const { data: allProfiles } = await supabaseAdmin.from('profiles').select('id, location')
 
   // 4. Aggregate Usage Stats per User
   const userStats = usersData?.users.map(u => {
     const userTeams = teams?.filter(t => t.owner_id === u.id).length || 0
     const userGames = games?.filter(g => g.user_id === u.id).length || 0
+    const userProfile = allProfiles?.find(p => p.id === u.id) // <-- Find matching profile
+    
     return { 
-      id: u.id, // <-- Added ID so the actions can target them
+      id: u.id, 
       email: u.email, 
       created: new Date(u.created_at).toLocaleDateString(), 
       teams: userTeams, 
-      games: userGames 
+      games: userGames,
+      location: userProfile?.location || 'Unknown' // <-- Attach location
     }
   }) || []
 
