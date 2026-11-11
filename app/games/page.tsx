@@ -95,7 +95,7 @@ export default function GamesPage() {
     }
   }
 
-  const handleUpdateResult = async (gameId: string, result: 'W' | 'L' | 'D' | null) => {
+  const handleUpdateResult = async (gameId: string, result: 'W' | 'L' | 'T' | null) => {
     setUpdatingResultId(gameId)
     const { error } = await supabase
       .from('games')
@@ -123,7 +123,7 @@ export default function GamesPage() {
     switch (result) {
       case 'W': return 'bg-emerald-500 hover:bg-emerald-600 border-emerald-600 shadow-emerald-500/20'
       case 'L': return 'bg-rose-500 hover:bg-rose-600 border-rose-600 shadow-rose-500/20'
-      case 'D': return 'bg-slate-500 hover:bg-slate-600 border-slate-600 shadow-slate-500/20'
+      case 'T': return 'bg-slate-500 hover:bg-slate-600 border-slate-600 shadow-slate-500/20'
       default: return 'bg-[#2563eb] hover:bg-blue-700 border-blue-700 shadow-blue-500/20' // Default Blue
     }
   }
@@ -267,7 +267,7 @@ export default function GamesPage() {
                       <div className="sm:hidden font-black text-xl opacity-90">
                         {game.result === 'W' && 'WIN'}
                         {game.result === 'L' && 'LOSS'}
-                        {game.result === 'D' && 'DRAW'}
+                        {game.result === 'T' && 'TIE'}
                       </div>
                     </div>
 
@@ -316,9 +316,9 @@ export default function GamesPage() {
                                   className={`flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-xs font-black transition-all ${game.result === 'L' ? 'bg-rose-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                                 >L</button>
                                 <button 
-                                  onClick={() => handleUpdateResult(game.id, game.result === 'D' ? null : 'D')}
-                                  className={`flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-xs font-black transition-all ${game.result === 'D' ? 'bg-slate-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
-                                >D</button>
+                                  onClick={() => handleUpdateResult(game.id, game.result === 'T' ? null : 'T')}
+                                  className={`flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-xs font-black transition-all ${game.result === 'T' ? 'bg-slate-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                                >T</button>
                               </>
                             )}
                           </div>
