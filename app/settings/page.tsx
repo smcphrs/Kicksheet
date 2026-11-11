@@ -9,7 +9,8 @@ import { Moon, Sun, Monitor, Loader2, ArrowLeft, Shield, Paintbrush, Cog, KeyRou
 import Link from 'next/link'
 
 export default function SettingsPage() {
-  const { fairPlayEnabled, setFairPlayEnabled, inningsCount, setInningsCount, askForJerseyNumbers, setAskForJerseyNumbers } = useSettingsStore()
+  const { fairPlayEnabled, setFairPlayEnabled, inningsCount, setInningsCount, askForJerseyNumbers, setAskForJerseyNumbers, showPronouns,        // <-- ADD THIS
+  setShowPronouns } = useSettingsStore()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
@@ -214,8 +215,8 @@ export default function SettingsPage() {
     <input 
       type="checkbox" 
       className="sr-only peer"
-      checked={useSettingsStore(state => state.showPronouns)}
-      onChange={(e) => useSettingsStore.getState().setShowPronouns(e.target.checked)}
+      checked={showPronouns}
+  onChange={(e) => setShowPronouns(e.target.checked)}
     />
     <div className="w-14 h-7 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#2563eb]"></div>
   </label>
