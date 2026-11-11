@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, Loader2, Save, Hash, Crosshair, User } from 'lucide-react'
 import Link from 'next/link'
+import { useSettingsStore } from '@/store/useSettingsStore'
 
 const POSITIONS = [
   { id: 'P', name: 'Pitcher', color: 'bg-[#ec0000] text-white' },
@@ -41,7 +42,7 @@ function EditPlayerContent() {
   const [teamName, setTeamName] = useState('')
 
   const [name, setName] = useState('')
-  const [number, setNumber] = useState('')
+  const { askForJerseyNumbers } = useSettingsStore()
   const [experienceLevel, setExperienceLevel] = useState('Experienced')
   const [positions, setPositions] = useState<string[]>([])
   const [kickingStyle, setKickingStyle] = useState('')
@@ -126,31 +127,35 @@ function EditPlayerContent() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid sm:grid-cols-3 gap-4">
-              <div className="sm:col-span-2 space-y-1.5">
-                <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5" /> Full Name
-                </label>
-                <input 
-                  required 
-                  type="text" 
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
-                  <Hash className="w-3.5 h-3.5" /> Jersey #
-                </label>
-                <input 
-                  type="number" 
-                  value={number}
-                  onChange={e => setNumber(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
-                />
-              </div>
-            </div>
+            <div className={`grid gap-4 ${askForJerseyNumbers ? 'sm:grid-cols-3' : 'grid-cols-1'}`}>
+  <div className={`${askForJerseyNumbers ? 'sm:col-span-2' : ''} space-y-1.5`}>
+    <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
+      <User className="w-3.5 h-3.5" /> Full Name
+    </label>
+    <input 
+      required 
+      type="text" 
+      value={name}
+      onChange={e => setName(e.target.value)}
+      className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
+      placeholder="e.g. John Doe"
+    />
+  </div>
+  
+  {askForJerseyNumbers && (
+    <div className="space-y-1.5">
+      <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
+        <Hash className="w-3.5 h-3.5" /> Jersey #
+      </label>
+      <input 
+        type="number" 
+        value={number}
+        onChange={e => setNumber(e.target.value)}
+        className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
+      />
+    </div>
+  )}
+</div>
 
             <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
               <h3 className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center justify-between">

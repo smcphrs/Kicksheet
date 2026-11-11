@@ -8,8 +8,9 @@ import { createClient } from '@/lib/supabase/client'
 import { Moon, Sun, Monitor, Save, Loader2, ArrowLeft, Shield, Paintbrush, Cog, KeyRound, CheckCircle2, AlertCircle, Mail } from 'lucide-react'
 import Link from 'next/link'
 
+
 export default function SettingsPage() {
-  const { fairPlayEnabled, setFairPlayEnabled, inningsCount, setInningsCount } = useSettingsStore()
+  const { fairPlayEnabled, setFairPlayEnabled, inningsCount, setInningsCount, askForJerseyNumbers, setAskForJerseyNumbers } = useSettingsStore()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   
@@ -201,7 +202,27 @@ export default function SettingsPage() {
 
               </div>
             </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 gap-4 transition-colors mt-4">
+  <div className="flex-1">
+    <h3 className="font-extrabold text-gray-900 dark:text-white text-lg">Use Jersey Numbers</h3>
+    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed pr-4">
+      When active, the app will ask for player jersey numbers when adding or editing a roster. Disable this if your team doesn't use numbers.
+    </p>
+  </div>
+  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+    <input 
+      type="checkbox" 
+      className="sr-only peer"
+      checked={askForJerseyNumbers}
+      onChange={(e) => setAskForJerseyNumbers(e.target.checked)}
+    />
+    <div className="w-14 h-7 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#2563eb]"></div>
+  </label>
+</div>
           </section>
+
+          
 
           {/* App Preferences */}
           <section>
