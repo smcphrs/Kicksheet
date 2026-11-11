@@ -164,29 +164,26 @@ export default function GamesPage() {
     <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
       <div className="max-w-4xl mx-auto px-4 pt-20 pb-24 sm:px-6 sm:pt-24 w-full space-y-8 sm:space-y-10">
         
-        <Link href="/dashboard" className="inline-flex items-center text-sm font-bold text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 transition-colors mt-4 mb-2">
-          <ArrowLeft className="w-4 h-4 mr-1" />
-          Back to Dashboard
-        </Link>
+        <Link href="/dashboard" className="inline-flex items-center text-sm font-bold text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 transition-colors mb-6">
+  <ArrowLeft className="w-4 h-4 mr-1" />
+  Back to Dashboard
+</Link>
 
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
-              Games
-            </h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg tracking-tight">Manage your schedule and lineups.</p>
-          </div>
-          
-          <div className="flex w-full sm:w-auto">
-            <Link 
-              href="/games/new"
-              className="flex-1 sm:flex-none text-center bg-[#2563eb] text-white px-6 py-3 rounded-xl hover:bg-blue-700 font-bold transition-colors active:scale-95 inline-flex items-center justify-center gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              New Game
-            </Link>
-          </div>
-        </header>
+<header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+  <h1 className="text-sm font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+    Games
+  </h1>
+  
+  <div className="flex w-full sm:w-auto gap-3">
+    <Link 
+      href="/games/new"
+      className="flex-1 sm:flex-none text-center bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] px-5 py-2 rounded-lg hover:bg-gray-800 dark:hover:bg-blue-300 text-sm font-bold transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center gap-1.5"
+    >
+      <Plus className="w-4 h-4" />
+      New Game
+    </Link>
+  </div>
+</header>
 
         <div className="space-y-3 sm:space-y-4">
           
