@@ -42,6 +42,7 @@ function EditPlayerContent() {
   const [teamName, setTeamName] = useState('')
 
   const [name, setName] = useState('')
+  const [number, setNumber] = useState('')
   const { askForJerseyNumbers } = useSettingsStore()
   const [experienceLevel, setExperienceLevel] = useState('Experienced')
   const [positions, setPositions] = useState<string[]>([])
