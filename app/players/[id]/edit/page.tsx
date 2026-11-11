@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
-import { ArrowLeft, Loader2, Save, Hash, Crosshair, User } from 'lucide-react'
+import { ArrowLeft, Loader2, Save, Hash, Crosshair, User, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useSettingsStore } from '@/store/useSettingsStore'
 
