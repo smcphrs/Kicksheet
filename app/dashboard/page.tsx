@@ -68,12 +68,12 @@ export default async function DashboardPage() {
   const pastGames = sortedGames.filter(g => (g.gameStartMs + ONE_HOUR_MS) <= currentUtcMs).sort((a, b) => b.gameStartMs - a.gameStartMs)
   
   const nextGame = upcomingGames.length > 0 ? upcomingGames[0] : null
-const recentGames = pastGames.slice(0, 4)
+  const recentGames = pastGames.slice(0, 4)
 
-// --- NEW: Check if game is within the +/- 1 hour active window ---
-const isNextGameActive = nextGame 
-  ? (currentUtcMs >= nextGame.gameStartMs - ONE_HOUR_MS && currentUtcMs <= nextGame.gameStartMs + ONE_HOUR_MS)
-  : false;
+  // --- Smart Active Window Logic ---
+  const isNextGameActive = nextGame 
+    ? (currentUtcMs >= nextGame.gameStartMs - ONE_HOUR_MS && currentUtcMs <= nextGame.gameStartMs + ONE_HOUR_MS)
+    : false;
 
   const totalWins = allGames?.filter(g => g.result === 'W').length || 0
   const totalLosses = allGames?.filter(g => g.result === 'L').length || 0
@@ -122,52 +122,58 @@ const isNextGameActive = nextGame
             <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">Stats</h2>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-5">
+          {/* Compact Horizontal Stat Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
             
-            <div className="group relative bg-[#1e40af] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#1e40af] flex flex-col justify-between transition-all cursor-default overflow-hidden">
-              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-20 h-20 bg-white opacity-10 rounded-full blur-2xl pointer-events-none transition-transform duration-500"></div>
-              <div className="flex items-center gap-3 mb-4 relative z-10">
-                <div className="w-10 h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm">
-                  <Shield className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-xs sm:text-sm font-bold text-blue-100 uppercase tracking-widest">Active Teams</h3>
+            {/* Active Teams */}
+            <div className="group relative bg-[#1e40af] p-4 rounded-xl sm:rounded-2xl border border-[#1e40af] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm">
+              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
+              <div className="relative z-10 flex flex-col">
+                <h3 className="text-[10px] font-bold text-blue-100 uppercase tracking-widest mb-1">Active Teams</h3>
+                <p className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-none">{activeTeams.length}</p>
               </div>
-              <p className="text-3xl sm:text-4xl font-black text-white tracking-tight relative z-10">{activeTeams.length}</p>
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
+                <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              </div>
             </div>
 
-            <div className="group relative bg-[#43a047] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#43a047] flex flex-col justify-between transition-all cursor-default overflow-hidden">
-              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-20 h-20 bg-white opacity-10 rounded-full blur-2xl pointer-events-none transition-transform duration-500"></div>
-              <div className="flex items-center gap-3 mb-4 relative z-10">
-                <div className="w-10 h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm">
-                  <Users className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-xs sm:text-sm font-bold text-green-100 uppercase tracking-widest">Players</h3>
+            {/* Players */}
+            <div className="group relative bg-[#43a047] p-4 rounded-xl sm:rounded-2xl border border-[#43a047] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm">
+              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
+              <div className="relative z-10 flex flex-col">
+                <h3 className="text-[10px] font-bold text-green-100 uppercase tracking-widest mb-1">Players</h3>
+                <p className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-none">{playersCount}</p>
               </div>
-              <p className="text-3xl sm:text-4xl font-black text-white tracking-tight relative z-10">{playersCount}</p>
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              </div>
             </div>
 
-            <div className="group relative bg-[#ff9800] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#ff9800] flex flex-col justify-between transition-all cursor-default overflow-hidden">
-              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-20 h-20 bg-white opacity-10 rounded-full blur-2xl pointer-events-none transition-transform duration-500"></div>
-              <div className="flex items-center gap-3 mb-4 relative z-10">
-                <div className="w-10 h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm">
-                  <Calendar className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-xs sm:text-sm font-bold text-orange-50 uppercase tracking-widest">Upcoming</h3>
+            {/* Upcoming */}
+            <div className="group relative bg-[#ff9800] p-4 rounded-xl sm:rounded-2xl border border-[#ff9800] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm">
+              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
+              <div className="relative z-10 flex flex-col">
+                <h3 className="text-[10px] font-bold text-orange-50 uppercase tracking-widest mb-1">Upcoming</h3>
+                <p className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-none">{upcomingGames.length}</p>
               </div>
-              <p className="text-3xl sm:text-4xl font-black text-white tracking-tight relative z-10">{upcomingGames.length}</p>
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
+                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              </div>
             </div>
 
-            <div className="group relative bg-[#c2185b] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#c2185b] flex flex-col justify-between transition-all cursor-default overflow-hidden">
-              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-20 h-20 bg-white opacity-10 rounded-full blur-2xl pointer-events-none transition-transform duration-500"></div>
-              <div className="flex items-center gap-3 mb-4 relative z-10">
-                <div className="w-10 h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm">
-                  <Trophy className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-xs sm:text-sm font-bold text-pink-100 uppercase tracking-widest">Games Played</h3>
+            {/* Games Played */}
+            <div className="group relative bg-[#c2185b] p-4 rounded-xl sm:rounded-2xl border border-[#c2185b] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm">
+              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
+              <div className="relative z-10 flex flex-col">
+                <h3 className="text-[10px] font-bold text-pink-100 uppercase tracking-widest mb-1">Games Played</h3>
+                <p className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-none">{pastGames.length}</p>
               </div>
-              <p className="text-3xl sm:text-4xl font-black text-white tracking-tight relative z-10">{pastGames.length}</p>
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
+                <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              </div>
             </div>
             
+            {/* Record Stat Card */}
             <div className="col-span-2 lg:col-span-1">
               <RecordStatCard wins={totalWins} losses={totalLosses} ties={totalTies} />
             </div>
@@ -213,30 +219,30 @@ const isNextGameActive = nextGame
                       </span>
                     </div>
                     <div className="sm:hidden inline-flex items-center gap-1.5 px-3 py-1 bg-black/10 text-white text-[10px] font-bold uppercase tracking-widest rounded-full border border-white/20 relative z-10">
-  {isNextGameActive && (
-    <span className="relative flex h-2 w-2">
-      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-    </span>
-  )}
-  {isNextGameActive ? 'ACTIVE' : 'UPCOMING'}
-</div>
+                      {isNextGameActive && (
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                      )}
+                      {isNextGameActive ? 'ACTIVE' : 'UPCOMING'}
+                    </div>
                   </div>
                   
                   <div className="p-6 sm:p-8 flex-1 flex flex-col justify-between bg-white dark:bg-gray-900 relative">
                     <div className={`hidden sm:inline-flex absolute top-6 right-6 items-center gap-1.5 px-3 py-1 border text-[10px] font-bold uppercase tracking-widest rounded-full z-10 shadow-sm ${
-  isNextGameActive 
-    ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800' 
-    : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700'
-}`}>
-  {isNextGameActive && (
-    <span className="relative flex h-2 w-2">
-      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-    </span>
-  )}
-  {isNextGameActive ? 'ACTIVE' : 'SCHEDULED'}
-</div>
+                      isNextGameActive 
+                        ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800' 
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700'
+                    }`}>
+                      {isNextGameActive && (
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                      )}
+                      {isNextGameActive ? 'ACTIVE' : 'SCHEDULED'}
+                    </div>
                     
                     <div className="relative z-10 mb-6 sm:mb-8 pr-0 sm:pr-24">
                       <span className="text-xs font-black px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-md uppercase tracking-widest mb-3 inline-block">
