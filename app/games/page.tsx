@@ -293,11 +293,16 @@ export default function GamesPage() {
                       </div>
                       
                       {/* Mobile-only compact result indicator */}
-                      <div className="sm:hidden font-black text-xl opacity-90">
-                        {game.result === 'W' && 'WIN'}
-                        {game.result === 'L' && 'LOSS'}
-                        {game.result === 'T' && 'TIE'}
-                      </div>
+                      {/* Mobile-only compact result indicator */}
+<div className="sm:hidden mt-1.5">
+  {game.result && (
+    <span className="bg-black/20 dark:bg-black/40 text-white/90 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full backdrop-blur-sm border border-white/20">
+      {game.result === 'W' && 'Win'}
+      {game.result === 'L' && 'Loss'}
+      {game.result === 'T' && 'Tie'}
+    </span>
+  )}
+</div>
                     </div>
 
                     {/* Card Body */}
@@ -327,31 +332,44 @@ export default function GamesPage() {
                           </div>
                         </div>
 
-                        {/* Result Toggles (Desktop only inline, Mobile below info) */}
-                        {isPast && (
-                          <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-800/50 p-1 rounded-xl border border-gray-200 dark:border-gray-700 w-full sm:w-auto">
-                            {isUpdating ? (
-                              <div className="w-[120px] h-[34px] flex items-center justify-center">
-                                <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
-                              </div>
-                            ) : (
-                              <>
-                                <button 
-                                  onClick={() => handleUpdateResult(game.id, game.result === 'W' ? null : 'W')}
-                                  className={`flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-xs font-black transition-all ${game.result === 'W' ? 'bg-emerald-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
-                                >W</button>
-                                <button 
-                                  onClick={() => handleUpdateResult(game.id, game.result === 'L' ? null : 'L')}
-                                  className={`flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-xs font-black transition-all ${game.result === 'L' ? 'bg-rose-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
-                                >L</button>
-                                <button 
-                                  onClick={() => handleUpdateResult(game.id, game.result === 'T' ? null : 'T')}
-                                  className={`flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-xs font-black transition-all ${game.result === 'T' ? 'bg-slate-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
-                                >T</button>
-                              </>
-                            )}
-                          </div>
-                        )}
+                       
+                        {/* Result Toggles (Compact & Subtle) */}
+{isPast && (
+  <div className="inline-flex items-center bg-gray-50 dark:bg-gray-800/40 p-1 rounded-full border border-gray-200 dark:border-gray-700/60 mt-2 sm:mt-0 self-start sm:self-auto">
+    {isUpdating ? (
+      <div className="w-[100px] h-[28px] flex items-center justify-center">
+        <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-400" />
+      </div>
+    ) : (
+      <>
+        <button 
+          onClick={() => handleUpdateResult(game.id, game.result === 'W' ? null : 'W')}
+          className={`px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all ${
+            game.result === 'W' 
+              ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 shadow-sm border border-emerald-200/50 dark:border-emerald-800/50' 
+              : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-transparent'
+          }`}
+        >W</button>
+        <button 
+          onClick={() => handleUpdateResult(game.id, game.result === 'L' ? null : 'L')}
+          className={`px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all ${
+            game.result === 'L' 
+              ? 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400 shadow-sm border border-rose-200/50 dark:border-rose-800/50' 
+              : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-transparent'
+          }`}
+        >L</button>
+        <button 
+          onClick={() => handleUpdateResult(game.id, game.result === 'T' ? null : 'T')}
+          className={`px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all ${
+            game.result === 'T' 
+              ? 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shadow-sm border border-slate-300/50 dark:border-slate-700/50' 
+              : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-transparent'
+          }`}
+        >T</button>
+      </>
+    )}
+  </div>
+)}
                       </div>
 
                       {/* Bottom Actions */}
