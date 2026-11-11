@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { Users, Calendar, Plus, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap, Archive } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { FieldMapShortcut } from '@/components/FieldMapShortcut'
-import { RecordStatCard } from '@/components/RecordStatCard'
 
 export default async function DashboardPage() {
   const cookieStore = await cookies()
@@ -122,60 +121,73 @@ export default async function DashboardPage() {
             <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">Stats</h2>
           </div>
 
-          {/* Compact Horizontal Stat Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+          {/* Compact Horizontal Stat Cards - Added 'items-start' to prevent CSS Grid from stretching them */}
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 items-start">
             
             {/* Active Teams */}
-            <div className="group relative bg-[#1e40af] p-4 rounded-xl sm:rounded-2xl border border-[#1e40af] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm">
+            <div className="group relative bg-[#1e40af] px-4 py-3 rounded-xl border border-[#1e40af] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
               <div className="relative z-10 flex flex-col">
-                <h3 className="text-[10px] font-bold text-blue-100 uppercase tracking-widest mb-1">Active Teams</h3>
-                <p className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-none">{activeTeams.length}</p>
+                <h3 className="text-[10px] font-bold text-blue-100 uppercase tracking-widest mb-0.5">Active Teams</h3>
+                <p className="text-2xl font-black text-white tracking-tight leading-none">{activeTeams.length}</p>
               </div>
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
-                <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              <div className="w-9 h-9 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
+                <Shield className="w-4 h-4 text-white" />
               </div>
             </div>
 
             {/* Players */}
-            <div className="group relative bg-[#43a047] p-4 rounded-xl sm:rounded-2xl border border-[#43a047] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm">
+            <div className="group relative bg-[#43a047] px-4 py-3 rounded-xl border border-[#43a047] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
               <div className="relative z-10 flex flex-col">
-                <h3 className="text-[10px] font-bold text-green-100 uppercase tracking-widest mb-1">Players</h3>
-                <p className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-none">{playersCount}</p>
+                <h3 className="text-[10px] font-bold text-green-100 uppercase tracking-widest mb-0.5">Players</h3>
+                <p className="text-2xl font-black text-white tracking-tight leading-none">{playersCount}</p>
               </div>
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
-                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              <div className="w-9 h-9 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
+                <Users className="w-4 h-4 text-white" />
               </div>
             </div>
 
             {/* Upcoming */}
-            <div className="group relative bg-[#ff9800] p-4 rounded-xl sm:rounded-2xl border border-[#ff9800] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm">
+            <div className="group relative bg-[#ff9800] px-4 py-3 rounded-xl border border-[#ff9800] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
               <div className="relative z-10 flex flex-col">
-                <h3 className="text-[10px] font-bold text-orange-50 uppercase tracking-widest mb-1">Upcoming</h3>
-                <p className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-none">{upcomingGames.length}</p>
+                <h3 className="text-[10px] font-bold text-orange-50 uppercase tracking-widest mb-0.5">Upcoming</h3>
+                <p className="text-2xl font-black text-white tracking-tight leading-none">{upcomingGames.length}</p>
               </div>
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
-                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              <div className="w-9 h-9 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
+                <Calendar className="w-4 h-4 text-white" />
               </div>
             </div>
 
             {/* Games Played */}
-            <div className="group relative bg-[#c2185b] p-4 rounded-xl sm:rounded-2xl border border-[#c2185b] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm">
+            <div className="group relative bg-[#c2185b] px-4 py-3 rounded-xl border border-[#c2185b] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
               <div className="relative z-10 flex flex-col">
-                <h3 className="text-[10px] font-bold text-pink-100 uppercase tracking-widest mb-1">Games Played</h3>
-                <p className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-none">{pastGames.length}</p>
+                <h3 className="text-[10px] font-bold text-pink-100 uppercase tracking-widest mb-0.5">Games Played</h3>
+                <p className="text-2xl font-black text-white tracking-tight leading-none">{pastGames.length}</p>
               </div>
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
-                <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              <div className="w-9 h-9 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
+                <Trophy className="w-4 h-4 text-white" />
               </div>
             </div>
             
-            {/* Record Stat Card */}
-            <div className="col-span-2 lg:col-span-1">
-              <RecordStatCard wins={totalWins} losses={totalLosses} ties={totalTies} />
+            {/* Record Stat Card (Inline to match perfectly) */}
+            <div className="group relative bg-[#1f2937] px-4 py-3 rounded-xl border border-[#1f2937] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm col-span-2 lg:col-span-1">
+              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
+              <div className="relative z-10 flex flex-col">
+                <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Record</h3>
+                <div className="flex items-baseline gap-1.5 mt-0.5">
+                  <span className="text-xl font-black text-emerald-400 leading-none">{totalWins}<span className="text-[10px] font-bold text-emerald-500/80 ml-0.5">W</span></span>
+                  <span className="text-gray-600 text-xs font-bold">-</span>
+                  <span className="text-xl font-black text-rose-400 leading-none">{totalLosses}<span className="text-[10px] font-bold text-rose-500/80 ml-0.5">L</span></span>
+                  <span className="text-gray-600 text-xs font-bold">-</span>
+                  <span className="text-xl font-black text-slate-300 leading-none">{totalTies}<span className="text-[10px] font-bold text-slate-400/80 ml-0.5">T</span></span>
+                </div>
+              </div>
+              <div className="w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
+                <Trophy className="w-4 h-4 text-gray-300" />
+              </div>
             </div>
 
           </div>
