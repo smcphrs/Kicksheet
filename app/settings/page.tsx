@@ -5,18 +5,13 @@ import { useSettingsStore } from '@/store/useSettingsStore'
 import { useTheme } from 'next-themes'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Moon, Sun, Monitor, Save, Loader2, ArrowLeft, Shield, Paintbrush, Cog, KeyRound, CheckCircle2, AlertCircle, Mail } from 'lucide-react'
+import { Moon, Sun, Monitor, Loader2, ArrowLeft, Shield, Paintbrush, Cog, KeyRound, CheckCircle2, AlertCircle, Mail } from 'lucide-react'
 import Link from 'next/link'
-
 
 export default function SettingsPage() {
   const { fairPlayEnabled, setFairPlayEnabled, inningsCount, setInningsCount, askForJerseyNumbers, setAskForJerseyNumbers } = useSettingsStore()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  
-  // Global Save States
-  const [isSaving, setIsSaving] = useState(false)
-  const [saveSuccess, setSaveSuccess] = useState(false)
 
   // User State
   const [currentEmail, setCurrentEmail] = useState('')
@@ -46,19 +41,6 @@ export default function SettingsPage() {
     fetchUser()
   }, [])
 
-  const handleSaveAndRefresh = () => {
-    setIsSaving(true)
-    
-    setTimeout(() => {
-      setIsSaving(false)
-      setSaveSuccess(true)
-      
-      setTimeout(() => {
-        window.location.reload()
-      }, 400)
-    }, 600)
-  }
-
   const handleUpdateEmail = async (e: React.FormEvent) => {
     e.preventDefault()
     setEmailError(null)
@@ -87,7 +69,7 @@ export default function SettingsPage() {
       setTimeout(() => {
         setIsEditingEmail(false)
         setEmailSuccess(false)
-      }, 6000) // Keep message up longer so they can read the instruction
+      }, 6000)
     }
     setIsUpdatingEmail(false)
   }
@@ -204,25 +186,23 @@ export default function SettingsPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 gap-4 transition-colors mt-4">
-  <div className="flex-1">
-    <h3 className="font-extrabold text-gray-900 dark:text-white text-lg">Use Jersey Numbers</h3>
-    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed pr-4">
-      When active, the app will ask for player jersey numbers when adding or editing a roster. Disable this if your team doesn't use numbers.
-    </p>
-  </div>
-  <label className="relative inline-flex items-center cursor-pointer shrink-0">
-    <input 
-      type="checkbox" 
-      className="sr-only peer"
-      checked={askForJerseyNumbers}
-      onChange={(e) => setAskForJerseyNumbers(e.target.checked)}
-    />
-    <div className="w-14 h-7 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#2563eb]"></div>
-  </label>
-</div>
+              <div className="flex-1">
+                <h3 className="font-extrabold text-gray-900 dark:text-white text-lg">Use Jersey Numbers</h3>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed pr-4">
+                  When active, the app will ask for player jersey numbers when adding or editing a roster. Disable this if your team doesn't use numbers.
+                </p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer"
+                  checked={askForJerseyNumbers}
+                  onChange={(e) => setAskForJerseyNumbers(e.target.checked)}
+                />
+                <div className="w-14 h-7 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#2563eb]"></div>
+              </label>
+            </div>
           </section>
-
-          
 
           {/* App Preferences */}
           <section>
@@ -273,34 +253,6 @@ export default function SettingsPage() {
               </div>
             </div>
           </section>
-
-          {/* Manual Save & Cache Clear */}
-          <button
-            onClick={handleSaveAndRefresh}
-            disabled={isSaving || saveSuccess}
-            className={`w-full py-4 font-bold rounded-2xl flex items-center justify-center transition-all active:scale-95 disabled:opacity-80 disabled:cursor-not-allowed text-lg border ${
-              saveSuccess 
-                ? 'bg-green-600 text-white border-green-700' 
-                : 'bg-[#2563eb] hover:bg-blue-700 text-white border-blue-700'
-            }`}
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Applying Settings...
-              </>
-            ) : saveSuccess ? (
-              <>
-                <CheckCircle2 className="w-5 h-5 mr-2" />
-                Settings Saved!
-              </>
-            ) : (
-              <>
-                <Save className="w-5 h-5 mr-2" />
-                Save & Apply Changes
-              </>
-            )}
-          </button>
 
           {/* Account Settings */}
           <section>
