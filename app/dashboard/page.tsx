@@ -105,11 +105,11 @@ export default async function DashboardPage() {
           </div>
           
           <div className="flex flex-wrap gap-3 w-full sm:w-auto">
-            <Link href="/teams/new" className="flex-1 sm:flex-none text-center bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] border border-gray-300 dark:border-gray-700 px-5 py-3 rounded-xl hover:bg-gray-800 dark:hover:bg-blue-300 font-bold transition-colors active:scale-95 inline-flex items-center justify-center gap-2 group">
+            <Link href="/teams/new" className="flex-1 sm:flex-none text-center bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] border border-gray-300 dark:border-gray-700 px-5 py-3 rounded-xl hover:bg-gray-800 dark:hover:bg-blue-300 font-bold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 active:scale-95 inline-flex items-center justify-center gap-2 group">
               <Shield className="w-4 h-4 text-white dark:text-[#0a192f] transition-colors" />
               New Team
             </Link>
-            <Link href="/games/new" className="flex-1 sm:flex-none text-center bg-[#2563eb] text-white px-6 py-3 rounded-xl hover:bg-blue-700 font-bold transition-colors active:scale-95 inline-flex items-center justify-center gap-2">
+            <Link href="/games/new" className="flex-1 sm:flex-none text-center bg-[#2563eb] text-white px-6 py-3 rounded-xl hover:bg-blue-700 font-bold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 active:scale-95 inline-flex items-center justify-center gap-2">
               <Plus className="w-5 h-5" />
               New Game
             </Link>
@@ -126,7 +126,7 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 items-start">
             
             {/* Active Teams */}
-            <div className="group relative bg-[#1e40af] px-4 py-3 rounded-xl border border-[#1e40af] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm">
+            <div className="group relative bg-[#1e40af] px-4 py-3 rounded-xl border border-[#1e40af] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 cursor-default overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
               <div className="relative z-10 flex flex-col">
                 <h3 className="text-[10px] font-bold text-blue-100 uppercase tracking-widest mb-0.5">Active Teams</h3>
@@ -138,7 +138,7 @@ export default async function DashboardPage() {
             </div>
 
             {/* Players */}
-            <div className="group relative bg-[#43a047] px-4 py-3 rounded-xl border border-[#43a047] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm">
+            <div className="group relative bg-[#43a047] px-4 py-3 rounded-xl border border-[#43a047] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 cursor-default overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
               <div className="relative z-10 flex flex-col">
                 <h3 className="text-[10px] font-bold text-green-100 uppercase tracking-widest mb-0.5">Players</h3>
@@ -150,7 +150,7 @@ export default async function DashboardPage() {
             </div>
 
             {/* Upcoming */}
-            <div className="group relative bg-[#ff9800] px-4 py-3 rounded-xl border border-[#ff9800] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm">
+            <div className="group relative bg-[#ff9800] px-4 py-3 rounded-xl border border-[#ff9800] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 cursor-default overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
               <div className="relative z-10 flex flex-col">
                 <h3 className="text-[10px] font-bold text-orange-50 uppercase tracking-widest mb-0.5">Upcoming</h3>
@@ -162,7 +162,7 @@ export default async function DashboardPage() {
             </div>
 
             {/* Games Played */}
-            <div className="group relative bg-[#c2185b] px-4 py-3 rounded-xl border border-[#c2185b] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm">
+            <div className="group relative bg-[#c2185b] px-4 py-3 rounded-xl border border-[#c2185b] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 cursor-default overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
               <div className="relative z-10 flex flex-col">
                 <h3 className="text-[10px] font-bold text-pink-100 uppercase tracking-widest mb-0.5">Games Played</h3>
@@ -174,7 +174,7 @@ export default async function DashboardPage() {
             </div>
             
             {/* Record Stat Card */}
-            <div className="group relative bg-[#1f2937] px-4 py-3 rounded-xl border border-[#1f2937] flex items-center justify-between transition-all cursor-default overflow-hidden shadow-sm col-span-2 lg:col-span-1">
+            <div className="group relative bg-[#1f2937] px-4 py-3 rounded-xl border border-[#1f2937] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 cursor-default overflow-hidden col-span-2 lg:col-span-1">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
               <div className="relative z-10 flex flex-col">
                 <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Record</h3>
@@ -195,11 +195,13 @@ export default async function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <Link href="https://scheduler.leaguelobster.com/o/586394/big-apple-recreational-sports/" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors shadow-sm">
+          <Link href="https://scheduler.leaguelobster.com/o/586394/big-apple-recreational-sports/" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1">
             <Calendar className="w-4 h-4 text-orange-500 group-hover:scale-110 transition-transform" /> League Lobster
           </Link>
-          <FieldMapShortcut />
-          <Link href="/settings" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-colors shadow-sm">
+          <div className="transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 rounded-xl">
+            <FieldMapShortcut />
+          </div>
+          <Link href="/settings" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1">
             <Settings className="w-4 h-4 text-gray-500 group-hover:rotate-90 transition-transform duration-500" /> Settings
           </Link>
         </div>
@@ -217,7 +219,7 @@ export default async function DashboardPage() {
               </div>
               
               {nextGame ? (
-                <div className="group bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 overflow-hidden flex flex-col sm:flex-row shadow-sm transition-all">
+                <div className="group bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 overflow-hidden flex flex-col sm:flex-row shadow-md hover:shadow-lg transition-all duration-300">
                   
                   <div className="w-full sm:w-48 p-6 flex flex-row sm:flex-col items-center justify-between sm:justify-center shrink-0 bg-[#ff9800] text-white relative border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10 overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"></div>
@@ -286,14 +288,14 @@ export default async function DashboardPage() {
                     
                     <Link 
                       href={`/games/${nextGame.id}`} 
-                      className="w-full text-center bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 px-5 py-4 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 font-black tracking-wide transition-colors active:scale-95 inline-flex items-center justify-center gap-2 group/btn"
+                      className="w-full text-center bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 px-5 py-4 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 font-black tracking-wide transition-all duration-300 shadow-sm hover:shadow-md active:scale-95 inline-flex items-center justify-center gap-2 group/btn"
                     >
                       Manage Lineup <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                     </Link>
                   </div>
                 </div>
               ) : (
-                <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center flex flex-col items-center justify-center min-h-[200px] transition-colors">
+                <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center flex flex-col items-center justify-center min-h-[200px] transition-colors shadow-sm">
                   <Calendar className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-3" />
                   <p className="text-gray-500 dark:text-gray-400 font-bold tracking-tight mb-4">No upcoming games scheduled.</p>
                   <Link href="/games/new" className="text-blue-600 dark:text-blue-400 font-extrabold hover:underline">Schedule one now</Link>
@@ -318,7 +320,7 @@ export default async function DashboardPage() {
               {activeTeams.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                   {activeTeams.map(team => (
-                    <Link key={team.id} href={`/teams/${team.id}`} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 group text-center flex flex-col items-center transition-colors overflow-hidden shadow-sm">
+                    <Link key={team.id} href={`/teams/${team.id}`} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 group text-center flex flex-col items-center transition-all duration-300 overflow-hidden shadow-md hover:shadow-lg hover:-translate-y-1">
                       <div className="w-full aspect-square bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center border-b border-gray-200 dark:border-gray-800 overflow-hidden relative">
                         {team.logo_url ? (
                           <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -337,7 +339,7 @@ export default async function DashboardPage() {
                   ))}
                 </div>
               ) : (
-                <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center transition-colors">
+                <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center transition-colors shadow-sm">
                   <p className="text-gray-500 dark:text-gray-400 text-sm font-bold tracking-tight mb-3">You haven't created any active teams yet.</p>
                   <Link href="/teams/new" className="text-blue-600 dark:text-blue-400 font-extrabold hover:underline text-sm">Create your first team</Link>
                 </div>
@@ -372,7 +374,7 @@ export default async function DashboardPage() {
                     <Link 
                       key={game.id} 
                       href={`/games/${game.id}`}
-                      className="flex bg-white dark:bg-gray-900 p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md dark:hover:shadow-blue-900/20 active:scale-[0.98] group transition-all relative overflow-hidden"
+                      className="flex bg-white dark:bg-gray-900 p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 shadow-md hover:shadow-lg hover:-translate-y-1 active:scale-[0.98] group transition-all duration-300 relative overflow-hidden"
                     >
                       <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl ${resultColor} text-white flex flex-col items-center justify-center shrink-0 shadow-inner group-hover:scale-105 transition-all duration-300 relative overflow-hidden`}>
                         <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest opacity-90 z-10">{month}</span>
@@ -395,7 +397,7 @@ export default async function DashboardPage() {
                 })}
               </div>
             ) : (
-              <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center flex flex-col items-center justify-center min-h-[250px] transition-colors">
+              <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center flex flex-col items-center justify-center min-h-[250px] transition-colors shadow-sm">
                 <p className="text-gray-500 dark:text-gray-400 font-bold tracking-tight">No past games yet.</p>
               </div>
             )}
