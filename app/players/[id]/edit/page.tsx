@@ -42,8 +42,9 @@ function EditPlayerContent() {
   const [teamName, setTeamName] = useState('')
 
   const [name, setName] = useState('')
+  const [pronouns, setPronouns] = useState('')
   const [number, setNumber] = useState('')
-  const { askForJerseyNumbers } = useSettingsStore()
+  const { askForJerseyNumbers, showPronouns } = useSettingsStore()
   const [experienceLevel, setExperienceLevel] = useState('Experienced')
   const [positions, setPositions] = useState<string[]>([])
   const [kickingStyle, setKickingStyle] = useState('')
@@ -88,6 +89,7 @@ function EditPlayerContent() {
       .update({
         name: name.trim(),
         number: number ? parseInt(number, 10) : null,
+        pronouns: pronouns.trim()
         experience_level: experienceLevel,
         positions: positions,
         kicking_style: kickingStyle || null
@@ -102,6 +104,16 @@ function EditPlayerContent() {
       router.push(`/teams/${teamId}`)
       router.refresh()
     }
+  }
+
+  let gridCols = 'grid-cols-1'
+  let nameColSpan = ''
+  if (askForJerseyNumbers && showPronouns) {
+    gridCols = 'sm:grid-cols-4' // Name gets 2, Jersey gets 1, Pronouns gets 1
+    nameColSpan = 'sm:col-span-2'
+  } else if (askForJerseyNumbers || showPronouns) {
+    gridCols = 'sm:grid-cols-3' // Name gets 2, Other gets 1
+    nameColSpan = 'sm:col-span-2'
   }
 
   if (loading) {
@@ -156,6 +168,20 @@ function EditPlayerContent() {
       />
     </div>
   )}
+  {showPronouns && (
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
+                    <MessageCircle className="w-3.5 h-3.5" /> Pronouns
+                  </label>
+                  <input 
+                    type="text" 
+                    value={pronouns}
+                    onChange={e => setPronouns(e.target.value)}
+                    placeholder="e.g. they/them"
+                    className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
+                  />
+                </div>
+              )}
 </div>
 
             <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
