@@ -209,34 +209,37 @@ function PositionsContent() {
   }
 
   const handleSaveGame = async () => {
-    setSaving(true)
-    setError(null)
+  setSaving(true)
+  setError(null)
 
-    try {
-      const formattedInnings = INNINGS.map(inningNum => ({
-        inning: inningNum,
-        assignments: assignments[inningNum] || {}
-      }))
+  try {
+    const formattedInnings = INNINGS.map(inningNum => ({
+      inning: inningNum,
+      assignments: assignments[inningNum] || {}
+    }))
 
-      const { error: updateError } = await supabase
-        .from('games')
-        .update({
-          innings: formattedInnings,
-          status: 'scheduled'
-        })
-        .eq('id', id)
+    const { error: updateError } = await supabase
+      .from('games')
+      .update({
+        innings: formattedInnings,
+        status: 'scheduled'
+      })
+      .eq('id', id)
 
-      if (updateError) throw updateError
+    if (updateError) throw updateError
 
-      router.refresh()
-      router.push(`/games/${id}`) 
+    // FIX: Stop the spinner immediately upon success
+    setSaving(false) 
 
-    } catch (err: any) {
-      console.error('Error saving positions:', err)
-      setError(err.message || 'Failed to save positions. Please try again.')
-      setSaving(false)
-    }
+    router.refresh()
+    router.push(`/games/${id}`) 
+
+  } catch (err: any) {
+    console.error('Error saving positions:', err)
+    setError(err.message || 'Failed to save positions. Please try again.')
+    setSaving(false)
   }
+}
 
   if (loading) {
     return (
