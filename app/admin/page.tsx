@@ -21,7 +21,7 @@ export default async function AdminDashboard() {
 
   if (!profile?.is_admin) redirect('/dashboard')
 
-  / 3. Fetch Global Data using the Admin Client
+  // 3. Fetch Global Data using the Admin Client
   const { data: usersData } = await supabaseAdmin.auth.admin.listUsers()
   const { data: teams } = await supabaseAdmin.from('teams').select('id, owner_id')
   const { data: games } = await supabaseAdmin.from('games').select('id, user_id, result')
