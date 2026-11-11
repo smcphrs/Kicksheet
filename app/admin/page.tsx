@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { AdminTable } from './AdminTable' // <-- Import the new client component
 
 export default async function AdminDashboard() {
   const cookieStore = await cookies()
@@ -11,7 +12,7 @@ export default async function AdminDashboard() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // 2. Verify Admin Status (Bouncer check)
+  // 2. Verify Admin Status
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
@@ -30,6 +31,7 @@ export default async function AdminDashboard() {
     const userTeams = teams?.filter(t => t.owner_id === u.id).length || 0
     const userGames = games?.filter(g => g.user_id === u.id).length || 0
     return { 
+      id: u.id, // <-- Added ID so the actions can target them
       email: u.email, 
       created: new Date(u.created_at).toLocaleDateString(), 
       teams: userTeams, 
@@ -38,8 +40,8 @@ export default async function AdminDashboard() {
   }) || []
 
   return (
-    <div className="p-8 max-w-6xl mx-auto min-h-screen">
-      <h1 className="text-3xl font-black tracking-tight mb-8">Admin Dashboard</h1>
+    <div className="p-4 sm:p-8 max-w-6xl mx-auto min-h-screen pb-24">
+      <h1 className="text-3xl font-black tracking-tight mb-8 text-gray-900">Admin Dashboard</h1>
       
       {/* Top Level Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -57,29 +59,8 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      {/* User Table */}
-      <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500 font-black">
-            <tr>
-              <th className="px-6 py-4">Account Email</th>
-              <th className="px-6 py-4">Sign Up Date</th>
-              <th className="px-6 py-4">Teams Created</th>
-              <th className="px-6 py-4">Games Logged</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 text-gray-900 font-medium">
-            {userStats.map((stat, idx) => (
-              <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 font-bold">{stat.email}</td>
-                <td className="px-6 py-4">{stat.created}</td>
-                <td className="px-6 py-4">{stat.teams}</td>
-                <td className="px-6 py-4">{stat.games}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Interactive User Table Component */}
+      <AdminTable users={userStats} />
     </div>
   )
 }
