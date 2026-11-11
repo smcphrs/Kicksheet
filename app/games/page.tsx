@@ -15,6 +15,7 @@ export default function GamesPage() {
   
   // Filtering & Sorting State
   const [filterTeam, setFilterTeam] = useState('All')
+  const [filterResult, setFilterResult] = useState('All') // <-- NEW STATE
   const [sortOrder, setSortOrder] = useState('recent') 
   
   const [gameToDelete, setGameToDelete] = useState<any>(null) 
@@ -132,6 +133,14 @@ export default function GamesPage() {
 
   const filteredAndSortedGames = [...games]
     .filter(g => filterTeam === 'All' ? true : g.teams?.name === filterTeam)
+    .filter(g => {
+      if (filterResult === 'All') return true
+      if (filterResult === 'W') return g.result === 'W'
+      if (filterResult === 'L') return g.result === 'L'
+      if (filterResult === 'T') return g.result === 'T'
+      if (filterResult === 'Pending') return !g.result
+      return true
+    })
     .sort((a, b) => {
       if (sortOrder === 'recent') {
         const dateA = new Date(a.game_date || 0).getTime()
@@ -181,12 +190,14 @@ export default function GamesPage() {
 
         <div className="space-y-3 sm:space-y-4">
           
-          <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-            <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest hidden sm:block">
+          <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+            <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest hidden md:block">
               Active Schedule
             </h2>
             
-            <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full md:w-auto">
+              
+              {/* Team Filter */}
               <div className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-2.5 py-1.5 flex-1 sm:flex-none">
                 <Filter className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
                 <select
@@ -201,6 +212,23 @@ export default function GamesPage() {
                 </select>
               </div>
 
+              {/* Result Filter */}
+              <div className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-2.5 py-1.5 flex-1 sm:flex-none">
+                <Trophy className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
+                <select
+                  value={filterResult}
+                  onChange={(e) => setFilterResult(e.target.value)}
+                  className="bg-transparent text-xs font-bold text-gray-700 dark:text-gray-200 outline-none w-full cursor-pointer appearance-none"
+                >
+                  <option value="All">All Results</option>
+                  <option value="W">Wins Only</option>
+                  <option value="L">Losses Only</option>
+                  <option value="T">Ties Only</option>
+                  <option value="Pending">Unmarked</option>
+                </select>
+              </div>
+
+              {/* Sort Filter */}
               <div className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-2.5 py-1.5 flex-1 sm:flex-none">
                 {sortOrder === 'recent' ? (
                   <Clock className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
@@ -216,6 +244,7 @@ export default function GamesPage() {
                   <option value="alpha">Opponent (A-Z)</option>
                 </select>
               </div>
+
             </div>
           </div>
 
@@ -224,7 +253,7 @@ export default function GamesPage() {
               <Calendar className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No games found</h3>
               <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto font-medium">
-                {games.length === 0 ? "Create your first game to start building your lineup." : "Try adjusting your team filters."}
+                {games.length === 0 ? "Create your first game to start building your lineup." : "Try adjusting your filters."}
               </p>
               {games.length === 0 ? (
                 <Link 
@@ -235,7 +264,7 @@ export default function GamesPage() {
                 </Link>
               ) : (
                 <button 
-                  onClick={() => { setFilterTeam('All'); setSortOrder('recent'); }}
+                  onClick={() => { setFilterTeam('All'); setSortOrder('recent'); setFilterResult('All'); }}
                   className="inline-flex bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 px-6 py-3 rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors active:scale-95"
                 >
                   Clear Filters
