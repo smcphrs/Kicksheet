@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { ArrowLeft, Save, Loader2, Users, ImagePlus, Camera } from 'lucide-react'
+import { ArrowLeft, Save, Loader2, Users, ImagePlus, Camera, Archive } from 'lucide-react'
 
 function EditTeamContent() {
   const params = useParams()
@@ -19,6 +19,7 @@ function EditTeamContent() {
   
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [archiving, setArchiving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -34,7 +35,7 @@ function EditTeamContent() {
       } else if (data) {
         setName(data.name)
         setCurrentLogoUrl(data.logo_url)
-        setPreviewUrl(data.logo_url) // Show existing logo on load
+        setPreviewUrl(data.logo_url)
       }
       setLoading(false)
     }
@@ -52,7 +53,7 @@ function EditTeamContent() {
     
     setError(null)
     setLogoFile(file)
-    setPreviewUrl(URL.createObjectURL(file)) // Show instant preview
+    setPreviewUrl(URL.createObjectURL(file))
   }
 
   const handleSave = async (e: React.FormEvent) => {
@@ -63,7 +64,6 @@ function EditTeamContent() {
     try {
       let updatedLogoUrl = currentLogoUrl
 
-      // Only upload if they selected a NEW file
       if (logoFile) {
         const { data: { user } } = await supabase.auth.getUser()
         if (user) {
@@ -72,11 +72,11 @@ function EditTeamContent() {
           const filePath = `${user.id}/${fileName}`
 
           const { error: uploadError } = await supabase.storage
-  .from('team-logos')
-  .upload(filePath, logoFile, {
-    cacheControl: '3600',
-    upsert: true
-  })
+            .from('team-logos')
+            .upload(filePath, logoFile, {
+              cacheControl: '3600',
+              upsert: true
+            })
 
           if (uploadError) throw new Error('Failed to upload new logo.')
 
@@ -103,6 +103,31 @@ function EditTeamContent() {
     } catch (err: any) {
       setError(err.message || 'Failed to update team.')
       setSaving(false)
+    }
+  }
+
+  const handleArchive = async () => {
+    if (!window.confirm(`Are you sure you want to archive "${name}"? It will be hidden from your active dashboard.`)) {
+      return
+    }
+
+    setArchiving(true)
+    setError(null)
+
+    try {
+      const { error: archiveError } = await supabase
+        .from('teams')
+        .update({ is_archived: true })
+        .eq('id', id)
+
+      if (archiveError) throw archiveError
+
+      // Redirect to the teams list where they won't see this team anymore
+      router.push('/teams')
+      router.refresh()
+    } catch (err: any) {
+      setError(err.message || 'Failed to archive team.')
+      setArchiving(false)
     }
   }
 
@@ -133,73 +158,98 @@ function EditTeamContent() {
           </div>
         )}
 
-        <form onSubmit={handleSave} className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-3xl border border-gray-300 dark:border-gray-700 space-y-8 transition-colors">
+        <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-3xl border border-gray-300 dark:border-gray-700 space-y-8 transition-colors">
           
-          {/* Logo Upload Section */}
-          <div className="flex items-center gap-5 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700">
-            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 flex items-center justify-center overflow-hidden shrink-0 group">
-              {previewUrl ? (
-                <img src={previewUrl} alt="Team Logo" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-              ) : (
-                <ImagePlus className="w-8 h-8 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors" />
-              )}
-              
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Camera className="w-6 h-6 text-white" />
+          <form onSubmit={handleSave} className="space-y-8">
+            
+            {/* Logo Upload Section */}
+            <div className="flex items-center gap-5 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700">
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 flex items-center justify-center overflow-hidden shrink-0 group">
+                {previewUrl ? (
+                  <img src={previewUrl} alt="Team Logo" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                ) : (
+                  <ImagePlus className="w-8 h-8 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors" />
+                )}
+                
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Camera className="w-6 h-6 text-white" />
+                </div>
+                
+                <input 
+                  type="file" 
+                  accept="image/jpeg, image/png, image/webp"
+                  onChange={handleFileChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
               </div>
               
-              <input 
-                type="file" 
-                accept="image/jpeg, image/png, image/webp"
-                onChange={handleFileChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              <div>
+                <h3 className="font-extrabold text-gray-900 dark:text-white">Team Logo</h3>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
+                  Tap the image to change it. <br className="hidden sm:block"/>
+                  JPG, PNG, or WebP. Max 2MB.
+                </p>
+              </div>
+            </div>
+
+            {/* Name Input */}
+            <div className="space-y-3">
+              <label className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-300">
+                <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Team Name *
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder="e.g. The Blue Barracudas"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-600/20 font-bold transition-all placeholder:text-gray-400"
               />
             </div>
-            
-            <div>
-              <h3 className="font-extrabold text-gray-900 dark:text-white">Team Logo</h3>
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
-                Tap the image to change it. <br className="hidden sm:block"/>
-                JPG, PNG, or WebP. Max 2MB.
-              </p>
+
+            <div className="pt-6 border-t border-gray-300 dark:border-gray-700">
+              <button
+                type="submit"
+                disabled={!name.trim() || saving || archiving}
+                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center justify-center transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Saving Changes...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-5 h-5 mr-2" />
+                    Save Team
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+
+          {/* Archive Section */}
+          <div className="pt-8 border-t border-gray-300 dark:border-gray-700">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-amber-50 dark:bg-amber-900/10 p-5 rounded-2xl border border-amber-200 dark:border-amber-900/50">
+              <div>
+                <h3 className="font-extrabold text-amber-900 dark:text-amber-500">Archive Team</h3>
+                <p className="text-sm font-medium text-amber-700 dark:text-amber-400/80 mt-1">
+                  Move this team to the vault. It will no longer appear on your active dashboard.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleArchive}
+                disabled={archiving || saving}
+                className="w-full sm:w-auto px-5 py-2.5 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/40 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-400 font-bold rounded-xl transition-colors border border-amber-300 dark:border-amber-800 disabled:opacity-50 active:scale-95 whitespace-nowrap flex items-center justify-center"
+              >
+                {archiving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Archive className="w-4 h-4 mr-2" />}
+                Archive Team
+              </button>
             </div>
           </div>
 
-          {/* Name Input */}
-          <div className="space-y-3">
-            <label className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-300">
-              <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Team Name *
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              placeholder="e.g. The Blue Barracudas"
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-600/20 font-bold transition-all placeholder:text-gray-400"
-            />
-          </div>
-
-          <div className="pt-6 border-t border-gray-300 dark:border-gray-700">
-            <button
-              type="submit"
-              disabled={!name.trim() || saving}
-              className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center justify-center transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
-            >
-              {saving ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Saving Changes...
-                </>
-              ) : (
-                <>
-                  <Save className="w-5 h-5 mr-2" />
-                  Save Team
-                </>
-              )}
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
   )

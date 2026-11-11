@@ -1,10 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
-import { Users, Calendar, Plus, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap, } from 'lucide-react'
+import { Users, Calendar, Plus, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap, Archive } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { FieldMapShortcut } from '@/components/FieldMapShortcut'
-import { RecordStatCard } from '@/components/RecordStatCard' // <-- New Import
+import { RecordStatCard } from '@/components/RecordStatCard'
 
 export default async function DashboardPage() {
   const cookieStore = await cookies()
@@ -21,7 +21,10 @@ export default async function DashboardPage() {
     .eq('owner_id', user.id)
     .order('created_at', { ascending: false })
 
-  const teamIds = teams?.map(t => t.id) || []
+  // Separate Active vs Archived teams
+  const activeTeams = teams?.filter(t => !t.is_archived) || []
+  const archivedTeams = teams?.filter(t => t.is_archived) || []
+  const teamIds = activeTeams.map(t => t.id)
 
   let playersCount = 0
   if (teamIds.length > 0) {
@@ -53,7 +56,6 @@ export default async function DashboardPage() {
   const nextGame = upcomingGames.length > 0 ? upcomingGames[0] : null
   const recentGames = pastGames.slice(0, 4)
 
-  // --- W-L-T CALCULATIONS ---
   const totalWins = allGames?.filter(g => g.result === 'W').length || 0
   const totalLosses = allGames?.filter(g => g.result === 'L').length || 0
   const totalTies = allGames?.filter(g => g.result === 'T').length || 0
@@ -101,7 +103,6 @@ export default async function DashboardPage() {
             <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">Stats</h2>
           </div>
 
-          {/* Enhanced 5-Column Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-5">
             
             <div className="group relative bg-[#1e40af] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#1e40af] flex flex-col justify-between transition-all cursor-default overflow-hidden">
@@ -110,9 +111,9 @@ export default async function DashboardPage() {
                 <div className="w-10 h-10 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm">
                   <Shield className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-xs sm:text-sm font-bold text-blue-100 uppercase tracking-widest">Total Teams</h3>
+                <h3 className="text-xs sm:text-sm font-bold text-blue-100 uppercase tracking-widest">Active Teams</h3>
               </div>
-              <p className="text-3xl sm:text-4xl font-black text-white tracking-tight relative z-10">{teams?.length || 0}</p>
+              <p className="text-3xl sm:text-4xl font-black text-white tracking-tight relative z-10">{activeTeams.length}</p>
             </div>
 
             <div className="group relative bg-[#43a047] p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#43a047] flex flex-col justify-between transition-all cursor-default overflow-hidden">
@@ -148,7 +149,6 @@ export default async function DashboardPage() {
               <p className="text-3xl sm:text-4xl font-black text-white tracking-tight relative z-10">{pastGames.length}</p>
             </div>
             
-            {/* 5th Column - Record & Reset Tool */}
             <div className="col-span-2 lg:col-span-1">
               <RecordStatCard wins={totalWins} losses={totalLosses} ties={totalTies} />
             </div>
@@ -170,7 +170,6 @@ export default async function DashboardPage() {
           
           <div className="lg:col-span-2 space-y-8">
             
-            {/* Upgraded Ticket Stub Next Game Hero */}
             <section>
               <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
                 <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
@@ -181,7 +180,6 @@ export default async function DashboardPage() {
               {nextGame ? (
                 <div className="group bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 overflow-hidden flex flex-col sm:flex-row shadow-sm transition-all">
                   
-                  {/* Vibrant Ticket Edge */}
                   <div className="w-full sm:w-48 p-6 flex flex-row sm:flex-col items-center justify-between sm:justify-center shrink-0 bg-[#ff9800] text-white relative border-b sm:border-b-0 sm:border-r border-black/10 dark:border-white/10 overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"></div>
                     <div className="absolute -bottom-6 -right-6 opacity-20 group-hover:scale-110 transition-transform duration-700 hidden sm:block">
@@ -200,7 +198,6 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                   
-                  {/* Match Details Area */}
                   <div className="p-6 sm:p-8 flex-1 flex flex-col justify-between bg-white dark:bg-gray-900 relative">
                     <div className="hidden sm:inline-flex absolute top-6 right-6 items-center gap-1.5 px-3 py-1 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800 text-[10px] font-bold uppercase tracking-widest rounded-full z-10 shadow-sm">
                       <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span> SCHEDULED
@@ -254,11 +251,17 @@ export default async function DashboardPage() {
                 <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">
                   Your Teams
                 </h2>
+                {archivedTeams.length > 0 && (
+                  <Link href="/teams/archived" className="text-xs font-bold text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1 transition-colors">
+                    <Archive className="w-3.5 h-3.5" />
+                    Archived ({archivedTeams.length})
+                  </Link>
+                )}
               </div>
               
-              {teams && teams.length > 0 ? (
+              {activeTeams.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                  {teams.map(team => (
+                  {activeTeams.map(team => (
                     <Link key={team.id} href={`/teams/${team.id}`} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 group text-center flex flex-col items-center transition-colors overflow-hidden shadow-sm">
                       <div className="w-full aspect-square bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center border-b border-gray-200 dark:border-gray-800 overflow-hidden relative">
                         {team.logo_url ? (
@@ -279,7 +282,7 @@ export default async function DashboardPage() {
                 </div>
               ) : (
                 <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center transition-colors">
-                  <p className="text-gray-500 dark:text-gray-400 text-sm font-bold tracking-tight mb-3">You haven't created any teams yet.</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm font-bold tracking-tight mb-3">You haven't created any active teams yet.</p>
                   <Link href="/teams/new" className="text-blue-600 dark:text-blue-400 font-extrabold hover:underline text-sm">Create your first team</Link>
                 </div>
               )}
