@@ -68,7 +68,12 @@ export default async function DashboardPage() {
   const pastGames = sortedGames.filter(g => (g.gameStartMs + ONE_HOUR_MS) <= currentUtcMs).sort((a, b) => b.gameStartMs - a.gameStartMs)
   
   const nextGame = upcomingGames.length > 0 ? upcomingGames[0] : null
-  const recentGames = pastGames.slice(0, 4)
+const recentGames = pastGames.slice(0, 4)
+
+// --- NEW: Check if game is within the +/- 1 hour active window ---
+const isNextGameActive = nextGame 
+  ? (currentUtcMs >= nextGame.gameStartMs - ONE_HOUR_MS && currentUtcMs <= nextGame.gameStartMs + ONE_HOUR_MS)
+  : false;
 
   const totalWins = allGames?.filter(g => g.result === 'W').length || 0
   const totalLosses = allGames?.filter(g => g.result === 'L').length || 0
@@ -208,14 +213,30 @@ export default async function DashboardPage() {
                       </span>
                     </div>
                     <div className="sm:hidden inline-flex items-center gap-1.5 px-3 py-1 bg-black/10 text-white text-[10px] font-bold uppercase tracking-widest rounded-full border border-white/20 relative z-10">
-                      <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span> LIVE
-                    </div>
+  {isNextGameActive && (
+    <span className="relative flex h-2 w-2">
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+    </span>
+  )}
+  {isNextGameActive ? 'ACTIVE' : 'UPCOMING'}
+</div>
                   </div>
                   
                   <div className="p-6 sm:p-8 flex-1 flex flex-col justify-between bg-white dark:bg-gray-900 relative">
-                    <div className="hidden sm:inline-flex absolute top-6 right-6 items-center gap-1.5 px-3 py-1 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800 text-[10px] font-bold uppercase tracking-widest rounded-full z-10 shadow-sm">
-                      <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span> SCHEDULED
-                    </div>
+                    <div className={`hidden sm:inline-flex absolute top-6 right-6 items-center gap-1.5 px-3 py-1 border text-[10px] font-bold uppercase tracking-widest rounded-full z-10 shadow-sm ${
+  isNextGameActive 
+    ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800' 
+    : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700'
+}`}>
+  {isNextGameActive && (
+    <span className="relative flex h-2 w-2">
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+    </span>
+  )}
+  {isNextGameActive ? 'ACTIVE' : 'SCHEDULED'}
+</div>
                     
                     <div className="relative z-10 mb-6 sm:mb-8 pr-0 sm:pr-24">
                       <span className="text-xs font-black px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-md uppercase tracking-widest mb-3 inline-block">
