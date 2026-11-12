@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Copy, Check, QrCode, X } from 'lucide-react'
+import { Copy, Check, QrCode, X, Link2 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 
 export function CopyInviteButton({ teamId }: { teamId: string }) {
@@ -35,13 +35,25 @@ export function CopyInviteButton({ teamId }: { teamId: string }) {
 
   return (
     <>
-      <button
-        onClick={() => setShowModal(true)}
-        className="inline-flex items-center justify-center px-5 py-3 sm:py-2.5 bg-[#2563eb] hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95 gap-2 w-full sm:w-auto"
-      >
-        <QrCode className="w-4 h-4" />
-        Share Invite
-      </button>
+      <div className="flex flex-row items-center gap-2 w-full sm:w-auto">
+        {/* Direct Copy Button */}
+        <button
+          onClick={handleCopy}
+          className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-3 sm:py-2.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 font-bold rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 gap-2"
+        >
+          {copied ? <Check className="w-4 h-4 text-green-500" /> : <Link2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />}
+          {copied ? 'Copied!' : 'Copy Link'}
+        </button>
+
+        {/* QR Modal Button */}
+        <button
+          onClick={() => setShowModal(true)}
+          className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-3 sm:py-2.5 bg-[#2563eb] hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 gap-2"
+        >
+          <QrCode className="w-4 h-4" />
+          QR Code
+        </button>
+      </div>
 
       {showModal && (
         <div 
@@ -78,7 +90,7 @@ export function CopyInviteButton({ teamId }: { teamId: string }) {
               />
             </div>
 
-            {/* Fallback Copy Link */}
+            {/* Redundant Copy Link inside modal for convenience */}
             <div className="w-full flex items-center gap-2 bg-gray-50 dark:bg-gray-800 p-2 rounded-xl border border-gray-200 dark:border-gray-700">
               <div className="flex-1 truncate px-2 text-xs font-medium text-gray-500 dark:text-gray-400 select-all">
                 {inviteUrl}
