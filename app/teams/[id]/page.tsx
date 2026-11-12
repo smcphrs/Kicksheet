@@ -127,11 +127,12 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
 
         {/* Roster Section */}
         <div>
-          <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center justify-between mb-4">
-            <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">
-              Roster
-            </h2>
-          </div>
+          {/* CLEAN HEADER: Roster */}
+<div className="w-full flex items-center justify-between mb-3 px-1">
+  <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+    Roster
+  </h2>
+</div>
           
           {!players || players.length === 0 ? (
             <div className="bg-white dark:bg-gray-900 p-10 text-center border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-3xl transition-colors">
@@ -155,8 +156,7 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
                 const uniqueAbbrs = Array.from(new Set(rawPositions.map((pos: string) => getPosAbbr(pos))))
 
                 return (
-                  <div key={player.id} className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 p-5 sm:p-6 flex flex-col gap-4 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-lg hover:shadow-blue-900/5 transition-all group">
-                    
+                  <div key={player.id} className="bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl border border-gray-200 dark:border-gray-800 p-5 sm:p-6 flex flex-col gap-4 shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
                     {/* Top Row: Number, Name & Actions */}
                     <div className="flex justify-between items-start gap-3">
   <div className="flex items-start gap-3 flex-1">
