@@ -78,19 +78,19 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
         <header className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#2563eb] text-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-blue-700 overflow-hidden shadow-md">
           <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl pointer-events-none"></div>
           
-          <div className="relative z-10 flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 overflow-hidden">
-              {team.logo_url ? (
-                <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover" />
-              ) : (
-                <Shield className="w-7 h-7 text-white" />
-              )}
-            </div>
-            <div>
-              <h1 className="text-3xl font-black tracking-tight">{team.name}</h1>
-              <p className="text-blue-100 font-bold mt-1 tracking-tight">{players?.length || 0} Active Players</p>
-            </div>
-          </div>
+          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 overflow-hidden shadow-lg">
+          {team.logo_url ? (
+            <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover" />
+          ) : (
+            <Shield className="w-10 h-10 sm:w-12 sm:h-12 text-white opacity-80" />
+          )}
+        </div>
+        <div>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight">{team.name}</h1>
+          <p className="text-blue-100 font-bold mt-1 tracking-tight text-lg">{players?.length || 0} Active Players</p>
+        </div>
+      </div>
           
           <div className="relative z-10 flex gap-2 w-full sm:w-auto">
             <Link 
