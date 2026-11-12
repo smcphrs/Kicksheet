@@ -159,35 +159,42 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
                     
                     {/* Top Row: Number, Name & Actions */}
                     <div className="flex justify-between items-start gap-3">
-                      <div className="flex items-start gap-3 flex-1">
-                        {player.number && (
-                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 font-black text-gray-500 dark:text-gray-400 text-xs mt-0.5 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 group-hover:border-blue-200 dark:group-hover:border-blue-800 transition-colors">
-                            {player.number}
-                          </div>
-                        )}
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-extrabold text-lg sm:text-xl text-gray-900 dark:text-white leading-tight tracking-tight">
-                            {player.name}
-                          </h3>
-                          {player.experience_level === 'New' && (
-                            <span className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">
-                              Newbie
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-1 shrink-0 bg-gray-50 dark:bg-gray-800/50 p-1 rounded-xl border border-gray-100 dark:border-gray-700/50 opacity-80 group-hover:opacity-100 transition-opacity">
-                        <Link 
-                          href={`/players/${player.id}/edit`}
-                          className="p-2 sm:p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all active:scale-95 shrink-0"
-                          title="Edit Player"
-                        >
-                          <Edit2 className="w-4 h-4 sm:w-4 sm:h-4" />
-                        </Link>
-                        <DeletePlayerButton playerId={player.id} playerName={player.name} />
-                      </div>
-                    </div>
+  <div className="flex items-start gap-3 flex-1">
+    {player.number && (
+      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 font-black text-gray-500 dark:text-gray-400 text-xs mt-0.5 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 group-hover:border-blue-200 dark:group-hover:border-blue-800 transition-colors">
+        {player.number}
+      </div>
+    )}
+    <div className="flex flex-col">
+      <div className="flex items-center gap-2 flex-wrap">
+        <h3 className="font-extrabold text-lg sm:text-xl text-gray-900 dark:text-white leading-tight tracking-tight">
+          {player.name}
+        </h3>
+        {player.experience_level === 'New' && (
+          <span className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">
+            Newbie
+          </span>
+        )}
+      </div>
+      {player.pronouns && (
+        <span className="text-[11px] sm:text-xs font-bold text-gray-400 dark:text-gray-500 mt-0.5 tracking-tight">
+          {player.pronouns}
+        </span>
+      )}
+    </div>
+  </div>
+  
+  <div className="flex items-center gap-1 shrink-0 bg-gray-50 dark:bg-gray-800/50 p-1 rounded-xl border border-gray-100 dark:border-gray-700/50 opacity-80 group-hover:opacity-100 transition-opacity">
+    <Link 
+      href={`/players/${player.id}/edit`}
+      className="p-2 sm:p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all active:scale-95 shrink-0"
+      title="Edit Player"
+    >
+      <Edit2 className="w-4 h-4 sm:w-4 sm:h-4" />
+    </Link>
+    <DeletePlayerButton playerId={player.id} playerName={player.name} />
+  </div>
+</div>
 
                     {/* Bottom Row: Kicking Style & Positions */}
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
