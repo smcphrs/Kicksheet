@@ -11,7 +11,7 @@ export function CopyInviteButton({ teamId }: { teamId: string }) {
 
   // Ensure window is defined (client-side only) to get the correct origin URL
   useEffect(() => {
-    setInviteUrl(`${window.location.origin}/invite/${teamId}`)
+    setInviteUrl(`${window.location.origin}/join/${teamId}`)
   }, [teamId])
 
   const handleCopy = async () => {
