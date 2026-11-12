@@ -11,7 +11,7 @@ export async function getTeamDetailsAction(teamId: string) {
 
   const { data, error } = await supabaseAdmin
     .from('teams')
-    .select('id, name, logo_url')
+    .select('id, name, logo_url, track_jersey_numbers')
     .eq('id', teamId)
     .single()
 

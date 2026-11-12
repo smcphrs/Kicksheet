@@ -42,6 +42,43 @@ export default function SettingsPage() {
     fetchUser()
   }, [])
 
+  // --- NEW: Sync Settings to Database ---
+useEffect(() => {
+  // Don't run this on initial mount before we've loaded the user's data
+  if (!mounted) return
+  
+  const saveSettingsToDb = async () => {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) return
+    
+    // Update the team record owned by this user
+    const { error } = await supabase
+      .from('teams')
+      .update({ 
+        track_jersey_numbers: askForJerseyNumbers,
+        // You can add other settings here as you build out those columns in Supabase!
+        // track_pronouns: showPronouns, 
+        // default_innings: inningsCount,
+        // enforce_fair_play: fairPlayEnabled 
+      })
+      .eq('owner_id', user.id)
+
+    if (error) {
+      console.error("Failed to save setting to database:", error)
+    }
+  }
+
+  // We use a small timeout to debounce the saves so we don't spam the DB if they click wildly
+  const delaySave = setTimeout(() => {
+    saveSettingsToDb()
+  }, 500)
+
+  return () => clearTimeout(delaySave)
+}, [askForJerseyNumbers, showPronouns, inningsCount, fairPlayEnabled, mounted])
+// --------------------------------------
+
   const handleUpdateEmail = async (e: React.FormEvent) => {
     e.preventDefault()
     setEmailError(null)

@@ -22,7 +22,7 @@ function JoinTeamContent() {
   const params = useParams()
   const teamId = (params?.id || Object.values(params || {})[0]) as string
 
-  const [team, setTeam] = useState<{ id: string; name: string; logo_url?: string } | null>(null)
+  const [team, setTeam] = useState<{ id: string; name: string; logo_url?: string ; track_jersey_numbers?: boolean;} | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -133,42 +133,46 @@ function JoinTeamContent() {
         <div className="space-y-4">
           <h3 className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">1. The Basics</h3>
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1">First Name</label>
-              <input 
-                required 
-                type="text" 
-                value={formData.firstName} 
-                onChange={e => setFormData({ ...formData, firstName: e.target.value })} 
-                className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
-                placeholder="Jane" 
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1">Last Name</label>
-              <input 
-                required 
-                type="text" 
-                value={formData.lastName} 
-                onChange={e => setFormData({ ...formData, lastName: e.target.value })} 
-                className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
-                placeholder="Doe" 
-              />
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
-              <Hash className="w-3.5 h-3.5" /> Preferred Jersey #
-            </label>
-            <input 
-              type="number" 
-              value={formData.number} 
-              onChange={e => setFormData({ ...formData, number: e.target.value })} 
-              className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
-              placeholder="e.g. 99" 
-            />
-          </div>
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1">First Name</label>
+          <input 
+            required 
+            type="text" 
+            value={formData.firstName} 
+            onChange={e => setFormData({ ...formData, firstName: e.target.value })} 
+            className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
+            placeholder="Jane" 
+          />
         </div>
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1">Last Name</label>
+          <input 
+            required 
+            type="text" 
+            value={formData.lastName} 
+            onChange={e => setFormData({ ...formData, lastName: e.target.value })} 
+            className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
+            placeholder="Doe" 
+          />
+        </div>
+      </div>
+      
+      {/* Conditionally render based on the team's settings */}
+      {team?.track_jersey_numbers && (
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-1.5">
+            <Hash className="w-3.5 h-3.5" /> Preferred Jersey #
+          </label>
+          <input 
+            type="number" 
+            value={formData.number} 
+            onChange={e => setFormData({ ...formData, number: e.target.value })} 
+            className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-semibold text-gray-900 dark:text-white" 
+            placeholder="e.g. 99" 
+          />
+        </div>
+      )}
+    </div>
 
         <div className="space-y-4">
           <h3 className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">2. Experience</h3>
