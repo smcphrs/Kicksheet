@@ -11,17 +11,22 @@ export function InviteInstructions({ teamId }: { teamId: string }) {
     <section className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col transition-all duration-300">
       
       {/* Header Row - Always Visible */}
-      <div className="p-5 sm:p-6 flex flex-row items-center justify-between gap-4">
+      <div className="p-4 sm:p-5 flex flex-row items-center justify-between gap-4">
         <div 
-          className="flex items-center gap-2 sm:gap-3 cursor-pointer group"
+          className="flex items-center gap-3 sm:gap-4 cursor-pointer group"
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gray-50 dark:bg-gray-800 group-hover:bg-gray-100 dark:group-hover:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500 transition-colors">
-            <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+          <div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-gray-800 group-hover:bg-gray-100 dark:group-hover:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500 transition-colors shrink-0">
+            <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
           </div>
-          <h2 className="text-[11px] sm:text-xs font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 select-none">
-            Invite Players
-          </h2>
+          <div className="flex flex-col">
+            <h2 className="text-[11px] sm:text-xs font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 select-none leading-tight">
+              Invite Players
+            </h2>
+            <p className="text-[10px] sm:text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-0.5 select-none transition-colors group-hover:text-gray-500 dark:group-hover:text-gray-400">
+              {isExpanded ? "Hide instructions" : "How does this work?"}
+            </p>
+          </div>
         </div>
         
         <div className="shrink-0">
@@ -31,7 +36,7 @@ export function InviteInstructions({ teamId }: { teamId: string }) {
 
       {/* Visual Step-by-Step Guide - Collapsible */}
       {isExpanded && (
-        <div className="px-5 pb-5 sm:px-6 sm:pb-6 pt-0 border-t border-gray-100 dark:border-gray-800 mt-2 animate-in slide-in-from-top-2 fade-in duration-300">
+        <div className="px-5 pb-5 sm:px-6 sm:pb-6 pt-0 border-t border-gray-100 dark:border-gray-800 mt-1 animate-in slide-in-from-top-2 fade-in duration-300">
           <div className="grid grid-cols-2 lg:flex lg:flex-row gap-4 lg:gap-2 xl:gap-4 items-stretch relative mt-5">
             
             {/* Step 1 */}
