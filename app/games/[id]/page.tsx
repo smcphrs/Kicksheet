@@ -27,6 +27,39 @@ function LineupContent() {
   const [highlight, setHighlight] = useState<string | null>(null)
   
   const captureRef = useRef<HTMLDivElement>(null)
+  // Helper to fetch weather automatically based on game location and date
+const fetchGameWeather = async (locationStr: string, dateStr: string) => {
+  try {
+    // 1. Convert location string to Latitude & Longitude
+    const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(locationStr)}&count=1`)
+    const geoData = await geoRes.json()
+    
+    if (!geoData.results?.length) return null
+    const { latitude, longitude, timezone } = geoData.results[0]
+
+    // 2. Fetch the forecast for that specific date
+    const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=weathercode,temperature_2m_max&timezone=${timezone || 'auto'}&start_date=${dateStr}&end_date=${dateStr}`)
+    const weatherData = await weatherRes.json()
+
+    if (!weatherData.daily?.time?.length) return null
+
+    const maxTemp = Math.round(weatherData.daily.temperature_2m_max[0] * (9/5) + 32) // Convert C to F
+    const code = weatherData.daily.weathercode[0]
+
+    // Simple weather code translation (WMO standards)
+    let condition = 'Clear'
+    if (code >= 1 && code <= 3) condition = 'Partly Cloudy'
+    if (code >= 45 && code <= 48) condition = 'Foggy'
+    if (code >= 51 && code <= 67) condition = 'Rain'
+    if (code >= 71 && code <= 77) condition = 'Snow'
+    if (code >= 95) condition = 'Thunderstorms'
+
+    return `${maxTemp}°F, ${condition}`
+  } catch (err) {
+    console.error("Weather fetch failed", err)
+    return null
+  }
+}
 
   useEffect(() => {
     if (!id) return
@@ -39,6 +72,16 @@ function LineupContent() {
         .single()
         
       if (!gameData || error) return
+      let finalWeather = gameData.weather
+    // If there's a location, a date, and weather is empty, fetch it!
+    if (!finalWeather && gameData.location && gameData.game_date) {
+      const fetchedWeather = await fetchGameWeather(gameData.location, gameData.game_date)
+      if (fetchedWeather) {
+        finalWeather = fetchedWeather
+        // Optional: Save it back to Supabase so it doesn't refetch every time
+        supabase.from('games').update({ weather: fetchedWeather }).eq('id', id).then()
+      }
+    }
       setGame(gameData)
       
       const regularIds = (gameData.kicking_order || []).filter((pid: string) => !pid.startsWith('sub-'))
