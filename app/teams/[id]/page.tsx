@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, UserPlus, Edit2, Shield, Users, Crosshair } from 'lucide-react'
+import { ArrowLeft, UserPlus, Edit2, Shield, Users, Crosshair, Link2, MessageCircle, UserCheck } from 'lucide-react'
 import { DeletePlayerButton } from '@/components/DeletePlayerButton'
 import { CopyInviteButton } from '@/components/CopyInviteButton'
 
@@ -75,7 +75,7 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
         </Link>
 
         {/* Team Banner */}
-        <header className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#2563eb] text-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-blue-700 overflow-hidden">
+        <header className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#2563eb] text-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-blue-700 overflow-hidden shadow-md">
           <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl pointer-events-none"></div>
           
           <div className="relative z-10 flex items-center gap-4">
@@ -95,13 +95,13 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
           <div className="relative z-10 flex gap-2 w-full sm:w-auto">
             <Link 
               href={`/teams/${team.id}/edit`}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-3 sm:py-2.5 bg-blue-800/50 hover:bg-blue-800 border border-blue-700 text-white font-bold rounded-xl transition-colors active:scale-95"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-3 sm:py-2.5 bg-blue-800/50 hover:bg-blue-800 border border-blue-700 text-white font-bold rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95"
             >
               Edit
             </Link>
             <Link 
               href={`/players/new?team_id=${team.id}`}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-3 sm:py-2.5 bg-white text-[#0a192f] hover:bg-gray-100 font-bold rounded-xl transition-colors active:scale-95"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-3 sm:py-2.5 bg-white text-[#0a192f] hover:bg-gray-100 font-bold rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95"
             >
               <UserPlus className="w-5 h-5 mr-2 text-[#2563eb]" />
               Add Player
@@ -110,38 +110,65 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
         </header>
 
         {/* Invite Link & Instructions Banner */}
-        <section className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-5">
-          <div className="space-y-1.5 max-w-xl">
-            <h2 className="text-xs font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
+        <section className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex-1 w-full">
+            <h2 className="text-xs font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-4">
               Invite Players
             </h2>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
-              <span className="font-bold text-gray-900 dark:text-white">1.</span> Copy team link &nbsp;·&nbsp;
-              <span className="font-bold text-gray-900 dark:text-white">2.</span> Send to group chat &nbsp;·&nbsp;
-              <span className="font-bold text-gray-900 dark:text-white">3.</span> Players submit quick profile &nbsp;·&nbsp;
-              <span className="font-bold text-gray-900 dark:text-white">4.</span> Roster updates automatically.
-            </p>
+            
+            {/* Visual Step-by-Step Guide */}
+            <div className="flex items-start sm:items-center justify-between w-full max-w-md relative">
+              {/* Connecting Line */}
+              <div className="absolute top-4 left-4 right-4 h-0.5 bg-gray-100 dark:bg-gray-800 -z-10 hidden sm:block"></div>
+              
+              {/* Step 1 */}
+              <div className="flex flex-col items-center gap-2 bg-white dark:bg-gray-900 z-10 px-2 flex-1 sm:flex-none">
+                <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/50 shrink-0">
+                  <Link2 className="w-4 h-4" />
+                </div>
+                <span className="text-[10px] sm:text-xs font-bold text-gray-500 dark:text-gray-400 text-center leading-tight">Copy<br/>Link</span>
+              </div>
+              
+              {/* Step 2 */}
+              <div className="flex flex-col items-center gap-2 bg-white dark:bg-gray-900 z-10 px-2 flex-1 sm:flex-none">
+                <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/50 shrink-0">
+                  <MessageCircle className="w-4 h-4" />
+                </div>
+                <span className="text-[10px] sm:text-xs font-bold text-gray-500 dark:text-gray-400 text-center leading-tight">Send to<br/>Group</span>
+              </div>
+
+              {/* Step 3 */}
+              <div className="flex flex-col items-center gap-2 bg-white dark:bg-gray-900 z-10 px-2 flex-1 sm:flex-none">
+                <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/50 shrink-0">
+                  <UserCheck className="w-4 h-4" />
+                </div>
+                <span className="text-[10px] sm:text-xs font-bold text-gray-500 dark:text-gray-400 text-center leading-tight">Auto<br/>Join</span>
+              </div>
+            </div>
           </div>
-          <CopyInviteButton teamId={team.id} />
+          
+          <div className="shrink-0 mt-2 md:mt-0 w-full md:w-auto flex justify-center">
+            <CopyInviteButton teamId={team.id} />
+          </div>
         </section>
 
         {/* Roster Section */}
         <div>
           {/* CLEAN HEADER: Roster */}
-<div className="w-full flex items-center justify-between mb-3 px-1">
-  <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-    Roster
-  </h2>
-</div>
+          <div className="w-full flex items-center justify-between mb-3 px-1">
+            <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+              Roster
+            </h2>
+          </div>
           
           {!players || players.length === 0 ? (
-            <div className="bg-white dark:bg-gray-900 p-10 text-center border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-3xl transition-colors">
+            <div className="bg-white dark:bg-gray-900 p-10 text-center border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-3xl transition-colors shadow-sm">
               <Users className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No players yet</h3>
               <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto font-medium">Add your first player to start building your lineup.</p>
               <Link 
                 href={`/players/new?team_id=${team.id}`}
-                className="inline-flex bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] border border-gray-300 dark:border-gray-700 px-6 py-3 rounded-xl font-bold hover:bg-gray-800 dark:hover:bg-blue-300 transition-colors active:scale-95"
+                className="inline-flex bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] border border-gray-300 dark:border-gray-700 px-6 py-3 rounded-xl font-bold hover:bg-gray-800 dark:hover:bg-blue-300 transition-all shadow-md hover:shadow-lg active:scale-95"
               >
                 Add First Player
               </Link>
@@ -159,42 +186,42 @@ export default async function TeamRosterPage({ params }: { params: Promise<{ id:
                   <div key={player.id} className="bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl border border-gray-200 dark:border-gray-800 p-5 sm:p-6 flex flex-col gap-4 shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
                     {/* Top Row: Number, Name & Actions */}
                     <div className="flex justify-between items-start gap-3">
-  <div className="flex items-start gap-3 flex-1">
-    {player.number && (
-      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 font-black text-gray-500 dark:text-gray-400 text-xs mt-0.5 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 group-hover:border-blue-200 dark:group-hover:border-blue-800 transition-colors">
-        {player.number}
-      </div>
-    )}
-    <div className="flex flex-col">
-      <div className="flex items-center gap-2 flex-wrap">
-        <h3 className="font-extrabold text-lg sm:text-xl text-gray-900 dark:text-white leading-tight tracking-tight">
-          {player.name}
-        </h3>
-        {player.experience_level === 'New' && (
-          <span className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">
-            Newbie
-          </span>
-        )}
-      </div>
-      {player.pronouns && (
-        <span className="text-[11px] sm:text-xs font-bold text-gray-400 dark:text-gray-500 mt-0.5 tracking-tight">
-          {player.pronouns}
-        </span>
-      )}
-    </div>
-  </div>
-  
-  <div className="flex items-center gap-1 shrink-0 bg-gray-50 dark:bg-gray-800/50 p-1 rounded-xl border border-gray-100 dark:border-gray-700/50 opacity-80 group-hover:opacity-100 transition-opacity">
-    <Link 
-      href={`/players/${player.id}/edit`}
-      className="p-2 sm:p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all active:scale-95 shrink-0"
-      title="Edit Player"
-    >
-      <Edit2 className="w-4 h-4 sm:w-4 sm:h-4" />
-    </Link>
-    <DeletePlayerButton playerId={player.id} playerName={player.name} />
-  </div>
-</div>
+                      <div className="flex items-start gap-3 flex-1">
+                        {player.number && (
+                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shrink-0 font-black text-gray-500 dark:text-gray-400 text-xs mt-0.5 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 group-hover:border-blue-200 dark:group-hover:border-blue-800 transition-colors">
+                            {player.number}
+                          </div>
+                        )}
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-extrabold text-lg sm:text-xl text-gray-900 dark:text-white leading-tight tracking-tight">
+                              {player.name}
+                            </h3>
+                            {player.experience_level === 'New' && (
+                              <span className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">
+                                Newbie
+                              </span>
+                            )}
+                          </div>
+                          {player.pronouns && (
+                            <span className="text-[11px] sm:text-xs font-bold text-gray-400 dark:text-gray-500 mt-0.5 tracking-tight">
+                              {player.pronouns}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-1 shrink-0 bg-gray-50 dark:bg-gray-800/50 p-1 rounded-xl border border-gray-100 dark:border-gray-700/50 opacity-80 group-hover:opacity-100 transition-opacity">
+                        <Link 
+                          href={`/players/${player.id}/edit`}
+                          className="p-2 sm:p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all active:scale-95 shrink-0"
+                          title="Edit Player"
+                        >
+                          <Edit2 className="w-4 h-4 sm:w-4 sm:h-4" />
+                        </Link>
+                        <DeletePlayerButton playerId={player.id} playerName={player.name} />
+                      </div>
+                    </div>
 
                     {/* Bottom Row: Kicking Style & Positions */}
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
