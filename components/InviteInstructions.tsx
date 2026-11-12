@@ -10,10 +10,10 @@ export function InviteInstructions({ teamId }: { teamId: string }) {
   return (
     <section className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col transition-all duration-300">
       
-      {/* Header Row - Always Visible */}
-      <div className="p-4 sm:p-5 flex flex-row items-center justify-between gap-4">
+      {/* Header Row - Now stacks on mobile, row on desktop */}
+      <div className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div 
-          className="flex items-center gap-3 sm:gap-4 cursor-pointer group"
+          className="flex items-center gap-3 sm:gap-4 cursor-pointer group w-full sm:w-auto"
           onClick={() => setIsExpanded(!isExpanded)}
         >
           <div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-gray-800 group-hover:bg-gray-100 dark:group-hover:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500 transition-colors shrink-0">
@@ -29,7 +29,8 @@ export function InviteInstructions({ teamId }: { teamId: string }) {
           </div>
         </div>
         
-        <div className="shrink-0">
+        {/* Button container takes full width on mobile */}
+        <div className="w-full sm:w-auto shrink-0">
           <CopyInviteButton teamId={teamId} />
         </div>
       </div>
