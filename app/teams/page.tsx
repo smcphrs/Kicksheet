@@ -85,16 +85,13 @@ export default function ManageTeamsPage() {
     <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
       <div className="max-w-6xl mx-auto px-4 pt-12 pb-24 sm:px-6 sm:pt-24 w-full space-y-8 sm:space-y-10">
         
-        <Link href="/dashboard" className="inline-flex items-center text-sm font-bold text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 transition-colors mt-4 mb-2">
-          <ArrowLeft className="w-4 h-4 mr-1" />
-          Back to Dashboard
-        </Link>
+        {/* Top Row: Back link & Action Buttons */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4">
+          <Link href="/dashboard" className="inline-flex items-center text-sm font-bold text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 transition-colors">
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Back to Dashboard
+          </Link>
 
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
-          <h1 className="text-sm font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-            Active Teams
-          </h1>
-          
           <div className="flex w-full sm:w-auto gap-3">
             <Link 
               href="/teams/archived"
@@ -111,7 +108,7 @@ export default function ManageTeamsPage() {
               New Team
             </Link>
           </div>
-        </header>
+        </div>
 
         {error && (
           <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm font-bold">
@@ -119,9 +116,16 @@ export default function ManageTeamsPage() {
           </div>
         )}
 
+        {/* Teams Section */}
         <div className="space-y-3 sm:space-y-4">
+          <div className="w-full flex items-center px-1">
+            <h1 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+              Active Teams
+            </h1>
+          </div>
+
           {teams.length === 0 ? (
-            <div className="bg-white dark:bg-gray-900 p-10 text-center border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-3xl transition-colors">
+            <div className="bg-white dark:bg-gray-900 p-10 text-center border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-3xl transition-colors mt-2">
               <Shield className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No active teams found</h3>
               <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto font-medium">You haven't created any active teams yet.</p>
@@ -133,7 +137,7 @@ export default function ManageTeamsPage() {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 mt-2">
               {teams.map(team => (
                 <div key={team.id} className="bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 flex flex-col overflow-hidden group hover:-translate-y-1 shadow-md hover:shadow-lg transition-all duration-300">
                   
