@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
-import { ArrowLeft, Archive, Shield } from 'lucide-react'
+import { ArrowLeft, Shield } from 'lucide-react'
 import { redirect } from 'next/navigation'
 
 export default async function ArchivedTeamsPage() {
@@ -22,30 +22,20 @@ export default async function ArchivedTeamsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
-      <div className="max-w-4xl mx-auto px-4 pt-12 pb-24 sm:px-6 sm:pt-24 w-full space-y-8 sm:space-y-10">
+      <div className="max-w-4xl mx-auto px-4 pt-24 pb-24 sm:px-6 sm:pt-32 w-full space-y-6 sm:space-y-8">
         
         <Link href="/dashboard" className="inline-flex items-center text-sm font-bold text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 transition-colors mb-2">
           <ArrowLeft className="w-4 h-4 mr-1" />
           Back to Dashboard
         </Link>
 
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
-              <Archive className="w-8 h-8 text-gray-400" />
-              Archived Teams
-            </h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg tracking-tight">Your historical rosters and past seasons.</p>
-          </div>
+        <header className="w-full flex items-center justify-between mb-4 px-1">
+          <h1 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+            Archived Teams
+          </h1>
         </header>
 
         <section>
-          <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center mb-4">
-            <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">
-              Archived Vault
-            </h2>
-          </div>
-          
           {teams && teams.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
               {teams.map(team => (
@@ -68,7 +58,7 @@ export default async function ArchivedTeamsPage() {
               ))}
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-900 p-10 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center transition-colors">
+            <div className="bg-white dark:bg-gray-900 p-10 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center transition-colors shadow-sm">
               <Shield className="w-12 h-12 text-gray-300 dark:text-gray-700 mx-auto mb-4" />
               <p className="text-gray-500 dark:text-gray-400 text-sm font-bold tracking-tight mb-1">Your vault is empty.</p>
               <p className="text-gray-400 dark:text-gray-500 text-xs font-medium">Teams you archive will appear here.</p>
