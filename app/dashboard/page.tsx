@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { cookies, headers } from 'next/headers'
 import Link from 'next/link'
-import { Users, Calendar, Plus, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap, Archive, RefreshCw } from 'lucide-react'
+import { Users, Calendar, Plus, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap, Archive, RefreshCw, Activity, PieChart } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { FieldMapShortcut } from '@/components/FieldMapShortcut'
 import { WelcomeTutorial } from '@/components/WelcomeTutorial'
@@ -71,9 +71,24 @@ export default async function DashboardPage() {
     ? (currentUtcMs >= nextGame.gameStartMs - ONE_HOUR_MS && currentUtcMs <= nextGame.gameStartMs + ONE_HOUR_MS)
     : false;
 
+  // --- Chart Math ---
   const totalWins = allGames?.filter(g => g.result === 'W').length || 0
   const totalLosses = allGames?.filter(g => g.result === 'L').length || 0
   const totalTies = allGames?.filter(g => g.result === 'T').length || 0
+  const totalDecidedGames = totalWins + totalLosses + totalTies
+  
+  const winPct = totalDecidedGames > 0 ? (totalWins / totalDecidedGames) * 100 : 0
+  const lossPct = totalDecidedGames > 0 ? (totalLosses / totalDecidedGames) * 100 : 0
+  const tiePct = totalDecidedGames > 0 ? (totalTies / totalDecidedGames) * 100 : 0
+
+  const totalScheduled = upcomingGames.length + pastGames.length
+  const playedPct = totalScheduled > 0 ? (pastGames.length / totalScheduled) * 100 : 0
+  const upcomingPct = totalScheduled > 0 ? (upcomingGames.length / totalScheduled) * 100 : 0
+
+  const avgPlayersPerTeam = activeTeams.length > 0 ? Math.round(playersCount / activeTeams.length) : 0
+  const maxIdealPlayers = 15 // Assuming 15 is a standard full roster
+  const rosterFillPct = Math.min((avgPlayersPerTeam / maxIdealPlayers) * 100, 100)
+  // ------------------
 
   const formatTime = (timeString: string) => {
     if (!timeString) return 'TBD'
@@ -110,77 +125,119 @@ export default async function DashboardPage() {
           </div>
         </div>
 
+        {/* ANALYTICS CHARTS */}
         <div className="space-y-3 sm:space-y-4">
           <div className="w-full flex items-center mb-1 px-1">
-            <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Stats</h2>
+            <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Analytics Overview</h2>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 items-start">
-            <div className="group relative bg-[#1e40af] px-4 py-3 rounded-xl border border-[#1e40af] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 cursor-default overflow-hidden">
-              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
-              <div className="relative z-10 flex flex-col">
-                <h3 className="text-[10px] font-bold text-blue-100 uppercase tracking-widest mb-0.5">Active Teams</h3>
-                <p className="text-2xl font-black text-white tracking-tight leading-none">{activeTeams.length}</p>
-              </div>
-              <div className="w-9 h-9 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
-                <Shield className="w-4 h-4 text-white" />
-              </div>
-            </div>
-
-            <div className="group relative bg-[#43a047] px-4 py-3 rounded-xl border border-[#43a047] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 cursor-default overflow-hidden">
-              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
-              <div className="relative z-10 flex flex-col">
-                <h3 className="text-[10px] font-bold text-green-100 uppercase tracking-widest mb-0.5">Players</h3>
-                <p className="text-2xl font-black text-white tracking-tight leading-none">{playersCount}</p>
-              </div>
-              <div className="w-9 h-9 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
-                <Users className="w-4 h-4 text-white" />
-              </div>
-            </div>
-
-            <div className="group relative bg-[#ff9800] px-4 py-3 rounded-xl border border-[#ff9800] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 cursor-default overflow-hidden">
-              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
-              <div className="relative z-10 flex flex-col">
-                <h3 className="text-[10px] font-bold text-orange-50 uppercase tracking-widest mb-0.5">Upcoming</h3>
-                <p className="text-2xl font-black text-white tracking-tight leading-none">{upcomingGames.length}</p>
-              </div>
-              <div className="w-9 h-9 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
-                <Calendar className="w-4 h-4 text-white" />
-              </div>
-            </div>
-
-            <div className="group relative bg-[#c2185b] px-4 py-3 rounded-xl border border-[#c2185b] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 cursor-default overflow-hidden">
-              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
-              <div className="relative z-10 flex flex-col">
-                <h3 className="text-[10px] font-bold text-pink-100 uppercase tracking-widest mb-0.5">Games Played</h3>
-                <p className="text-2xl font-black text-white tracking-tight leading-none">{pastGames.length}</p>
-              </div>
-              <div className="w-9 h-9 rounded-full bg-white/20 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
-                <Trophy className="w-4 h-4 text-white" />
-              </div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             
-            <div className="group relative bg-[#1f2937] px-4 py-3 rounded-xl border border-[#1f2937] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 overflow-hidden col-span-2 lg:col-span-1">
-              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
-              <div className="relative z-10 flex flex-col">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Record</h3>
-                  <Link href="/dashboard" className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5" title="Refresh Stats">
-                    <RefreshCw className="w-3 h-3 text-gray-500 hover:text-white transition-colors cursor-pointer" />
-                  </Link>
+            {/* 1. Performance Chart */}
+            <div className="group bg-white dark:bg-gray-900 rounded-3xl p-5 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <PieChart className="w-3.5 h-3.5" /> Performance
+                </h3>
+                <Link href="/dashboard" className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5" title="Refresh Stats">
+                  <RefreshCw className="w-3 h-3 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
+                </Link>
+              </div>
+              
+              <div className="flex items-end justify-between mb-2">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-3xl font-black text-emerald-500 leading-none">{totalWins}</span>
+                  <span className="text-sm font-bold text-gray-400">Wins</span>
                 </div>
-                <div className="flex items-baseline gap-1.5 mt-0.5">
-                  <span className="text-xl font-black text-emerald-400 leading-none">{totalWins}<span className="text-[10px] font-bold text-emerald-500/80 ml-0.5">W</span></span>
-                  <span className="text-gray-600 text-xs font-bold">-</span>
-                  <span className="text-xl font-black text-rose-400 leading-none">{totalLosses}<span className="text-[10px] font-bold text-rose-500/80 ml-0.5">L</span></span>
-                  <span className="text-gray-600 text-xs font-bold">-</span>
-                  <span className="text-xl font-black text-slate-300 leading-none">{totalTies}<span className="text-[10px] font-bold text-slate-400/80 ml-0.5">T</span></span>
+                <div className="text-right">
+                  <span className="text-sm font-black text-gray-900 dark:text-white">{winPct.toFixed(0)}%</span>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Win Rate</p>
                 </div>
               </div>
-              <div className="w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
-                <Trophy className="w-4 h-4 text-gray-300" />
+
+              {/* Segmented Bar */}
+              <div className="w-full h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex mt-3">
+                {totalDecidedGames === 0 ? (
+                  <div className="w-full bg-gray-200 dark:bg-gray-700"></div>
+                ) : (
+                  <>
+                    <div style={{ width: `${winPct}%` }} className="bg-emerald-500 hover:brightness-110 transition-all"></div>
+                    <div style={{ width: `${lossPct}%` }} className="bg-rose-500 hover:brightness-110 transition-all"></div>
+                    <div style={{ width: `${tiePct}%` }} className="bg-slate-400 hover:brightness-110 transition-all"></div>
+                  </>
+                )}
+              </div>
+              
+              <div className="flex justify-between mt-2 px-1">
+                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">{totalWins} W</span>
+                <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">{totalLosses} L</span>
+                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">{totalTies} T</span>
               </div>
             </div>
+
+            {/* 2. Season Progress */}
+            <div className="bg-white dark:bg-gray-900 rounded-3xl p-5 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5" /> Season Progress
+                </h3>
+              </div>
+              
+              <div className="flex items-end justify-between mb-2">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-3xl font-black text-blue-600 dark:text-blue-500 leading-none">{totalScheduled}</span>
+                  <span className="text-sm font-bold text-gray-400">Total Games</span>
+                </div>
+              </div>
+
+              <div className="w-full h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex mt-3">
+                {totalScheduled === 0 ? (
+                  <div className="w-full bg-gray-200 dark:bg-gray-700"></div>
+                ) : (
+                  <>
+                    <div style={{ width: `${playedPct}%` }} className="bg-blue-600 dark:bg-blue-500 hover:brightness-110 transition-all"></div>
+                    <div style={{ width: `${upcomingPct}%` }} className="bg-orange-400 hover:brightness-110 transition-all"></div>
+                  </>
+                )}
+              </div>
+              
+              <div className="flex justify-between mt-2 px-1">
+                <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400">{pastGames.length} Played</span>
+                <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400">{upcomingGames.length} Upcoming</span>
+              </div>
+            </div>
+
+            {/* 3. Roster Density */}
+            <div className="bg-white dark:bg-gray-900 rounded-3xl p-5 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5" /> Roster Health
+                </h3>
+              </div>
+              
+              <div className="flex items-end justify-between mb-2">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-3xl font-black text-purple-500 leading-none">{playersCount}</span>
+                  <span className="text-sm font-bold text-gray-400">Total Players</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-sm font-black text-gray-900 dark:text-white">~{avgPlayersPerTeam}</span>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Avg per team</p>
+                </div>
+              </div>
+
+              <div className="w-full h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex mt-3 relative">
+                <div style={{ width: `${rosterFillPct}%` }} className="bg-purple-500 hover:brightness-110 transition-all h-full"></div>
+                {/* Tick mark for "Ideal" roster size */}
+                <div className="absolute top-0 bottom-0 left-[100%] w-0.5 bg-gray-300 dark:bg-gray-600 z-10" title="15 player ideal roster"></div>
+              </div>
+              
+              <div className="flex justify-between mt-2 px-1">
+                <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400">{activeTeams.length} Active Teams</span>
+                <span className="text-[10px] font-bold text-gray-400">Target: 15/team</span>
+              </div>
+            </div>
+
           </div>
         </div>
 
