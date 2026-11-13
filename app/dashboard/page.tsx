@@ -204,38 +204,7 @@ export default async function DashboardPage() {
               </div>
             </div>
 
-            {/* 3. Roster Health (Full-Width Responsive Bar) */}
-            <div className="col-span-2 bg-white dark:bg-gray-900 rounded-2xl p-4 sm:p-5 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col justify-center gap-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
-                    <Users className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Roster Health</h3>
-                    <span className="text-lg sm:text-xl font-black text-gray-900 dark:text-white leading-none tracking-tight">
-                      {playersCount} <span className="text-[11px] text-gray-400 font-bold">Total Players</span>
-                    </span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="text-[10px] sm:text-[11px] font-bold text-gray-500 dark:text-gray-400 block">
-                    {activeTeams.length} Active Teams
-                  </span>
-                </div>
-              </div>
-              
-              <div className="w-full mt-1">
-                <div className="flex justify-between text-[10px] font-bold text-gray-400 mb-1.5 px-0.5">
-                  <span>Avg: ~{avgPlayersPerTeam} per team</span>
-                </div>
-                <div className="w-full h-2.5 sm:h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex relative">
-                  <div style={{ width: `${rosterFillPct}%` }} className="bg-purple-500 h-full hover:brightness-110 transition-all"></div>
-                  <div className="absolute top-0 bottom-0 left-[100%] w-0.5 bg-gray-300 dark:bg-gray-600 z-10" title="15 player ideal roster"></div>
-                </div>
-              </div>
-            </div>
-
+            
           </div>
         </div>
 
