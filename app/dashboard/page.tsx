@@ -127,21 +127,21 @@ export default async function DashboardPage() {
 
         {/* ANALYTICS CHARTS - COMPACT SIDE-BY-SIDE DESIGN */}
         <div className="space-y-3 sm:space-y-4">
-          <div className="w-full flex items-center mb-1 px-1">
+          <div className="w-full flex items-center justify-between mb-1 px-1 group/header">
             <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Analytics Overview</h2>
+            <Link href="/dashboard" className="opacity-0 group-hover/header:opacity-100 transition-opacity p-0.5" title="Refresh Analytics">
+              <RefreshCw className="w-3.5 h-3.5 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
+            </Link>
           </div>
 
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             
             {/* 1. Performance Donut */}
-            <div className="group bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-4 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center relative">
-              <div className="w-full flex justify-between items-start mb-3">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-4 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center">
+              <div className="w-full flex justify-start items-start mb-3">
                 <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
                   <PieChart className="w-3 h-3" /> Record
                 </h3>
-                <Link href="/dashboard" className="opacity-0 group-hover:opacity-100 transition-opacity" title="Refresh Stats">
-                  <RefreshCw className="w-3 h-3 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
-                </Link>
               </div>
               
               {/* CSS Donut */}
