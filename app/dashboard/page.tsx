@@ -79,7 +79,10 @@ export default async function DashboardPage() {
   
   const winPct = totalDecidedGames > 0 ? (totalWins / totalDecidedGames) * 100 : 0
   const lossPct = totalDecidedGames > 0 ? (totalLosses / totalDecidedGames) * 100 : 0
-  const tiePct = totalDecidedGames > 0 ? (totalTies / totalDecidedGames) * 100 : 0
+  
+  // Calculate specific endpoints for the conic-gradient Donut chart
+  const winEnd = winPct
+  const lossEnd = winPct + lossPct
 
   const totalScheduled = upcomingGames.length + pastGames.length
   const playedPct = totalScheduled > 0 ? (pastGames.length / totalScheduled) * 100 : 0
@@ -125,116 +128,104 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* ANALYTICS CHARTS */}
+        {/* ANALYTICS CHARTS - COMPACT DESIGN */}
         <div className="space-y-3 sm:space-y-4">
           <div className="w-full flex items-center mb-1 px-1">
             <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Analytics Overview</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
             
-            {/* 1. Performance Chart */}
-            <div className="group bg-white dark:bg-gray-900 rounded-3xl p-5 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <PieChart className="w-3.5 h-3.5" /> Performance
-                </h3>
-                <Link href="/dashboard" className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5" title="Refresh Stats">
-                  <RefreshCw className="w-3 h-3 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
-                </Link>
-              </div>
-              
-              <div className="flex items-end justify-between mb-2">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-3xl font-black text-emerald-500 leading-none">{totalWins}</span>
-                  <span className="text-sm font-bold text-gray-400">Wins</span>
+            {/* 1. Performance Donut Chart */}
+            <div className="group bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between">
+              <div className="flex flex-col justify-center">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1">
+                    <PieChart className="w-3 h-3" /> Record
+                  </h3>
+                  <Link href="/dashboard" className="opacity-0 group-hover:opacity-100 transition-opacity" title="Refresh Stats">
+                    <RefreshCw className="w-3 h-3 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
+                  </Link>
                 </div>
-                <div className="text-right">
-                  <span className="text-sm font-black text-gray-900 dark:text-white">{winPct.toFixed(0)}%</span>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Win Rate</p>
+                
+                <div className="flex items-baseline gap-1.5 mb-1.5">
+                  <span className="text-2xl font-black text-gray-900 dark:text-white leading-none tracking-tight">{totalDecidedGames}</span>
+                  <span className="text-[11px] font-bold text-gray-400">Games</span>
+                </div>
+                
+                <div className="flex gap-2">
+                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>{totalWins} W</span>
+                  <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>{totalLosses} L</span>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-slate-400"></div>{totalTies} T</span>
                 </div>
               </div>
 
-              {/* Segmented Bar */}
-              <div className="w-full h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex mt-3">
-                {totalDecidedGames === 0 ? (
-                  <div className="w-full bg-gray-200 dark:bg-gray-700"></div>
-                ) : (
-                  <>
-                    <div style={{ width: `${winPct}%` }} className="bg-emerald-500 hover:brightness-110 transition-all"></div>
-                    <div style={{ width: `${lossPct}%` }} className="bg-rose-500 hover:brightness-110 transition-all"></div>
-                    <div style={{ width: `${tiePct}%` }} className="bg-slate-400 hover:brightness-110 transition-all"></div>
-                  </>
-                )}
-              </div>
-              
-              <div className="flex justify-between mt-2 px-1">
-                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">{totalWins} W</span>
-                <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">{totalLosses} L</span>
-                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">{totalTies} T</span>
+              {/* Pure CSS Donut Graph */}
+              <div 
+                className="relative w-16 h-16 rounded-full flex items-center justify-center shrink-0 shadow-inner"
+                style={{
+                  background: totalDecidedGames === 0 
+                    ? '#e5e7eb' // Gray fallback for 0 games
+                    : `conic-gradient(#10b981 0% ${winEnd}%, #f43f5e ${winEnd}% ${lossEnd}%, #94a3b8 ${lossEnd}% 100%)`
+                }}
+              >
+                {/* The "Hole" of the donut */}
+                <div className="w-11 h-11 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center shadow-sm">
+                  <span className="text-[11px] font-black text-gray-900 dark:text-white tracking-tighter">{winPct.toFixed(0)}%</span>
+                </div>
               </div>
             </div>
 
-            {/* 2. Season Progress */}
-            <div className="bg-white dark:bg-gray-900 rounded-3xl p-5 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <Activity className="w-3.5 h-3.5" /> Season Progress
-                </h3>
-              </div>
-              
-              <div className="flex items-end justify-between mb-2">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-3xl font-black text-blue-600 dark:text-blue-500 leading-none">{totalScheduled}</span>
-                  <span className="text-sm font-bold text-gray-400">Total Games</span>
+            {/* 2. Season Progress (Compact Horizontal) */}
+            <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-center">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1 mb-1">
+                    <Activity className="w-3 h-3" /> Season
+                  </h3>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-2xl font-black text-blue-600 dark:text-blue-500 leading-none tracking-tight">{totalScheduled}</span>
+                    <span className="text-[11px] font-bold text-gray-400">Scheduled</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                   <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400 block">{pastGames.length} Played</span>
+                   <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400 block">{upcomingGames.length} Upcoming</span>
                 </div>
               </div>
-
-              <div className="w-full h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex mt-3">
+              <div className="w-full h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex mt-1">
                 {totalScheduled === 0 ? (
                   <div className="w-full bg-gray-200 dark:bg-gray-700"></div>
                 ) : (
                   <>
-                    <div style={{ width: `${playedPct}%` }} className="bg-blue-600 dark:bg-blue-500 hover:brightness-110 transition-all"></div>
-                    <div style={{ width: `${upcomingPct}%` }} className="bg-orange-400 hover:brightness-110 transition-all"></div>
+                    <div style={{ width: `${playedPct}%` }} className="bg-blue-600 dark:bg-blue-500"></div>
+                    <div style={{ width: `${upcomingPct}%` }} className="bg-orange-400"></div>
                   </>
                 )}
               </div>
-              
-              <div className="flex justify-between mt-2 px-1">
-                <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400">{pastGames.length} Played</span>
-                <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400">{upcomingGames.length} Upcoming</span>
-              </div>
             </div>
 
-            {/* 3. Roster Density */}
-            <div className="bg-white dark:bg-gray-900 rounded-3xl p-5 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5" /> Roster Health
-                </h3>
-              </div>
-              
-              <div className="flex items-end justify-between mb-2">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-3xl font-black text-purple-500 leading-none">{playersCount}</span>
-                  <span className="text-sm font-bold text-gray-400">Total Players</span>
+            {/* 3. Roster Health (Compact Horizontal) */}
+            <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-center">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1 mb-1">
+                    <Users className="w-3 h-3" /> Roster
+                  </h3>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-2xl font-black text-purple-500 leading-none tracking-tight">{playersCount}</span>
+                    <span className="text-[11px] font-bold text-gray-400">Total Players</span>
+                  </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm font-black text-gray-900 dark:text-white">~{avgPlayersPerTeam}</span>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Avg per team</p>
+                   <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 block">{activeTeams.length} Teams</span>
+                   <span className="text-[10px] font-bold text-gray-400 block">Avg: ~{avgPlayersPerTeam} / 15</span>
                 </div>
               </div>
-
-              <div className="w-full h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex mt-3 relative">
-                <div style={{ width: `${rosterFillPct}%` }} className="bg-purple-500 hover:brightness-110 transition-all h-full"></div>
+              <div className="w-full h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex mt-1 relative">
+                <div style={{ width: `${rosterFillPct}%` }} className="bg-purple-500 h-full"></div>
                 {/* Tick mark for "Ideal" roster size */}
                 <div className="absolute top-0 bottom-0 left-[100%] w-0.5 bg-gray-300 dark:bg-gray-600 z-10" title="15 player ideal roster"></div>
-              </div>
-              
-              <div className="flex justify-between mt-2 px-1">
-                <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400">{activeTeams.length} Active Teams</span>
-                <span className="text-[10px] font-bold text-gray-400">Target: 15/team</span>
               </div>
             </div>
 
@@ -364,22 +355,22 @@ export default async function DashboardPage() {
               {activeTeams.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                   {activeTeams.map(team => (
-                    <Link key={team.id} href={`/teams/${team.id}`} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 group text-center flex flex-col items-center transition-all duration-300 overflow-hidden shadow-md hover:shadow-lg hover:-translate-y-1">
-                      <div className="w-full aspect-square bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center border-b border-gray-200 dark:border-gray-800 overflow-hidden relative">
-                        {team.logo_url ? (
-                          <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                        ) : (
-                          <span className="text-4xl font-black text-[#2563eb] dark:text-blue-400 group-hover:scale-110 transition-transform duration-300 uppercase">
-                            {team.name ? team.name.charAt(0) : '?'}
-                          </span>
-                        )}
-                      </div>
-                      
-                      <div className="p-4 w-full flex flex-col items-center">
-                        <h3 className="font-extrabold text-gray-900 dark:text-white tracking-tight truncate w-full px-1">{team.name}</h3>
-                        <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-bold uppercase tracking-widest group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Manage Roster</p>
-                      </div>
-                    </Link>
+                        <Link key={team.id} href={`/teams/${team.id}`} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 group text-center flex flex-col items-center transition-all duration-300 overflow-hidden shadow-md hover:shadow-lg hover:-translate-y-1">
+                          <div className="w-full aspect-square bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center border-b border-gray-200 dark:border-gray-800 overflow-hidden relative">
+                            {team.logo_url ? (
+                              <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                            ) : (
+                              <span className="text-4xl font-black text-[#2563eb] dark:text-blue-400 group-hover:scale-110 transition-transform duration-300 uppercase">
+                                {team.name ? team.name.charAt(0) : '?'}
+                              </span>
+                            )}
+                          </div>
+                          
+                          <div className="p-4 w-full flex flex-col items-center">
+                            <h3 className="font-extrabold text-gray-900 dark:text-white tracking-tight truncate w-full px-1">{team.name}</h3>
+                            <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-bold uppercase tracking-widest group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Manage Roster</p>
+                          </div>
+                        </Link>
                   ))}
                 </div>
               ) : (
