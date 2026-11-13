@@ -15,7 +15,9 @@ export function FieldMapModal({ isOpen, onClose }: FieldMapModalProps) {
   useEffect(() => {
     if (isOpen) {
       setIsMounted(true)
-      setTimeout(() => setIsVisible(true), 10)
+      // Small delay ensures the browser paints the initial state before animating
+      const timer = setTimeout(() => setIsVisible(true), 10)
+      return () => clearTimeout(timer)
     } else {
       setIsVisible(false)
       const timer = setTimeout(() => setIsMounted(false), 300)
@@ -35,28 +37,32 @@ export function FieldMapModal({ isOpen, onClose }: FieldMapModalProps) {
 
   return (
     <div 
-      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900/95 dark:bg-black backdrop-blur-xl transition-opacity duration-300 ease-out ${
+      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900/95 dark:bg-black/95 backdrop-blur-xl transition-opacity duration-300 ease-out ${
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
       onClick={onClose}
     >
+      {/* Viewport-fixed close button ensures it never shifts during scaling */}
+      <button
+        onClick={onClose}
+        className={`fixed top-4 right-4 sm:top-8 sm:right-8 p-2 sm:p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all duration-300 z-50 backdrop-blur-sm shadow-lg ${
+           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+        }`}
+      >
+        <X className="w-6 h-6 sm:w-8 sm:h-8" />
+      </button>
+
+      {/* Centered container handles scaling without triggering browser layout recalculation glitches */}
       <div 
-        className={`relative w-full h-[100dvh] flex flex-col items-center justify-center transition-all duration-300 ease-out transform ${
-          isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+        className={`relative w-full h-full max-w-7xl flex items-center justify-center p-2 sm:p-12 transition-transform duration-300 ease-out transform ${
+          isVisible ? 'scale-100' : 'scale-95'
         }`} 
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 sm:p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors active:scale-95 z-50 backdrop-blur-sm shadow-lg"
-        >
-          <X className="w-6 h-6 sm:w-8 sm:h-8" />
-        </button>
-        
         <img 
           src="/assets/kicksheet_positions.png" 
           alt="Kickball Field Positions Diagram" 
-          className="w-full h-full object-contain p-2 sm:p-8"
+          className="max-w-full max-h-full object-contain drop-shadow-2xl"
         />
       </div>
     </div>
