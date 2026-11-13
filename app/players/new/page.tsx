@@ -88,7 +88,7 @@ function NewPlayerContent() {
     <div className="min-h-[100dvh] bg-[#f8f9fa] dark:bg-gray-950 flex flex-col items-center py-10 px-4 sm:py-20 antialiased transition-colors">
       
       {/* Top Navigation & Header */}
-      <div className="max-w-md w-full flex items-start justify-between mb-8 animate-in slide-in-from-bottom-4 fade-in duration-700">
+      <div className="max-w-md w-full flex items-start justify-between mb-8 mt-4 animate-in slide-in-from-bottom-4 fade-in duration-700">
         
         {/* Floating Close Button */}
         <Link 
