@@ -199,6 +199,13 @@ export default function GamesPage() {
           
           <div className="flex w-full sm:w-auto gap-3">
             <Link 
+          href="/games/archived"
+          className="flex-1 sm:flex-none text-center bg-gray-300/80 dark:bg-gray-800 text-gray-800 dark:text-gray-300 px-5 py-2 rounded-lg hover:bg-gray-400/80 dark:hover:bg-gray-700 text-sm font-bold transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center gap-1.5"
+        >
+          <Archive className="w-4 h-4" />
+          Archive
+        </Link>
+            <Link 
               href="/games/new"
               className="flex-1 sm:flex-none text-center bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] px-5 py-2 rounded-lg hover:bg-gray-800 dark:hover:bg-blue-300 text-sm font-bold transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center gap-1.5"
             >
