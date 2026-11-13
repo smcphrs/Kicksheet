@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Calendar, Clock, MapPin, Trash2, Plus, ArrowLeft, Loader2, AlertCircle, Filter, ArrowDownAZ, Copy, Trophy } from 'lucide-react'
+import { Calendar, Clock, MapPin, Trash2, Plus, ArrowLeft, Loader2, AlertCircle, Filter, ArrowDownAZ, Copy, Trophy, Archive } from 'lucide-react'
 
 export default function GamesPage() {
   const supabase = createClient()
@@ -15,7 +15,7 @@ export default function GamesPage() {
   
   // Filtering & Sorting State
   const [filterTeam, setFilterTeam] = useState('All')
-  const [filterResult, setFilterResult] = useState('All') // <-- NEW STATE
+  const [filterResult, setFilterResult] = useState('All')
   const [sortOrder, setSortOrder] = useState('recent') 
   
   const [gameToDelete, setGameToDelete] = useState<any>(null) 
@@ -23,6 +23,7 @@ export default function GamesPage() {
   
   const [duplicatingId, setDuplicatingId] = useState<string | null>(null)
   const [updatingResultId, setUpdatingResultId] = useState<string | null>(null)
+  const [archivingId, setArchivingId] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchGames() {
@@ -33,6 +34,7 @@ export default function GamesPage() {
         .from('games')
         .select('*, teams(name)')
         .eq('user_id', user.id)
+        .neq('is_archived', true) // Hides archived games (handles both false and null)
         .order('game_date', { ascending: false })
 
       if (data) setGames(data)
@@ -58,6 +60,27 @@ export default function GamesPage() {
       alert('Failed to delete game.')
     }
     setDeletingId(null)
+  }
+
+  const handleArchive = async (game: any) => {
+    if (!window.confirm(`Are you sure you want to archive the game against ${game.opposing_team || 'TBD'}? It will be removed from your active views.`)) {
+      return
+    }
+
+    setArchivingId(game.id)
+
+    const { error } = await supabase
+      .from('games')
+      .update({ is_archived: true })
+      .eq('id', game.id)
+
+    if (!error) {
+      setGames(games.filter(g => g.id !== game.id))
+    } else {
+      console.error(error)
+      alert('Failed to archive game.')
+    }
+    setArchivingId(null)
   }
 
   const handleDuplicate = async (game: any) => {
@@ -125,7 +148,7 @@ export default function GamesPage() {
       case 'W': return 'bg-emerald-500 hover:bg-emerald-600 border-emerald-600 shadow-emerald-500/20'
       case 'L': return 'bg-rose-500 hover:bg-rose-600 border-rose-600 shadow-rose-500/20'
       case 'T': return 'bg-slate-500 hover:bg-slate-600 border-slate-600 shadow-slate-500/20'
-      default: return 'bg-[#2563eb] hover:bg-blue-700 border-blue-700 shadow-blue-500/20' // Default Blue
+      default: return 'bg-[#2563eb] hover:bg-blue-700 border-blue-700 shadow-blue-500/20' 
     }
   }
 
@@ -165,25 +188,25 @@ export default function GamesPage() {
       <div className="max-w-4xl mx-auto px-4 mt-4 pt-10 pb-24 sm:px-6 sm:pt-24 w-full space-y-8 sm:space-y-10">
         
         <Link href="/dashboard" className="inline-flex items-center text-sm font-bold text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 transition-colors mb-6">
-  <ArrowLeft className="w-4 h-4 mr-1" />
-  Back to Dashboard
-</Link>
+          <ArrowLeft className="w-4 h-4 mr-1" />
+          Back to Dashboard
+        </Link>
 
-<header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-  <h1 className="text-sm font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-    Games
-  </h1>
-  
-  <div className="flex w-full sm:w-auto gap-3">
-    <Link 
-      href="/games/new"
-      className="flex-1 sm:flex-none text-center bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] px-5 py-2 rounded-lg hover:bg-gray-800 dark:hover:bg-blue-300 text-sm font-bold transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center gap-1.5"
-    >
-      <Plus className="w-4 h-4" />
-      New Game
-    </Link>
-  </div>
-</header>
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h1 className="text-sm font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+            Games
+          </h1>
+          
+          <div className="flex w-full sm:w-auto gap-3">
+            <Link 
+              href="/games/new"
+              className="flex-1 sm:flex-none text-center bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] px-5 py-2 rounded-lg hover:bg-gray-800 dark:hover:bg-blue-300 text-sm font-bold transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              New Game
+            </Link>
+          </div>
+        </header>
 
         <div className="space-y-3 sm:space-y-4">
           
@@ -290,16 +313,15 @@ export default function GamesPage() {
                       </div>
                       
                       {/* Mobile-only compact result indicator */}
-                      {/* Mobile-only compact result indicator */}
-<div className="sm:hidden mt-1.5">
-  {game.result && (
-    <span className="bg-black/20 dark:bg-black/40 text-white/90 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full backdrop-blur-sm border border-white/20">
-      {game.result === 'W' && 'Win'}
-      {game.result === 'L' && 'Loss'}
-      {game.result === 'T' && 'Tie'}
-    </span>
-  )}
-</div>
+                      <div className="sm:hidden mt-1.5">
+                        {game.result && (
+                          <span className="bg-black/20 dark:bg-black/40 text-white/90 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full backdrop-blur-sm border border-white/20">
+                            {game.result === 'W' && 'Win'}
+                            {game.result === 'L' && 'Loss'}
+                            {game.result === 'T' && 'Tie'}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Card Body */}
@@ -329,44 +351,43 @@ export default function GamesPage() {
                           </div>
                         </div>
 
-                       
-                        {/* Result Toggles (Compact & Subtle) */}
-{isPast && (
-  <div className="inline-flex items-center bg-gray-50 dark:bg-gray-800/40 p-1 rounded-full border border-gray-200 dark:border-gray-700/60 mt-2 sm:mt-0 self-start sm:self-auto">
-    {isUpdating ? (
-      <div className="w-[100px] h-[28px] flex items-center justify-center">
-        <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-400" />
-      </div>
-    ) : (
-      <>
-        <button 
-          onClick={() => handleUpdateResult(game.id, game.result === 'W' ? null : 'W')}
-          className={`px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all ${
-            game.result === 'W' 
-              ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 shadow-sm border border-emerald-200/50 dark:border-emerald-800/50' 
-              : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-transparent'
-          }`}
-        >W</button>
-        <button 
-          onClick={() => handleUpdateResult(game.id, game.result === 'L' ? null : 'L')}
-          className={`px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all ${
-            game.result === 'L' 
-              ? 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400 shadow-sm border border-rose-200/50 dark:border-rose-800/50' 
-              : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-transparent'
-          }`}
-        >L</button>
-        <button 
-          onClick={() => handleUpdateResult(game.id, game.result === 'T' ? null : 'T')}
-          className={`px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all ${
-            game.result === 'T' 
-              ? 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shadow-sm border border-slate-300/50 dark:border-slate-700/50' 
-              : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-transparent'
-          }`}
-        >T</button>
-      </>
-    )}
-  </div>
-)}
+                        {/* Result Toggles */}
+                        {isPast && (
+                          <div className="inline-flex items-center bg-gray-50 dark:bg-gray-800/40 p-1 rounded-full border border-gray-200 dark:border-gray-700/60 mt-2 sm:mt-0 self-start sm:self-auto">
+                            {isUpdating ? (
+                              <div className="w-[100px] h-[28px] flex items-center justify-center">
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-400" />
+                              </div>
+                            ) : (
+                              <>
+                                <button 
+                                  onClick={() => handleUpdateResult(game.id, game.result === 'W' ? null : 'W')}
+                                  className={`px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all ${
+                                    game.result === 'W' 
+                                      ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 shadow-sm border border-emerald-200/50 dark:border-emerald-800/50' 
+                                      : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-transparent'
+                                  }`}
+                                >W</button>
+                                <button 
+                                  onClick={() => handleUpdateResult(game.id, game.result === 'L' ? null : 'L')}
+                                  className={`px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all ${
+                                    game.result === 'L' 
+                                      ? 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400 shadow-sm border border-rose-200/50 dark:border-rose-800/50' 
+                                      : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-transparent'
+                                  }`}
+                                >L</button>
+                                <button 
+                                  onClick={() => handleUpdateResult(game.id, game.result === 'T' ? null : 'T')}
+                                  className={`px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all ${
+                                    game.result === 'T' 
+                                      ? 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shadow-sm border border-slate-300/50 dark:border-slate-700/50' 
+                                      : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-transparent'
+                                  }`}
+                                >T</button>
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
 
                       {/* Bottom Actions */}
@@ -388,6 +409,15 @@ export default function GamesPage() {
                         </button>
 
                         <button 
+                          onClick={() => handleArchive(game)}
+                          disabled={archivingId === game.id}
+                          className="inline-flex items-center justify-center p-2.5 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-600 dark:text-amber-500 rounded-xl transition-colors border border-amber-200 dark:border-amber-900/50 active:scale-95 disabled:opacity-50"
+                          title="Archive Game"
+                        >
+                          {archivingId === game.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <Archive className="w-5 h-5" />}
+                        </button>
+
+                        <button 
                           onClick={() => setGameToDelete(game)}
                           className="inline-flex items-center justify-center p-2.5 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 rounded-xl transition-colors border border-red-200 dark:border-red-900/50 active:scale-95"
                           title="Delete Game"
@@ -405,7 +435,7 @@ export default function GamesPage() {
         </div>
 
         {gameToDelete && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 dark:bg-black/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-gray-900/40 dark:bg-black/60 backdrop-blur-sm">
             <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 max-w-sm w-full border border-gray-300 dark:border-gray-700">
               <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-5 border border-red-200 dark:border-red-900/50">
                 <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />

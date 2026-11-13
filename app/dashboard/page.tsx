@@ -50,6 +50,7 @@ export default async function DashboardPage() {
     .from('games')
     .select('*, teams(name)')
     .eq('user_id', user.id)
+    .eq('is_archived', false)
     .order('game_date', { ascending: true })
 
   const currentUtcMs = Date.now()
