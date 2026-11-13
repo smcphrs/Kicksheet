@@ -137,7 +137,7 @@ export default function ManageTeamsPage() {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 mt-2">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 mt-2">
               {teams.map(team => (
                 <div key={team.id} className="bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-700 flex flex-col overflow-hidden group hover:-translate-y-1 shadow-md hover:shadow-lg transition-all duration-300">
                   
