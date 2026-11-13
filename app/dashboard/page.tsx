@@ -154,7 +154,7 @@ export default async function DashboardPage() {
                 }}
               >
                 <div className="w-11 h-11 sm:w-14 sm:h-14 bg-white dark:bg-gray-900 rounded-full flex flex-col items-center justify-center shadow-sm">
-                  <span className="text-[11px] sm:text-sm font-black text-gray-900 dark:text-white leading-none">{winPct.toFixed(0)}%</span>
+                  <span className="text-[12px] sm:text-sm font-black text-gray-900 dark:text-white leading-none">{winPct.toFixed(0)}%</span>
                   <span className="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase mt-0.5 tracking-wider">Win</span>
                 </div>
               </div>
@@ -194,7 +194,7 @@ export default async function DashboardPage() {
               >
                 <div className="w-11 h-11 sm:w-14 sm:h-14 bg-white dark:bg-gray-900 rounded-full flex flex-col items-center justify-center shadow-sm">
                   <span className="text-[12px] sm:text-sm font-black text-gray-900 dark:text-white leading-none">{totalScheduled}</span>
-                  <span className="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase mt-0.5 tracking-wider">Games</span>
+                  <span className="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase mt-0.5 tracking-wider">Games</span>
                 </div>
               </div>
 
