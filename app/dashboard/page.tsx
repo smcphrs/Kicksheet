@@ -119,10 +119,13 @@ export default async function DashboardPage() {
               <Shield className="w-4 h-4 text-white dark:text-[#0a192f] transition-colors" />
               New Team
             </Link>
-            <Link href="/games/new" className="flex-1 sm:flex-none text-center bg-[#2563eb] text-white px-6 py-3 rounded-xl hover:bg-blue-700 font-bold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 active:scale-95 inline-flex items-center justify-center gap-2">
-              <Plus className="w-5 h-5" />
-              New Game
-            </Link>
+            {/* Only render New Game if the user has an active team */}
+            {activeTeams.length > 0 && (
+              <Link href="/games/new" className="flex-1 sm:flex-none text-center bg-[#2563eb] text-white px-6 py-3 rounded-xl hover:bg-blue-700 font-bold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 active:scale-95 inline-flex items-center justify-center gap-2">
+                <Plus className="w-5 h-5" />
+                New Game
+              </Link>
+            )}
           </div>
         </div>
 
@@ -311,7 +314,9 @@ export default async function DashboardPage() {
                 <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center flex flex-col items-center justify-center min-h-[200px] transition-colors shadow-sm">
                   <Calendar className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-3" />
                   <p className="text-gray-500 dark:text-gray-400 font-bold tracking-tight mb-4">No upcoming games scheduled.</p>
-                  <Link href="/games/new" className="text-blue-600 dark:text-blue-400 font-extrabold hover:underline">Create a new game now</Link>
+                  {activeTeams.length > 0 && (
+                    <Link href="/games/new" className="text-blue-600 dark:text-blue-400 font-extrabold hover:underline">Create a new game now</Link>
+                  )}
                 </div>
               )}
             </section>
