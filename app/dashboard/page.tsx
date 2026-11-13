@@ -190,8 +190,8 @@ export default async function DashboardPage() {
               </div>
 
               <div className="w-full flex justify-between px-1 gap-1">
-                <span className="text-[9px] sm:text-[11px] font-bold text-blue-600 dark:text-blue-500 flex items-center gap-1 truncate"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 rounded-full bg-blue-600"></div>{pastGames.length} Plyd</span>
-                <span className="text-[9px] sm:text-[11px] font-bold text-orange-500 dark:text-orange-400 flex items-center gap-1 truncate"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 rounded-full bg-orange-500"></div>{upcomingGames.length} Next</span>
+                <span className="text-[9px] sm:text-[11px] font-bold text-blue-600 dark:text-blue-500 flex items-center gap-1 truncate"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 rounded-full bg-blue-600"></div>{pastGames.length} Played</span>
+                <span className="text-[9px] sm:text-[11px] font-bold text-orange-500 dark:text-orange-400 flex items-center gap-1 truncate"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 rounded-full bg-orange-500"></div>{upcomingGames.length} Upcoming</span>
               </div>
             </div>
 
@@ -210,7 +210,6 @@ export default async function DashboardPage() {
               <div className="flex-1 max-w-[200px] w-full">
                 <div className="flex justify-between text-[9px] sm:text-[10px] font-bold text-gray-400 mb-1.5">
                   <span>Avg: ~{avgPlayersPerTeam}</span>
-                  <span>Target: 15</span>
                 </div>
                 <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden flex relative">
                   <div style={{ width: `${rosterFillPct}%` }} className="bg-purple-500 h-full"></div>
@@ -316,15 +315,15 @@ export default async function DashboardPage() {
                       href={`/games/${nextGame.id}`} 
                       className="w-full text-center bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 px-5 py-4 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 font-black tracking-wide transition-all duration-300 shadow-sm hover:shadow-md active:scale-95 inline-flex items-center justify-center gap-2 group/btn"
                     >
-                      Manage Lineup <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                      View Lineup <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                     </Link>
                   </div>
                 </div>
               ) : (
                 <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center flex flex-col items-center justify-center min-h-[200px] transition-colors shadow-sm">
                   <Calendar className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-3" />
-                  <p className="text-gray-500 dark:text-gray-400 font-bold tracking-tight mb-4">No upcoming games scheduled.</p>
-                  <Link href="/games/new" className="text-blue-600 dark:text-blue-400 font-extrabold hover:underline">Schedule one now</Link>
+                  <p className="text-gray-500 dark:text-gray-400 font-bold tracking-tight mb-4">No games scheduled.</p>
+                  <Link href="/games/new" className="text-blue-600 dark:text-blue-400 font-extrabold hover:underline">Create a new lineup now</Link>
                 </div>
               )}
             </section>
