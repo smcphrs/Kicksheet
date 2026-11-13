@@ -160,15 +160,15 @@ export default async function DashboardPage() {
               </div>
 
               <div className="w-full flex justify-between px-1 gap-1">
-                <span className="text-[9px] sm:text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                <span className="text-[11px] sm:text-[12px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                   <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500"></div>
                   {totalWins} {totalWins === 1 ? 'Win' : 'Wins'}
                 </span>
-                <span className="text-[9px] sm:text-[11px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1">
+                <span className="text-[11px] sm:text-[12px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1">
                   <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-rose-500"></div>
                   {totalLosses} {totalLosses === 1 ? 'Loss' : 'Losses'}
                 </span>
-                <span className="text-[9px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                <span className="text-[11px] sm:text-[12px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
                   <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-slate-400"></div>
                   {totalTies} {totalTies === 1 ? 'Tie' : 'Ties'}
                 </span>
@@ -178,7 +178,7 @@ export default async function DashboardPage() {
             {/* 2. Season Donut */}
             <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-4 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center">
               <div className="w-full flex justify-start items-start mb-3">
-                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
                   <Activity className="w-3 h-3" /> Season
                 </h3>
               </div>
@@ -193,14 +193,14 @@ export default async function DashboardPage() {
                 }}
               >
                 <div className="w-11 h-11 sm:w-14 sm:h-14 bg-white dark:bg-gray-900 rounded-full flex flex-col items-center justify-center shadow-sm">
-                  <span className="text-[11px] sm:text-sm font-black text-gray-900 dark:text-white leading-none">{totalScheduled}</span>
-                  <span className="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase mt-0.5 tracking-wider">Games</span>
+                  <span className="text-[12px] sm:text-sm font-black text-gray-900 dark:text-white leading-none">{totalScheduled}</span>
+                  <span className="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase mt-0.5 tracking-wider">Games</span>
                 </div>
               </div>
 
               <div className="w-full flex justify-between px-1 gap-1">
-                <span className="text-[9px] sm:text-[11px] font-bold text-blue-600 dark:text-blue-500 flex items-center gap-1 truncate"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 rounded-full bg-blue-600"></div>{pastGames.length} Played</span>
-                <span className="text-[9px] sm:text-[11px] font-bold text-orange-500 dark:text-orange-400 flex items-center gap-1 truncate"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 rounded-full bg-orange-500"></div>{upcomingGames.length} Upcoming</span>
+                <span className="text-[11px] sm:text-[12px] font-bold text-blue-600 dark:text-blue-500 flex items-center gap-1 truncate"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 rounded-full bg-blue-600"></div>{pastGames.length} Played</span>
+                <span className="text-[11px] sm:text-[12px] font-bold text-orange-500 dark:text-orange-400 flex items-center gap-1 truncate"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 rounded-full bg-orange-500"></div>{upcomingGames.length} Upcoming</span>
               </div>
             </div>
 
