@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { cookies, headers } from 'next/headers'
 import Link from 'next/link'
-import { Users, Calendar, Plus, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap, Archive } from 'lucide-react'
+import { Users, Calendar, Plus, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap, Archive, RefreshCw } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { FieldMapShortcut } from '@/components/FieldMapShortcut'
 
@@ -174,22 +174,30 @@ export default async function DashboardPage() {
             </div>
             
             {/* Record Stat Card */}
-            <div className="group relative bg-[#1f2937] px-4 py-3 rounded-xl border border-[#1f2937] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 cursor-default overflow-hidden col-span-2 lg:col-span-1">
-              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
-              <div className="relative z-10 flex flex-col">
-                <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Record</h3>
-                <div className="flex items-baseline gap-1.5 mt-0.5">
-                  <span className="text-xl font-black text-emerald-400 leading-none">{totalWins}<span className="text-[10px] font-bold text-emerald-500/80 ml-0.5">W</span></span>
-                  <span className="text-gray-600 text-xs font-bold">-</span>
-                  <span className="text-xl font-black text-rose-400 leading-none">{totalLosses}<span className="text-[10px] font-bold text-rose-500/80 ml-0.5">L</span></span>
-                  <span className="text-gray-600 text-xs font-bold">-</span>
-                  <span className="text-xl font-black text-slate-300 leading-none">{totalTies}<span className="text-[10px] font-bold text-slate-400/80 ml-0.5">T</span></span>
-                </div>
-              </div>
-              <div className="w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
-                <Trophy className="w-4 h-4 text-gray-300" />
-              </div>
+            {/* Record Stat Card */}
+        <div className="group relative bg-[#1f2937] px-4 py-3 rounded-xl border border-[#1f2937] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 overflow-hidden col-span-2 lg:col-span-1">
+          <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
+          <div className="relative z-10 flex flex-col">
+            
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Record</h3>
+              <Link href="/dashboard" className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5" title="Refresh Stats">
+                <RefreshCw className="w-3 h-3 text-gray-500 hover:text-white transition-colors cursor-pointer" />
+              </Link>
             </div>
+
+            <div className="flex items-baseline gap-1.5 mt-0.5">
+              <span className="text-xl font-black text-emerald-400 leading-none">{totalWins}<span className="text-[10px] font-bold text-emerald-500/80 ml-0.5">W</span></span>
+              <span className="text-gray-600 text-xs font-bold">-</span>
+              <span className="text-xl font-black text-rose-400 leading-none">{totalLosses}<span className="text-[10px] font-bold text-rose-500/80 ml-0.5">L</span></span>
+              <span className="text-gray-600 text-xs font-bold">-</span>
+              <span className="text-xl font-black text-slate-300 leading-none">{totalTies}<span className="text-[10px] font-bold text-slate-400/80 ml-0.5">T</span></span>
+            </div>
+          </div>
+          <div className="w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
+            <Trophy className="w-4 h-4 text-gray-300" />
+          </div>
+        </div>
 
           </div>
         </div>
