@@ -8,16 +8,30 @@ import { createClient } from '@/lib/supabase/client'
 import { Moon, Sun, Monitor, Loader2, ArrowLeft, KeyRound, CheckCircle2, AlertCircle, Mail, HelpCircle, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
-// --- iOS Style Tooltip Component ---
-const SettingsTooltip = ({ text }: { text: string }) => (
-  <div className="relative group flex items-center justify-center ml-2">
-    <HelpCircle className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help transition-colors" />
-    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-60 p-2.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-center shadow-xl pointer-events-none">
-      {text}
-      <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-gray-100"></div>
+// --- iOS Style Tooltip Component (Mobile & Desktop Friendly) ---
+const SettingsTooltip = ({ text }: { text: string }) => {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <div 
+      className="relative flex items-center justify-center ml-2 cursor-pointer"
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+      onClick={() => setIsOpen(!isOpen)}
+    >
+      <HelpCircle className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" />
+      
+      <div 
+        className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-60 p-2.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-medium rounded-lg transition-all duration-200 z-50 text-center shadow-xl pointer-events-none ${
+          isOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-1'
+        }`}
+      >
+        {text}
+        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-gray-100"></div>
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 export default function SettingsPage() {
   const { 
