@@ -14,20 +14,18 @@ export default async function DashboardPage() {
   if (!user) {
     redirect('/login')
   }
-  // --- AUTO-CAPTURE LOCATION ---
+  
   const headerStore = await headers()
   const city = headerStore.get('x-vercel-ip-city')
   const region = headerStore.get('x-vercel-ip-country-region')
   
   if (city && region) {
-    // Fire and forget: Update location if we have it
     const locationString = `${decodeURIComponent(city)}, ${region}`
     await supabase
       .from('profiles')
       .update({ location: locationString })
       .eq('id', user.id)
   }
-  // -----------------------------
 
   const { data: teams } = await supabase
     .from('teams')
@@ -35,7 +33,6 @@ export default async function DashboardPage() {
     .eq('owner_id', user.id)
     .order('created_at', { ascending: false })
 
-  // Separate Active vs Archived teams
   const activeTeams = teams?.filter(t => !t.is_archived) || []
   const archivedTeams = teams?.filter(t => t.is_archived) || []
   const teamIds = activeTeams.map(t => t.id)
@@ -70,7 +67,6 @@ export default async function DashboardPage() {
   const nextGame = upcomingGames.length > 0 ? upcomingGames[0] : null
   const recentGames = pastGames.slice(0, 4)
 
-  // --- Smart Active Window Logic ---
   const isNextGameActive = nextGame 
     ? (currentUtcMs >= nextGame.gameStartMs - ONE_HOUR_MS && currentUtcMs <= nextGame.gameStartMs + ONE_HOUR_MS)
     : false;
@@ -95,16 +91,13 @@ export default async function DashboardPage() {
         <div className="sm:hidden flex flex-col gap-1 pb-2">
           <img src="/assets/kicksheet-logo.png" alt="Kicksheet" className="h-12 w-auto object-contain dark:hidden" />
           <img src="/assets/kicksheet-logo-white.png" alt="Kicksheet" className="h-12 w-auto object-contain hidden dark:block" />
-          <p className="text-gray-500 dark:text-gray-400 font-regular text-sm tracking-tight mt-1">
-            <center>Create winning kickball lineups in minutes.</center>
+          <p className="text-gray-500 dark:text-gray-400 font-regular text-sm tracking-tight mt-1 text-center">
+            Create winning kickball lineups in minutes.
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-          <div>
-            <p className="text-gray-500 dark:text-gray-400 mt-1.5 font-medium text-lg tracking-tight"></p>
-          </div>
-          
+          <div></div>
           <div className="flex flex-wrap gap-3 w-full sm:w-auto">
             <Link href="/teams/new" className="flex-1 sm:flex-none text-center bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] border border-gray-300 dark:border-gray-700 px-5 py-3 rounded-xl hover:bg-gray-800 dark:hover:bg-blue-300 font-bold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 active:scale-95 inline-flex items-center justify-center gap-2 group">
               <Shield className="w-4 h-4 text-white dark:text-[#0a192f] transition-colors" />
@@ -118,15 +111,11 @@ export default async function DashboardPage() {
         </div>
 
         <div className="space-y-3 sm:space-y-4">
-          {/* CLEAN HEADER: Stats */}
           <div className="w-full flex items-center mb-1 px-1">
             <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Stats</h2>
           </div>
 
-          {/* Compact Horizontal Stat Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 items-start">
-            
-            {/* Active Teams */}
             <div className="group relative bg-[#1e40af] px-4 py-3 rounded-xl border border-[#1e40af] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 cursor-default overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
               <div className="relative z-10 flex flex-col">
@@ -138,7 +127,6 @@ export default async function DashboardPage() {
               </div>
             </div>
 
-            {/* Players */}
             <div className="group relative bg-[#43a047] px-4 py-3 rounded-xl border border-[#43a047] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 cursor-default overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
               <div className="relative z-10 flex flex-col">
@@ -150,7 +138,6 @@ export default async function DashboardPage() {
               </div>
             </div>
 
-            {/* Upcoming */}
             <div className="group relative bg-[#ff9800] px-4 py-3 rounded-xl border border-[#ff9800] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 cursor-default overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
               <div className="relative z-10 flex flex-col">
@@ -162,7 +149,6 @@ export default async function DashboardPage() {
               </div>
             </div>
 
-            {/* Games Played */}
             <div className="group relative bg-[#c2185b] px-4 py-3 rounded-xl border border-[#c2185b] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 cursor-default overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
               <div className="relative z-10 flex flex-col">
@@ -174,32 +160,27 @@ export default async function DashboardPage() {
               </div>
             </div>
             
-            {/* Record Stat Card */}
-            {/* Record Stat Card */}
-        <div className="group relative bg-[#1f2937] px-4 py-3 rounded-xl border border-[#1f2937] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 overflow-hidden col-span-2 lg:col-span-1">
-          <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
-          <div className="relative z-10 flex flex-col">
-            
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Record</h3>
-              <Link href="/dashboard" className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5" title="Refresh Stats">
-                <RefreshCw className="w-3 h-3 text-gray-500 hover:text-white transition-colors cursor-pointer" />
-              </Link>
+            <div className="group relative bg-[#1f2937] px-4 py-3 rounded-xl border border-[#1f2937] flex items-center justify-between transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 overflow-hidden col-span-2 lg:col-span-1">
+              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl pointer-events-none transition-transform duration-500"></div>
+              <div className="relative z-10 flex flex-col">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Record</h3>
+                  <Link href="/dashboard" className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5" title="Refresh Stats">
+                    <RefreshCw className="w-3 h-3 text-gray-500 hover:text-white transition-colors cursor-pointer" />
+                  </Link>
+                </div>
+                <div className="flex items-baseline gap-1.5 mt-0.5">
+                  <span className="text-xl font-black text-emerald-400 leading-none">{totalWins}<span className="text-[10px] font-bold text-emerald-500/80 ml-0.5">W</span></span>
+                  <span className="text-gray-600 text-xs font-bold">-</span>
+                  <span className="text-xl font-black text-rose-400 leading-none">{totalLosses}<span className="text-[10px] font-bold text-rose-500/80 ml-0.5">L</span></span>
+                  <span className="text-gray-600 text-xs font-bold">-</span>
+                  <span className="text-xl font-black text-slate-300 leading-none">{totalTies}<span className="text-[10px] font-bold text-slate-400/80 ml-0.5">T</span></span>
+                </div>
+              </div>
+              <div className="w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
+                <Trophy className="w-4 h-4 text-gray-300" />
+              </div>
             </div>
-
-            <div className="flex items-baseline gap-1.5 mt-0.5">
-              <span className="text-xl font-black text-emerald-400 leading-none">{totalWins}<span className="text-[10px] font-bold text-emerald-500/80 ml-0.5">W</span></span>
-              <span className="text-gray-600 text-xs font-bold">-</span>
-              <span className="text-xl font-black text-rose-400 leading-none">{totalLosses}<span className="text-[10px] font-bold text-rose-500/80 ml-0.5">L</span></span>
-              <span className="text-gray-600 text-xs font-bold">-</span>
-              <span className="text-xl font-black text-slate-300 leading-none">{totalTies}<span className="text-[10px] font-bold text-slate-400/80 ml-0.5">T</span></span>
-            </div>
-          </div>
-          <div className="w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center shrink-0 backdrop-blur-sm relative z-10">
-            <Trophy className="w-4 h-4 text-gray-300" />
-          </div>
-        </div>
-
           </div>
         </div>
 
@@ -216,11 +197,9 @@ export default async function DashboardPage() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8 items-start">
-          
           <div className="lg:col-span-2 space-y-8">
             
             <section>
-              {/* CLEAN HEADER: Next Up */}
               <div className="w-full flex items-center justify-between mb-3 px-1">
                 <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest flex items-center gap-2">
                   <Zap className="w-4 h-4 text-amber-500 fill-amber-500" /> Next Up
@@ -313,7 +292,6 @@ export default async function DashboardPage() {
             </section>
 
             <section>
-              {/* CLEAN HEADER: Your Teams */}
               <div className="w-full flex items-center justify-between mb-3 px-1">
                 <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                   Your Teams
@@ -357,7 +335,6 @@ export default async function DashboardPage() {
           </div>
 
           <div className="space-y-4 lg:pl-4">
-            {/* CLEAN HEADER: Recent Games */}
             <div className="w-full flex items-center justify-between mb-3 px-1">
               <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                 Recent Games
@@ -413,14 +390,9 @@ export default async function DashboardPage() {
           </div>
           
         </div>
+        
+        <WelcomeTutorial hasTeams={teams !== null && teams.length > 0} />
       </div>
-      </div>
-    </div>
-    
-    {/* Add the tutorial overlay here! */}
-    <WelcomeTutorial hasTeams={teams !== null && teams.length > 0} />
-  </div>
-)
     </div>
   )
 }
