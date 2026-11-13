@@ -35,20 +35,20 @@ export function FieldMapModal({ isOpen, onClose }: FieldMapModalProps) {
 
   return (
     <div 
-      className={`fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-8 bg-gray-900/90 dark:bg-black/95 backdrop-blur-md transition-opacity duration-300 ease-out ${
+      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900/95 dark:bg-black backdrop-blur-xl transition-opacity duration-300 ease-out ${
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
       onClick={onClose}
     >
       <div 
-        className={`relative max-w-4xl w-full flex flex-col items-center transition-all duration-300 ease-out transform ${
-          isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4'
+        className={`relative w-full h-[100dvh] flex flex-col items-center justify-center transition-all duration-300 ease-out transform ${
+          isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         }`} 
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute -top-12 right-0 sm:-right-4 sm:-top-12 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors active:scale-95"
+          className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 sm:p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors active:scale-95 z-50 backdrop-blur-sm shadow-lg"
         >
           <X className="w-6 h-6 sm:w-8 sm:h-8" />
         </button>
@@ -56,7 +56,7 @@ export function FieldMapModal({ isOpen, onClose }: FieldMapModalProps) {
         <img 
           src="/assets/kicksheet_positions.png" 
           alt="Kickball Field Positions Diagram" 
-          className="w-full h-auto max-h-[85vh] object-contain"
+          className="w-full h-full object-contain p-2 sm:p-8"
         />
       </div>
     </div>
