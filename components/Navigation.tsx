@@ -58,10 +58,10 @@ export default function Navigation() {
         {isAdmin && (
           <Link 
             href="/admin" 
-            className="w-full bg-[#2563eb] hover:bg-blue-700 text-white h-8 sm:h-9 flex items-center justify-center text-[10px] sm:text-xs font-black uppercase tracking-widest transition-colors gap-2 shadow-sm"
+            className="w-full bg-[#2563eb] hover:bg-blue-700 text-white h-7 sm:h-8 flex items-center justify-center text-[9px] sm:text-xs font-bold uppercase tracking-widest transition-colors gap-2 shadow-sm"
           >
             <ShieldAlert className="w-3.5 h-3.5" />
-            Go to Admin Dashboard
+           Admin Dashboard
           </Link>
         )}
 
@@ -80,7 +80,7 @@ export default function Navigation() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`flex items-center space-x-2 text-sm font-bold transition-colors ${
+                    className={`flex items-center space-x-2 text-sm font-medium transition-colors ${
                       isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
                     }`}
                   >
