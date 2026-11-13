@@ -5,26 +5,41 @@ import { useSettingsStore } from '@/store/useSettingsStore'
 import { useTheme } from 'next-themes'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Moon, Sun, Monitor, Loader2, ArrowLeft, Shield, Paintbrush, Cog, KeyRound, CheckCircle2, AlertCircle, Mail } from 'lucide-react'
+import { Moon, Sun, Monitor, Loader2, ArrowLeft, KeyRound, CheckCircle2, AlertCircle, Mail, HelpCircle, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
+// --- iOS Style Tooltip Component ---
+const SettingsTooltip = ({ text }: { text: string }) => (
+  <div className="relative group flex items-center justify-center ml-2">
+    <HelpCircle className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-help transition-colors" />
+    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-60 p-2.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 text-center shadow-xl pointer-events-none">
+      {text}
+      <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-gray-100"></div>
+    </div>
+  </div>
+)
+
 export default function SettingsPage() {
-  const { fairPlayEnabled, setFairPlayEnabled, inningsCount, setInningsCount, askForJerseyNumbers, setAskForJerseyNumbers, showPronouns,        // <-- ADD THIS
-  setShowPronouns } = useSettingsStore()
+  const { 
+    fairPlayEnabled, setFairPlayEnabled, 
+    inningsCount, setInningsCount, 
+    askForJerseyNumbers, setAskForJerseyNumbers, 
+    showPronouns, setShowPronouns 
+  } = useSettingsStore()
+  
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
   // User State
   const [currentEmail, setCurrentEmail] = useState('')
 
-  // Email Update States
+  // Form States
   const [isEditingEmail, setIsEditingEmail] = useState(false)
   const [newEmail, setNewEmail] = useState('')
   const [isUpdatingEmail, setIsUpdatingEmail] = useState(false)
   const [emailError, setEmailError] = useState<string | null>(null)
   const [emailSuccess, setEmailSuccess] = useState(false)
 
-  // Password Update States
   const [isEditingPassword, setIsEditingPassword] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -32,6 +47,7 @@ export default function SettingsPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [passwordSuccess, setPasswordSuccess] = useState(false)
 
+  // Fetch User
   useEffect(() => {
     setMounted(true)
     const fetchUser = async () => {
@@ -42,72 +58,40 @@ export default function SettingsPage() {
     fetchUser()
   }, [])
 
-  // --- NEW: Sync Settings to Database ---
-useEffect(() => {
-  // Don't run this on initial mount before we've loaded the user's data
-  if (!mounted) return
-  
-  const saveSettingsToDb = async () => {
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) return
-    
-    // Update the team record owned by this user
-    const { error } = await supabase
-      .from('teams')
-      .update({ 
-        track_jersey_numbers: askForJerseyNumbers,
-        // You can add other settings here as you build out those columns in Supabase!
-        // track_pronouns: showPronouns, 
-        // default_innings: inningsCount,
-        // enforce_fair_play: fairPlayEnabled 
-      })
-      .eq('owner_id', user.id)
-
-    if (error) {
-      console.error("Failed to save setting to database:", error)
+  // Sync Settings to Database
+  useEffect(() => {
+    if (!mounted) return
+    const saveSettingsToDb = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { error } = await supabase
+        .from('teams')
+        .update({ track_jersey_numbers: askForJerseyNumbers })
+        .eq('owner_id', user.id)
+      if (error) console.error("Failed to save setting to database:", error)
     }
-  }
-
-  // We use a small timeout to debounce the saves so we don't spam the DB if they click wildly
-  const delaySave = setTimeout(() => {
-    saveSettingsToDb()
-  }, 500)
-
-  return () => clearTimeout(delaySave)
-}, [askForJerseyNumbers, showPronouns, inningsCount, fairPlayEnabled, mounted])
-// --------------------------------------
+    const delaySave = setTimeout(() => saveSettingsToDb(), 500)
+    return () => clearTimeout(delaySave)
+  }, [askForJerseyNumbers, showPronouns, inningsCount, fairPlayEnabled, mounted])
 
   const handleUpdateEmail = async (e: React.FormEvent) => {
     e.preventDefault()
     setEmailError(null)
     setEmailSuccess(false)
-
-    if (!newEmail || !newEmail.includes('@')) {
-      setEmailError('Please enter a valid email address.')
+    if (!newEmail || !newEmail.includes('@') || newEmail === currentEmail) {
+      setEmailError('Please enter a valid, different email address.')
       return
     }
-
-    if (newEmail === currentEmail) {
-      setEmailError('Please enter a different email address.')
-      return
-    }
-
     setIsUpdatingEmail(true)
     const supabase = createClient()
-    
     const { error } = await supabase.auth.updateUser({ email: newEmail })
-
     if (error) {
       setEmailError(error.message)
     } else {
       setEmailSuccess(true)
       setNewEmail('')
-      setTimeout(() => {
-        setIsEditingEmail(false)
-        setEmailSuccess(false)
-      }, 6000)
+      setTimeout(() => { setIsEditingEmail(false); setEmailSuccess(false) }, 6000)
     }
     setIsUpdatingEmail(false)
   }
@@ -116,397 +100,210 @@ useEffect(() => {
     e.preventDefault()
     setPasswordError(null)
     setPasswordSuccess(false)
-
-    if (newPassword.length < 6) {
-      setPasswordError('Password must be at least 6 characters.')
+    if (newPassword.length < 6 || newPassword !== confirmPassword) {
+      setPasswordError('Passwords must match and be at least 6 characters.')
       return
     }
-
-    if (newPassword !== confirmPassword) {
-      setPasswordError('Passwords do not match.')
-      return
-    }
-
     setIsUpdatingPassword(true)
     const supabase = createClient()
-    
     const { error } = await supabase.auth.updateUser({ password: newPassword })
-
     if (error) {
       setPasswordError(error.message)
     } else {
       setPasswordSuccess(true)
       setNewPassword('')
       setConfirmPassword('')
-      setTimeout(() => {
-        setIsEditingPassword(false)
-        setPasswordSuccess(false)
-      }, 3000)
+      setTimeout(() => { setIsEditingPassword(false); setPasswordSuccess(false) }, 3000)
     }
     setIsUpdatingPassword(false)
   }
 
   if (!mounted) return (
-    <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 flex items-center justify-center transition-colors">
+    <div className="min-h-screen bg-[#f2f2f7] dark:bg-black flex items-center justify-center">
       <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#f4f5f7] to-[#e5e7eb] dark:from-gray-950 dark:to-gray-900 transition-colors">
-      <div className="max-w-4xl mx-auto px-4 mt-4 pt-12 pb-24 sm:px-6 sm:pt-24 w-full space-y-8 sm:space-y-10">
+    <div className="min-h-screen bg-[#f2f2f7] dark:bg-black transition-colors font-sans pb-24">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 w-full space-y-8">
         
-        <Link href="/dashboard" className="inline-flex items-center text-sm font-bold text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 transition-colors mb-6">
-  <ArrowLeft className="w-4 h-4 mr-1" />
-  Back to Dashboard
-</Link>
+        <header>
+          <Link href="/dashboard" className="inline-flex items-center text-[15px] text-blue-600 hover:text-blue-700 transition-colors mb-4">
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Dashboard
+          </Link>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Settings</h1>
+        </header>
 
-<header className="flex justify-between items-center mb-6">
-  <h1 className="text-sm font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-    Settings
-  </h1>
-</header>
-
-        <div className="space-y-6 sm:space-y-8">
-          
-          {/* Game Preferences */}
-          <section>
-            <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center mb-4">
-              <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
-                <Cog className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Game Engine
-              </h2>
-            </div>
+        {/* GAME ENGINE */}
+        <section>
+          <h2 className="text-[13px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-4 mb-2">Game Engine</h2>
+          <div className="bg-white dark:bg-[#1c1c1e] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
             
-            <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-300 dark:border-gray-700 transition-colors">
-              <div className="space-y-4">
-                
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 gap-4 transition-colors">
-                  <div className="flex-1">
-                    <h3 className="font-extrabold text-gray-900 dark:text-white text-lg">Fair Play Enforcement</h3>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed pr-4">
-                      When active, the lineup builder will visually warn you if you assign a player to the bench who has already sat out, while other players have not yet sat out.
-                    </p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                    <input 
-                      type="checkbox" 
-                      className="sr-only peer"
-                      checked={fairPlayEnabled}
-                      onChange={(e) => setFairPlayEnabled(e.target.checked)}
-                    />
-                    <div className="w-14 h-7 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#2563eb]"></div>
-                  </label>
-                </div>
-                
-
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 gap-4 transition-colors">
-                  <div className="flex-1">
-                    <h3 className="font-extrabold text-gray-900 dark:text-white text-lg">Default Game Length</h3>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed pr-4">
-                      Sets the initial number of innings when creating a brand new game lineup. You can always change this per-game later.
-                    </p>
-                  </div>
-                  <select
-                    value={inningsCount || 7}
-                    onChange={(e) => setInningsCount(Number(e.target.value))}
-                    className="px-5 py-3 rounded-xl border border-gray-300 dark:border-gray-600 font-extrabold text-gray-900 dark:text-white bg-white dark:bg-gray-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all shrink-0 cursor-pointer shadow-sm"
-                  >
-                    <option value={5}>5 Innings</option>
-                    <option value={6}>6 Innings</option>
-                    <option value={7}>7 Innings</option>
-                    <option value={8}>8 Innings</option>
-                    <option value={9}>9 Innings</option>
-                  </select>
-                </div>
-
+            {/* Row 1 */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
+              <div className="flex items-center">
+                <span className="text-[17px] text-gray-900 dark:text-white">Fair Play Enforcement</span>
+                <SettingsTooltip text="Visually warns you if a player is benched back-to-back while others haven't sat out." />
               </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 gap-4 transition-colors mt-4">
-              <div className="flex-1">
-                <h3 className="font-extrabold text-gray-900 dark:text-white text-lg">Use Jersey Numbers</h3>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed pr-4">
-                  When active, the app will ask for player jersey numbers when adding or editing a roster. Disable this if your team doesn't use numbers.
-                </p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                <input 
-                  type="checkbox" 
-                  className="sr-only peer"
-                  checked={askForJerseyNumbers}
-                  onChange={(e) => setAskForJerseyNumbers(e.target.checked)}
-                />
-                <div className="w-14 h-7 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#2563eb]"></div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" checked={fairPlayEnabled} onChange={(e) => setFairPlayEnabled(e.target.checked)} />
+                <div className="w-12 h-7 bg-gray-200 dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#34c759] border border-gray-200 dark:border-gray-700/50"></div>
               </label>
             </div>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 gap-4 transition-colors mt-4">
-  <div className="flex-1">
-    <h3 className="font-extrabold text-gray-900 dark:text-white text-lg">Display Pronouns</h3>
-    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed pr-4">
-      When active, player pronouns (if provided) will be subtly displayed next to their names on rosters and lineups.
-    </p>
-  </div>
-  <label className="relative inline-flex items-center cursor-pointer shrink-0">
-    <input 
-      type="checkbox" 
-      className="sr-only peer"
-      checked={showPronouns}
-  onChange={(e) => setShowPronouns(e.target.checked)}
-    />
-    <div className="w-14 h-7 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#2563eb]"></div>
-  </label>
-</div>
-          </section>
 
-          {/* App Preferences */}
-          <section>
-            <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center mb-4">
-              <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
-                <Paintbrush className="w-4 h-4 text-orange-500" /> Interface
-              </h2>
+            {/* Row 2 */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
+              <div className="flex items-center">
+                <span className="text-[17px] text-gray-900 dark:text-white">Default Game Length</span>
+                <SettingsTooltip text="Sets the initial number of innings when generating a brand new game lineup." />
+              </div>
+              <select
+                value={inningsCount || 7}
+                onChange={(e) => setInningsCount(Number(e.target.value))}
+                className="text-[17px] text-gray-500 dark:text-gray-400 bg-transparent outline-none cursor-pointer text-right appearance-none"
+                style={{ WebkitAppearance: 'none' }}
+              >
+                <option value={5}>5 Innings</option>
+                <option value={6}>6 Innings</option>
+                <option value={7}>7 Innings</option>
+                <option value={8}>8 Innings</option>
+                <option value={9}>9 Innings</option>
+              </select>
             </div>
+
+            {/* Row 3 */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
+              <div className="flex items-center">
+                <span className="text-[17px] text-gray-900 dark:text-white">Use Jersey Numbers</span>
+                <SettingsTooltip text="Asks for jersey numbers during signup and displays them on the roster." />
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" checked={askForJerseyNumbers} onChange={(e) => setAskForJerseyNumbers(e.target.checked)} />
+                <div className="w-12 h-7 bg-gray-200 dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#34c759] border border-gray-200 dark:border-gray-700/50"></div>
+              </label>
+            </div>
+
+            {/* Row 4 */}
+            <div className="flex items-center justify-between p-4">
+              <div className="flex items-center">
+                <span className="text-[17px] text-gray-900 dark:text-white">Display Pronouns</span>
+                <SettingsTooltip text="Subtly displays player pronouns (if provided) on team cards." />
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" checked={showPronouns} onChange={(e) => setShowPronouns(e.target.checked)} />
+                <div className="w-12 h-7 bg-gray-200 dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#34c759] border border-gray-200 dark:border-gray-700/50"></div>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        {/* APPEARANCE */}
+        <section>
+          <h2 className="text-[13px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-4 mb-2">Appearance</h2>
+          <div className="bg-white dark:bg-[#1c1c1e] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span className="text-[17px] text-gray-900 dark:text-white w-full sm:w-auto">Theme</span>
             
-            <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-300 dark:border-gray-700 transition-colors">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 gap-4 transition-colors">
-                <div>
-                  <h3 className="font-extrabold text-gray-900 dark:text-white text-lg">Theme Appearance</h3>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1.5">
-                    Choose how the application looks on your device.
-                  </p>
-                </div>
-                
-                <div className="flex p-1.5 bg-gray-200 dark:bg-gray-950 rounded-xl shrink-0 w-full sm:w-auto overflow-hidden transition-colors border border-gray-300 dark:border-gray-800">
-                  <button
-                    type="button"
-                    onClick={() => setTheme('light')}
-                    className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all active:scale-95 ${
-                      theme === 'light' ? 'bg-white text-gray-900 shadow-sm border border-gray-300' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white border border-transparent'
-                    }`}
-                  >
-                    <Sun className="w-4 h-4" /> Light
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setTheme('dark')}
-                    className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all active:scale-95 ${
-                      theme === 'dark' ? 'bg-gray-800 text-white shadow-sm border border-gray-700' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white border border-transparent'
-                    }`}
-                  >
-                    <Moon className="w-4 h-4" /> Dark
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setTheme('system')}
-                    className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all active:scale-95 ${
-                      theme === 'system' ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm border border-gray-300 dark:border-gray-700' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white border border-transparent'
-                    }`}
-                  >
-                    <Monitor className="w-4 h-4" /> Auto
-                  </button>
-                </div>
-              </div>
+            {/* iOS Segmented Control */}
+            <div className="flex p-1 bg-gray-100 dark:bg-[#2c2c2e] rounded-lg w-full sm:w-auto shrink-0">
+              <button onClick={() => setTheme('light')} className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-md text-[13px] font-medium transition-all ${theme === 'light' ? 'bg-white dark:bg-[#1c1c1e] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400'}`}>
+                <Sun className="w-3.5 h-3.5" /> Light
+              </button>
+              <button onClick={() => setTheme('dark')} className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-md text-[13px] font-medium transition-all ${theme === 'dark' ? 'bg-white dark:bg-[#1c1c1e] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400'}`}>
+                <Moon className="w-3.5 h-3.5" /> Dark
+              </button>
+              <button onClick={() => setTheme('system')} className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-md text-[13px] font-medium transition-all ${theme === 'system' ? 'bg-white dark:bg-[#1c1c1e] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400'}`}>
+                <Monitor className="w-3.5 h-3.5" /> Auto
+              </button>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* Account Settings */}
-          <section>
-            <div className="w-full bg-gray-300/60 dark:bg-black/40 border border-blue-400/40 dark:border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center mb-4 mt-8">
-              <h2 className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
-                <Shield className="w-4 h-4 text-green-600 dark:text-green-400" /> Account Security
-              </h2>
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-3xl border border-gray-300 dark:border-gray-700 transition-colors">
+        {/* ACCOUNT */}
+        <section>
+          <h2 className="text-[13px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-4 mb-2">Account</h2>
+          <div className="bg-white dark:bg-[#1c1c1e] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col">
+            
+            {/* Email Row */}
+            <div className="border-b border-gray-100 dark:border-gray-800">
+              <button 
+                onClick={() => { setIsEditingEmail(!isEditingEmail); setNewEmail(currentEmail) }}
+                className="w-full flex items-center justify-between p-4 bg-white dark:bg-[#1c1c1e] hover:bg-gray-50 dark:hover:bg-[#2c2c2e] transition-colors"
+              >
+                <span className="text-[17px] text-gray-900 dark:text-white flex items-center gap-3">
+                  <Mail className="w-5 h-5 text-gray-400" /> Email
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[17px] text-gray-500 dark:text-gray-400 truncate max-w-[150px] sm:max-w-xs">{currentEmail}</span>
+                  <ChevronRight className={`w-5 h-5 text-gray-300 dark:text-gray-600 transition-transform ${isEditingEmail ? 'rotate-90' : ''}`} />
+                </div>
+              </button>
               
-              {/* Session / Sign Out */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 sm:pb-8 border-b border-gray-100 dark:border-gray-800">
-                <div>
-                  <h3 className="text-xl font-extrabold text-gray-900 dark:text-white">Active Session</h3>
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">You are currently logged in securely to Kicksheet.</p>
+              {/* Email Edit Panel */}
+              {isEditingEmail && (
+                <div className="p-4 bg-gray-50 dark:bg-[#151515] border-t border-gray-100 dark:border-gray-800 animate-in slide-in-from-top-2 fade-in duration-200">
+                  {emailError && <div className="mb-3 text-red-500 text-sm flex items-center gap-1.5"><AlertCircle className="w-4 h-4" />{emailError}</div>}
+                  {emailSuccess ? (
+                    <div className="text-green-600 dark:text-green-500 text-sm flex gap-2"><CheckCircle2 className="w-5 h-5 shrink-0" />Confirmation links sent to both emails.</div>
+                  ) : (
+                    <form onSubmit={handleUpdateEmail} className="flex gap-2">
+                      <input type="email" required value={newEmail} onChange={(e) => setNewEmail(e.target.value)} className="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-[15px] outline-none focus:border-blue-500" placeholder="New Email" />
+                      <button type="submit" disabled={isUpdatingEmail || !newEmail || newEmail === currentEmail} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-[15px] disabled:opacity-50 transition-colors">
+                        {isUpdatingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
+                      </button>
+                    </form>
+                  )}
                 </div>
-                
-                <div className="w-full sm:w-auto">
-                  <SignOutButton />
-                </div>
-              </div>
-
-              {/* Email Update Area */}
-              <div className="pt-6 sm:pt-8 pb-6 sm:pb-8 border-b border-gray-100 dark:border-gray-800">
-                {!isEditingEmail ? (
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div>
-                      <h3 className="text-xl font-extrabold text-gray-900 dark:text-white">Email Address</h3>
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
-                        {currentEmail ? currentEmail : 'Loading...'}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setIsEditingEmail(true)
-                        setNewEmail(currentEmail)
-                      }}
-                      className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl transition-colors border border-gray-300 dark:border-gray-700 active:scale-95"
-                    >
-                      <Mail className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
-                      Update Email
-                    </button>
-                  </div>
-                ) : (
-                  <div className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 transition-all">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-                        <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                        Update Email Address
-                      </h3>
-                    </div>
-                    
-                    {emailError && (
-                      <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-xl text-red-600 dark:text-red-400 text-sm font-bold flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                        {emailError}
-                      </div>
-                    )}
-
-                    {emailSuccess ? (
-                      <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 rounded-xl text-green-700 dark:text-green-400 flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
-                        <div>
-                          <p className="font-bold">Confirmation links sent!</p>
-                          <p className="text-sm font-medium mt-1 opacity-90 leading-relaxed">
-                            For security, you must click the verification links sent to <strong>both</strong> your old and new email addresses to complete this change.
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <form onSubmit={handleUpdateEmail} className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">New Email Address</label>
-                          <input
-                            type="email"
-                            required
-                            value={newEmail}
-                            onChange={(e) => setNewEmail(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all placeholder:text-gray-400 font-medium"
-                            placeholder="Enter new email address"
-                          />
-                        </div>
-                        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setIsEditingEmail(false)
-                              setEmailError(null)
-                            }}
-                            className="px-5 py-2.5 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 font-bold rounded-xl transition-colors border border-gray-300 dark:border-gray-700 active:scale-95"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="submit"
-                            disabled={isUpdatingEmail || !newEmail || newEmail === currentEmail}
-                            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
-                          >
-                            {isUpdatingEmail ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : 'Save Email'}
-                          </button>
-                        </div>
-                      </form>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Password Update Area */}
-              <div className="pt-6 sm:pt-8">
-                {!isEditingPassword ? (
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div>
-                      <h3 className="text-xl font-extrabold text-gray-900 dark:text-white">Password</h3>
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">Update your account password.</p>
-                    </div>
-                    <button
-                      onClick={() => setIsEditingPassword(true)}
-                      className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl transition-colors border border-gray-300 dark:border-gray-700 active:scale-95"
-                    >
-                      <KeyRound className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
-                      Update Password
-                    </button>
-                  </div>
-                ) : (
-                  <div className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 transition-all">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-                        <KeyRound className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                        Update Password
-                      </h3>
-                    </div>
-                    
-                    {passwordError && (
-                      <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-xl text-red-600 dark:text-red-400 text-sm font-bold flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                        {passwordError}
-                      </div>
-                    )}
-
-                    {passwordSuccess ? (
-                      <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 rounded-xl text-green-700 dark:text-green-400 font-bold flex items-center gap-2">
-                        <CheckCircle2 className="w-5 h-5 shrink-0" />
-                        Password updated successfully!
-                      </div>
-                    ) : (
-                      <form onSubmit={handleUpdatePassword} className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">New Password</label>
-                          <input
-                            type="password"
-                            required
-                            minLength={6}
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all placeholder:text-gray-400 font-medium"
-                            placeholder="Enter new password (min 6 characters)"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">Confirm Password</label>
-                          <input
-                            type="password"
-                            required
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all placeholder:text-gray-400 font-medium"
-                            placeholder="Confirm new password"
-                          />
-                        </div>
-                        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setIsEditingPassword(false)
-                              setPasswordError(null)
-                              setNewPassword('')
-                              setConfirmPassword('')
-                            }}
-                            className="px-5 py-2.5 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 font-bold rounded-xl transition-colors border border-gray-300 dark:border-gray-700 active:scale-95"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="submit"
-                            disabled={isUpdatingPassword || !newPassword || !confirmPassword}
-                            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
-                          >
-                            {isUpdatingPassword ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : 'Save Password'}
-                          </button>
-                        </div>
-                      </form>
-                    )}
-                  </div>
-                )}
-              </div>
+              )}
             </div>
-          </section>
 
-        </div>
+            {/* Password Row */}
+            <div>
+              <button 
+                onClick={() => setIsEditingPassword(!isEditingPassword)}
+                className="w-full flex items-center justify-between p-4 bg-white dark:bg-[#1c1c1e] hover:bg-gray-50 dark:hover:bg-[#2c2c2e] transition-colors"
+              >
+                <span className="text-[17px] text-gray-900 dark:text-white flex items-center gap-3">
+                  <KeyRound className="w-5 h-5 text-gray-400" /> Password
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[17px] text-gray-500 dark:text-gray-400">••••••••</span>
+                  <ChevronRight className={`w-5 h-5 text-gray-300 dark:text-gray-600 transition-transform ${isEditingPassword ? 'rotate-90' : ''}`} />
+                </div>
+              </button>
+
+              {/* Password Edit Panel */}
+              {isEditingPassword && (
+                <div className="p-4 bg-gray-50 dark:bg-[#151515] border-t border-gray-100 dark:border-gray-800 animate-in slide-in-from-top-2 fade-in duration-200">
+                  {passwordError && <div className="mb-3 text-red-500 text-sm flex items-center gap-1.5"><AlertCircle className="w-4 h-4" />{passwordError}</div>}
+                  {passwordSuccess ? (
+                    <div className="text-green-600 dark:text-green-500 text-sm flex gap-2"><CheckCircle2 className="w-5 h-5 shrink-0" />Password updated successfully!</div>
+                  ) : (
+                    <form onSubmit={handleUpdatePassword} className="space-y-3">
+                      <input type="password" required minLength={6} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-[15px] outline-none focus:border-blue-500" placeholder="New Password" />
+                      <div className="flex gap-2">
+                        <input type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-[15px] outline-none focus:border-blue-500" placeholder="Confirm Password" />
+                        <button type="submit" disabled={isUpdatingPassword || !newPassword || !confirmPassword} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-[15px] disabled:opacity-50 transition-colors">
+                          {isUpdatingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              )}
+            </div>
+
+          </div>
+        </section>
+
+        {/* SIGN OUT */}
+        <section className="pt-4 flex justify-center">
+          <div className="w-full sm:w-auto">
+            <SignOutButton />
+          </div>
+        </section>
+
       </div>
     </div>
   )
