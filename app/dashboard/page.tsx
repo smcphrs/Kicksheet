@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Users, Calendar, Plus, MapPin, Clock, Shield, Settings, Trophy, ArrowRight, Zap, Archive, RefreshCw } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { FieldMapShortcut } from '@/components/FieldMapShortcut'
+import { WelcomeTutorial } from '@/components/WelcomeTutorial'
 
 export default async function DashboardPage() {
   const cookieStore = await cookies()
@@ -413,6 +414,13 @@ export default async function DashboardPage() {
           
         </div>
       </div>
+      </div>
+    </div>
+    
+    {/* Add the tutorial overlay here! */}
+    <WelcomeTutorial hasTeams={teams !== null && teams.length > 0} />
+  </div>
+)
     </div>
   )
 }
