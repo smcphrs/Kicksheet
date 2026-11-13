@@ -128,7 +128,7 @@ export default async function DashboardPage() {
         {/* ANALYTICS CHARTS - COMPACT SIDE-BY-SIDE DESIGN */}
         <div className="space-y-3 sm:space-y-4">
           <div className="w-full flex items-center justify-between mb-1 px-1 group/header">
-            <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Analytics Overview</h2>
+            <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Analytics</h2>
             <Link href="/dashboard" className="opacity-0 group-hover/header:opacity-100 transition-opacity p-0.5" title="Refresh Analytics">
               <RefreshCw className="w-3.5 h-3.5 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
             </Link>
