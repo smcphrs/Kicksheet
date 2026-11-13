@@ -160,19 +160,20 @@ export default async function DashboardPage() {
               </div>
 
               <div className="w-full flex justify-between px-1 gap-1">
-            <span className="text-[9px] sm:text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500"></div>
-              {totalWins} {totalWins === 1 ? 'Win' : 'Wins'}
-            </span>
-            <span className="text-[9px] sm:text-[11px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1">
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-rose-500"></div>
-              {totalLosses} {totalLosses === 1 ? 'Loss' : 'Losses'}
-            </span>
-            <span className="text-[9px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-slate-400"></div>
-              {totalTies} {totalTies === 1 ? 'Tie' : 'Ties'}
-            </span>
-          </div>
+                <span className="text-[9px] sm:text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500"></div>
+                  {totalWins} {totalWins === 1 ? 'Win' : 'Wins'}
+                </span>
+                <span className="text-[9px] sm:text-[11px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-rose-500"></div>
+                  {totalLosses} {totalLosses === 1 ? 'Loss' : 'Losses'}
+                </span>
+                <span className="text-[9px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-slate-400"></div>
+                  {totalTies} {totalTies === 1 ? 'Tie' : 'Ties'}
+                </span>
+              </div>
+            </div>
 
             {/* 2. Season Donut */}
             <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-4 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center">
@@ -211,7 +212,7 @@ export default async function DashboardPage() {
                     <Users className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
                   </div>
                   <div>
-                    <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Player Count</h3>
+                    <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Roster Health</h3>
                     <span className="text-lg sm:text-xl font-black text-gray-900 dark:text-white leading-none tracking-tight">
                       {playersCount} <span className="text-[11px] text-gray-400 font-bold">Total Players</span>
                     </span>
@@ -339,8 +340,8 @@ export default async function DashboardPage() {
               ) : (
                 <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-center flex flex-col items-center justify-center min-h-[200px] transition-colors shadow-sm">
                   <Calendar className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-3" />
-                  <p className="text-gray-500 dark:text-gray-400 font-bold tracking-tight mb-4">No games scheduled.</p>
-                  <Link href="/games/new" className="text-blue-600 dark:text-blue-400 font-extrabold hover:underline">Create a new lineup now</Link>
+                  <p className="text-gray-500 dark:text-gray-400 font-bold tracking-tight mb-4">No upcoming games scheduled.</p>
+                  <Link href="/games/new" className="text-blue-600 dark:text-blue-400 font-extrabold hover:underline">Create a new game now</Link>
                 </div>
               )}
             </section>
