@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 
 interface FieldMapModalProps {
@@ -15,7 +16,6 @@ export function FieldMapModal({ isOpen, onClose }: FieldMapModalProps) {
   useEffect(() => {
     if (isOpen) {
       setIsMounted(true)
-      // Small delay ensures the browser paints the initial state before animating
       const timer = setTimeout(() => setIsVisible(true), 10)
       return () => clearTimeout(timer)
     } else {
@@ -33,16 +33,17 @@ export function FieldMapModal({ isOpen, onClose }: FieldMapModalProps) {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, onClose])
 
-  if (!isMounted) return null
+  // Ensure we are strictly on the client before using portals
+  if (!isMounted || typeof document === 'undefined') return null
 
-  return (
+  // Teleport the modal directly to the body tag
+  return createPortal(
     <div 
       className={`fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900/95 dark:bg-black/95 backdrop-blur-xl transition-opacity duration-300 ease-out ${
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
       onClick={onClose}
     >
-      {/* Viewport-fixed close button ensures it never shifts during scaling */}
       <button
         onClick={onClose}
         className={`fixed top-4 right-4 sm:top-8 sm:right-8 p-2 sm:p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all duration-300 z-50 backdrop-blur-sm shadow-lg ${
@@ -52,7 +53,6 @@ export function FieldMapModal({ isOpen, onClose }: FieldMapModalProps) {
         <X className="w-6 h-6 sm:w-8 sm:h-8" />
       </button>
 
-      {/* Centered container handles scaling without triggering browser layout recalculation glitches */}
       <div 
         className={`relative w-full h-full max-w-7xl flex items-center justify-center p-2 sm:p-12 transition-transform duration-300 ease-out transform ${
           isVisible ? 'scale-100' : 'scale-95'
@@ -65,6 +65,7 @@ export function FieldMapModal({ isOpen, onClose }: FieldMapModalProps) {
           className="max-w-full max-h-full object-contain drop-shadow-2xl"
         />
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
