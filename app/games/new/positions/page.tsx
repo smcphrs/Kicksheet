@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useSettingsStore } from '@/store/useSettingsStore'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, Save, User, Wand2, AlertTriangle, RotateCcw, Map, HelpCircle } from 'lucide-react'
+import { ArrowLeft, Loader2, Save, User, Wand2, AlertTriangle, RotateCcw, Map, Diamond } from 'lucide-react'
 import { FieldMapModal } from '@/components/FieldMapModal'
 
 const POSITIONS = {
@@ -36,7 +36,7 @@ const PlayerTooltip = ({ name, preferredPositions, isSub }: { name: string, pref
       
       {preferredPositions && preferredPositions.length > 0 && (
         <>
-          <HelpCircle className="w-3.5 h-3.5 text-gray-400 hover:text-blue-500 transition-colors shrink-0" />
+          <Diamond className="w-3.5 h-3.5 text-gray-400 hover:text-blue-500 transition-colors shrink-0" />
           
           <div 
             className={`absolute bottom-full left-0 mb-2 w-max max-w-[200px] p-2.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-bold rounded-lg transition-all duration-200 z-50 text-left shadow-xl pointer-events-none ${
