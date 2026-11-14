@@ -112,123 +112,130 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-          <div></div>
-          <div className="flex flex-wrap gap-3 w-full sm:w-auto">
-            <Link href="/teams/new" className="flex-1 sm:flex-none text-center bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] border border-gray-300 dark:border-gray-700 px-5 py-3 rounded-xl hover:bg-gray-800 dark:hover:bg-blue-300 font-bold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 active:scale-95 inline-flex items-center justify-center gap-2 group">
-              <Shield className="w-4 h-4 text-white dark:text-[#0a192f] transition-colors" />
-              New Team
-            </Link>
-            {/* Only render New Game if the user has an active team */}
-            {activeTeams.length > 0 && (
-              <Link href="/games/new" className="flex-1 sm:flex-none text-center bg-[#2563eb] text-white px-6 py-3 rounded-xl hover:bg-blue-700 font-bold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 active:scale-95 inline-flex items-center justify-center gap-2">
-                <Plus className="w-5 h-5" />
-                New Game
-              </Link>
-            )}
-          </div>
-        </div>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+      <div></div>
+      <div className="flex flex-wrap gap-3 w-full sm:w-auto">
+        <Link href="/teams/new" className="flex-1 sm:flex-none text-center bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] border border-gray-300 dark:border-gray-700 px-5 py-3 rounded-xl hover:bg-gray-800 dark:hover:bg-blue-300 font-bold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 active:scale-95 inline-flex items-center justify-center gap-2 group">
+          <Shield className="w-4 h-4 text-white dark:text-[#0a192f] transition-colors" />
+          New Team
+        </Link>
+        {/* Only render New Game if the user has an active team */}
+        {activeTeams.length > 0 && (
+          <Link href="/games/new" className="flex-1 sm:flex-none text-center bg-[#2563eb] text-white px-6 py-3 rounded-xl hover:bg-blue-700 font-bold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 active:scale-95 inline-flex items-center justify-center gap-2">
+            <Plus className="w-5 h-5" />
+            New Game
+          </Link>
+        )}
+      </div>
+    </div>
 
-        {/* ANALYTICS CHARTS - COMPACT SIDE-BY-SIDE DESIGN */}
-        <div className="space-y-3 sm:space-y-4">
-          <div className="w-full flex items-center justify-between mb-1 px-1 group/header">
-            <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Analytics</h2>
-            <Link href="/dashboard" className="opacity-0 group-hover/header:opacity-100 transition-opacity p-0.5" title="Refresh Analytics">
-              <RefreshCw className="w-3.5 h-3.5 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
-            </Link>
-          </div>
+    {/* COMBINED ANALYTICS & SHORTCUTS ROW (Desktop) */}
+    <div className="space-y-3 sm:space-y-4">
+      <div className="w-full flex items-center justify-between mb-1 px-1 group/header">
+        <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Analytics & Shortcuts</h2>
+        <Link href="/dashboard" className="opacity-0 group-hover/header:opacity-100 transition-opacity p-0.5" title="Refresh Analytics">
+          <RefreshCw className="w-3.5 h-3.5 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
+        </Link>
+      </div>
 
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+        
+        {/* LEFT: Analytics Donuts (Spans 2 columns on desktop) */}
+        <div className="lg:col-span-2 grid grid-cols-2 gap-3 sm:gap-4">
+          
+          {/* 1. Performance Donut */}
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-6 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center">
+            <div className="w-full flex justify-start items-start mb-3 sm:mb-4">
+              <h3 className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                <PieChart className="w-3 h-3 sm:w-4 sm:h-4" /> Record
+              </h3>
+            </div>
             
-            {/* 1. Performance Donut */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-6 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center">
-              <div className="w-full flex justify-start items-start mb-3 sm:mb-4">
-                <h3 className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <PieChart className="w-3 h-3 sm:w-4 sm:h-4" /> Record
-                </h3>
-              </div>
-              
-              {/* CSS Donut */}
-              <div 
-                className="relative w-16 h-16 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full flex items-center justify-center shadow-inner mb-3 sm:mb-5"
-                style={{
-                  background: totalDecidedGames === 0 
-                    ? '#e5e7eb' 
-                    : `conic-gradient(#10b981 0% ${winEnd}%, #f43f5e ${winEnd}% ${lossEnd}%, #94a3b8 ${lossEnd}% 100%)`
-                }}
-              >
-                <div className="w-11 h-11 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-white dark:bg-gray-900 rounded-full flex flex-col items-center justify-center shadow-sm">
-                  <span className="text-[12px] sm:text-xl lg:text-2xl font-black text-gray-900 dark:text-white leading-none">{winPct.toFixed(0)}%</span>
-                  <span className="text-[8px] sm:text-[10px] lg:text-xs font-bold text-gray-400 uppercase mt-0.5 tracking-wider">Win</span>
-                </div>
-              </div>
-
-              <div className="w-full flex justify-between px-1 sm:px-4 gap-1 sm:gap-3">
-                <span className="text-[11px] sm:text-[13px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 sm:gap-1.5">
-                  <div className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500"></div>
-                  {totalWins} <span className="hidden sm:inline">{totalWins === 1 ? 'Win' : 'Wins'}</span><span className="sm:hidden">{totalWins === 1 ? 'W' : 'W'}</span>
-                </span>
-                <span className="text-[11px] sm:text-[13px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1 sm:gap-1.5">
-                  <div className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-500"></div>
-                  {totalLosses} <span className="hidden sm:inline">{totalLosses === 1 ? 'Loss' : 'Losses'}</span><span className="sm:hidden">{totalLosses === 1 ? 'L' : 'L'}</span>
-                </span>
-                <span className="text-[11px] sm:text-[13px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1 sm:gap-1.5">
-                  <div className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 rounded-full bg-slate-400"></div>
-                  {totalTies} <span className="hidden sm:inline">{totalTies === 1 ? 'Tie' : 'Ties'}</span><span className="sm:hidden">{totalTies === 1 ? 'T' : 'T'}</span>
-                </span>
+            {/* CSS Donut */}
+            <div 
+              className="relative w-16 h-16 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full flex items-center justify-center shadow-inner mb-3 sm:mb-5"
+              style={{
+                background: totalDecidedGames === 0 
+                  ? '#e5e7eb' 
+                  : `conic-gradient(#10b981 0% ${winEnd}%, #f43f5e ${winEnd}% ${lossEnd}%, #94a3b8 ${lossEnd}% 100%)`
+              }}
+            >
+              <div className="w-11 h-11 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-white dark:bg-gray-900 rounded-full flex flex-col items-center justify-center shadow-sm">
+                <span className="text-[12px] sm:text-xl lg:text-2xl font-black text-gray-900 dark:text-white leading-none">{winPct.toFixed(0)}%</span>
+                <span className="text-[8px] sm:text-[10px] lg:text-xs font-bold text-gray-400 uppercase mt-0.5 tracking-wider">Win</span>
               </div>
             </div>
 
-            {/* 2. Season Donut */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-6 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center">
-              <div className="w-full flex justify-start items-start mb-3 sm:mb-4">
-                <h3 className="text-[11px] sm:text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <Activity className="w-3 h-3 sm:w-4 sm:h-4" /> Season
-                </h3>
-              </div>
-              
-              {/* CSS Donut */}
-              <div 
-                className="relative w-16 h-16 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full flex items-center justify-center shadow-inner mb-3 sm:mb-5"
-                style={{
-                  background: totalScheduled === 0 
-                    ? '#e5e7eb' 
-                    : `conic-gradient(#2563eb 0% ${playedPct}%, #f97316 ${playedPct}% 100%)`
-                }}
-              >
-                <div className="w-11 h-11 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-white dark:bg-gray-900 rounded-full flex flex-col items-center justify-center shadow-sm">
-                  <span className="text-[12px] sm:text-xl lg:text-2xl font-black text-gray-900 dark:text-white leading-none">{totalScheduled}</span>
-                  <span className="text-[8px] sm:text-[10px] lg:text-xs font-bold text-gray-400 uppercase mt-0.5 tracking-wider">Games</span>
-                </div>
-              </div>
+            <div className="w-full flex justify-between px-1 sm:px-4 gap-1 sm:gap-3">
+              <span className="text-[11px] sm:text-[13px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 sm:gap-1.5">
+                <div className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500"></div>
+                {totalWins} <span className="hidden sm:inline">{totalWins === 1 ? 'Win' : 'Wins'}</span><span className="sm:hidden">{totalWins === 1 ? 'W' : 'W'}</span>
+              </span>
+              <span className="text-[11px] sm:text-[13px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1 sm:gap-1.5">
+                <div className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-500"></div>
+                {totalLosses} <span className="hidden sm:inline">{totalLosses === 1 ? 'Loss' : 'Losses'}</span><span className="sm:hidden">{totalLosses === 1 ? 'L' : 'L'}</span>
+              </span>
+              <span className="text-[11px] sm:text-[13px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1 sm:gap-1.5">
+                <div className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 rounded-full bg-slate-400"></div>
+                {totalTies} <span className="hidden sm:inline">{totalTies === 1 ? 'Tie' : 'Ties'}</span><span className="sm:hidden">{totalTies === 1 ? 'T' : 'T'}</span>
+              </span>
+            </div>
+          </div>
 
-              <div className="w-full flex justify-between px-1 sm:px-6 gap-1 sm:gap-4">
-                <span className="text-[11px] sm:text-[13px] font-bold text-blue-600 dark:text-blue-500 flex items-center gap-1 sm:gap-1.5 truncate">
-                  <div className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 shrink-0 rounded-full bg-blue-600"></div>{pastGames.length} Played
-                </span>
-                <span className="text-[11px] sm:text-[13px] font-bold text-orange-500 dark:text-orange-400 flex items-center gap-1 sm:gap-1.5 truncate">
-                  <div className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 shrink-0 rounded-full bg-orange-500"></div>{upcomingGames.length} Upcoming
-                </span>
+          {/* 2. Season Donut */}
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-6 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center">
+            <div className="w-full flex justify-start items-start mb-3 sm:mb-4">
+              <h3 className="text-[11px] sm:text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                <Activity className="w-3 h-3 sm:w-4 sm:h-4" /> Season
+              </h3>
+            </div>
+            
+            {/* CSS Donut */}
+            <div 
+              className="relative w-16 h-16 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full flex items-center justify-center shadow-inner mb-3 sm:mb-5"
+              style={{
+                background: totalScheduled === 0 
+                  ? '#e5e7eb' 
+                  : `conic-gradient(#2563eb 0% ${playedPct}%, #f97316 ${playedPct}% 100%)`
+              }}
+            >
+              <div className="w-11 h-11 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-white dark:bg-gray-900 rounded-full flex flex-col items-center justify-center shadow-sm">
+                <span className="text-[12px] sm:text-xl lg:text-2xl font-black text-gray-900 dark:text-white leading-none">{totalScheduled}</span>
+                <span className="text-[8px] sm:text-[10px] lg:text-xs font-bold text-gray-400 uppercase mt-0.5 tracking-wider">Games</span>
               </div>
             </div>
 
-            
+            <div className="w-full flex justify-between px-1 sm:px-6 gap-1 sm:gap-4">
+              <span className="text-[11px] sm:text-[13px] font-bold text-blue-600 dark:text-blue-500 flex items-center gap-1 sm:gap-1.5 truncate">
+                <div className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 shrink-0 rounded-full bg-blue-600"></div>{pastGames.length} Played
+              </span>
+              <span className="text-[11px] sm:text-[13px] font-bold text-orange-500 dark:text-orange-400 flex items-center gap-1 sm:gap-1.5 truncate">
+                <div className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 shrink-0 rounded-full bg-orange-500"></div>{upcomingGames.length} Upcoming
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <Link href="https://scheduler.leaguelobster.com/o/586394/big-apple-recreational-sports/" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1">
+        {/* RIGHT: Shortcuts (Stacked in 1 column on Desktop, Grid on Mobile) */}
+        <div className="lg:col-span-1 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-3 sm:gap-4 h-full">
+          <Link href="https://scheduler.leaguelobster.com/o/586394/big-apple-recreational-sports/" className="group flex items-center justify-center gap-2.5 p-3.5 lg:p-0 lg:flex-1 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1">
             <Calendar className="w-4 h-4 text-orange-500 group-hover:scale-110 transition-transform" /> League Lobster
           </Link>
-          <div className="transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 rounded-xl">
-            <FieldMapShortcut />
+          <div className="transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 rounded-xl flex lg:flex-1">
+            {/* Ensure the FieldMapShortcut wrapper fills the height if needed */}
+            <div className="w-full h-full flex *:w-full *:h-full">
+              <FieldMapShortcut />
+            </div>
           </div>
-          <Link href="/settings" className="group flex items-center justify-center gap-2.5 p-3.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1">
+          <Link href="/settings" className="group flex items-center justify-center gap-2.5 p-3.5 lg:p-0 lg:flex-1 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1">
             <Settings className="w-4 h-4 text-gray-500 group-hover:rotate-90 transition-transform duration-500" /> Settings
           </Link>
         </div>
+        
+      </div>
+    </div>
 
-        <div className="grid lg:grid-cols-3 gap-8 items-start">
+    <div className="grid lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2 space-y-8">
             
             <section>
