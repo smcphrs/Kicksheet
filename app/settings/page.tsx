@@ -88,6 +88,39 @@ export default function SettingsPage() {
     return () => clearTimeout(delaySave)
   }, [askForJerseyNumbers, showPronouns, inningsCount, fairPlayEnabled, mounted])
 
+  import { RefreshCw, Download } from 'lucide-react'
+// ... inside your SettingsPage component state ...
+const [llUsername, setLlUsername] = useState('')
+const [llPassword, setLlPassword] = useState('')
+const [isSyncingLL, setIsSyncingLL] = useState(false)
+const [llMessage, setLlMessage] = useState({ type: '', text: '' })
+
+const handleLeagueLobsterSync = async (e: React.FormEvent) => {
+  e.preventDefault()
+  setIsSyncingLL(true)
+  setLlMessage({ type: '', text: '' })
+
+  try {
+    const res = await fetch('/api/leaguelobster/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: llUsername, password: llPassword })
+    })
+    
+    const data = await res.json()
+    
+    if (!res.ok) throw new Error(data.error || 'Sync failed')
+    
+    setLlMessage({ type: 'success', text: `Successfully synced ${data.count} games!` })
+    setLlUsername('')
+    setLlPassword('')
+  } catch (err: any) {
+    setLlMessage({ type: 'error', text: err.message })
+  } finally {
+    setIsSyncingLL(false)
+  }
+}
+
   const handleUpdateEmail = async (e: React.FormEvent) => {
     e.preventDefault()
     setEmailError(null)
@@ -232,6 +265,57 @@ export default function SettingsPage() {
             </div>
           </div>
         </section>
+
+        {/* INTEGRATIONS */}
+<section>
+  <h2 className="text-[13px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1 mb-2">Integrations</h2>
+  <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-4 sm:p-6 flex flex-col">
+    
+    <div className="flex items-center gap-3 mb-4">
+      <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center shrink-0">
+        <Download className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+      </div>
+      <div>
+        <h3 className="text-[15px] sm:text-[17px] font-bold text-gray-900 dark:text-white">LeagueLobster Sync</h3>
+        <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Import your teams and schedule directly.</p>
+      </div>
+    </div>
+
+    {llMessage.text && (
+      <div className={`p-3 rounded-xl text-sm font-bold mb-4 ${llMessage.type === 'error' ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400' : 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400'}`}>
+        {llMessage.text}
+      </div>
+    )}
+
+    <form onSubmit={handleLeagueLobsterSync} className="flex flex-col gap-3">
+      <input 
+        type="text" 
+        required 
+        value={llUsername} 
+        onChange={(e) => setLlUsername(e.target.value)} 
+        className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-500/50 font-medium" 
+        placeholder="LeagueLobster Username" 
+      />
+      <input 
+        type="password" 
+        required 
+        value={llPassword} 
+        onChange={(e) => setLlPassword(e.target.value)} 
+        className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-500/50 font-medium" 
+        placeholder="Password (Not Saved)" 
+      />
+      <button 
+        type="submit" 
+        disabled={isSyncingLL || !llUsername || !llPassword} 
+        className="mt-1 w-full py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-[15px] disabled:opacity-50 transition-colors active:scale-95 flex items-center justify-center gap-2"
+      >
+        {isSyncingLL ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+        {isSyncingLL ? 'Syncing Schedule...' : 'Sync Now'}
+      </button>
+    </form>
+  </div>
+</section>
+
 
         {/* ACCOUNT */}
         <section>
