@@ -107,7 +107,7 @@ export default function NewGamePage() {
               <label className="flex items-center text-[10px] sm:text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5">
                 <Users className="w-3.5 h-3.5 mr-1.5 text-purple-500" /> Your Team *
               </label>
-              <select required value={teamId} onChange={(e) => setTeamId(e.target.value)} className="min-w-0 w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 font-bold transition-all cursor-pointer">
+              <select required value={teamId} onChange={(e) => setTeamId(e.target.value)} className="appearance-none block min-w-0 w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 font-bold transition-all cursor-pointer">
                 {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
             </div>
@@ -116,21 +116,21 @@ export default function NewGamePage() {
               <label className="flex items-center text-[10px] sm:text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5">
                 <Shield className="w-3.5 h-3.5 mr-1.5 text-rose-500" /> Opponent
               </label>
-              <input type="text" value={opponent} onChange={(e) => setOpponent(e.target.value)} placeholder="e.g. Pump Fiction" className="min-w-0 w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 font-bold transition-all placeholder:text-gray-400" />
+              <input type="text" value={opponent} onChange={(e) => setOpponent(e.target.value)} placeholder="e.g. Pump Fiction" className="appearance-none block min-w-0 w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 font-bold transition-all placeholder:text-gray-400" />
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col w-full overflow-hidden">
               <label className="flex items-center text-[10px] sm:text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5">
                 <Calendar className="w-3.5 h-3.5 mr-1.5 text-blue-500" /> Date *
               </label>
-              <input type="date" required value={date} onChange={(e) => setDate(e.target.value)} className="min-w-0 w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 font-bold transition-all" />
+              <input type="date" required value={date} onChange={(e) => setDate(e.target.value)} className="appearance-none block min-w-0 w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 font-bold transition-all" />
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col w-full overflow-hidden">
               <label className="flex items-center text-[10px] sm:text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5">
                 <Clock className="w-3.5 h-3.5 mr-1.5 text-orange-500" /> Time
               </label>
-              <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="min-w-0 w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 font-bold transition-all" />
+              <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="appearance-none block min-w-0 w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 font-bold transition-all" />
             </div>
           </div>
 
@@ -144,14 +144,14 @@ export default function NewGamePage() {
                 <label className="flex items-center text-[10px] sm:text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5">
                   <MapPin className="w-3.5 h-3.5 mr-1.5 text-emerald-500" /> Location
                 </label>
-                <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. DeWitt-Clinton Park" className="min-w-0 w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 font-bold transition-all placeholder:text-gray-400" />
+                <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. DeWitt-Clinton Park" className="appearance-none block min-w-0 w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 font-bold transition-all placeholder:text-gray-400" />
               </div>
               
               <div className="flex flex-col">
                 <label className="flex items-center text-[10px] sm:text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5">
                   <Flag className="w-3.5 h-3.5 mr-1.5 text-emerald-500" /> Field
                 </label>
-                <input type="text" value={field} onChange={(e) => setField(e.target.value)} placeholder="e.g. NW" className="min-w-0 w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 font-bold transition-all placeholder:text-gray-400" />
+                <input type="text" value={field} onChange={(e) => setField(e.target.value)} placeholder="e.g. NW" className="appearance-none block min-w-0 w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-900 outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 font-bold transition-all placeholder:text-gray-400" />
               </div>
             </div>
 
@@ -163,7 +163,7 @@ export default function NewGamePage() {
                 name="notes"
                 rows={3}
                 placeholder="e.g. Wear the red jerseys today! Post-game drinks at the pub."
-                className="min-w-0 w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3 text-[15px] font-bold focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all resize-y placeholder:text-gray-400"
+                className="appearance-none block min-w-0 w-full bg-gray-50 dark:bg-gray-950 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3 text-[15px] font-bold focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all resize-y placeholder:text-gray-400"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
               />
