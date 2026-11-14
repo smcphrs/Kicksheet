@@ -2,22 +2,16 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 
-// Helper function to safely catch HTML error pages from LeagueLobster
+// Helper function to safely catch HTML error pages
 async function safeFetch(url: string, options: any) {
   const res = await fetch(url, options)
   const contentType = res.headers.get('content-type') || ''
-  
   const text = await res.text()
   
   if (!contentType.includes('application/json')) {
     console.error(`[LeagueLobster Error] ${url} returned HTML. Status: ${res.status}`)
-    return { 
-      ok: false, 
-      status: res.status, 
-      error: `LeagueLobster blocked the request to ${url} (Status ${res.status}). This usually means the API is disabled for this account.` 
-    }
+    return { ok: false, status: res.status, error: `Blocked request to ${url} (Status ${res.status}).` }
   }
-
   try {
     return { ok: res.ok, status: res.status, data: JSON.parse(text) }
   } catch (e) {
@@ -52,25 +46,43 @@ export async function POST(request: Request) {
       'Content-Type': 'application/json'
     }
 
-    // --- ACTION: PREVIEW (Diagnostic Scanner) ---
+    // --- ACTION: PREVIEW (Deep Scanner) ---
     if (action === 'preview') {
-      // 2. Check Teams
+      let allTeams: any[] = []
+
+      // Step A: Check standalone teams
       const teamsRes = await safeFetch('https://scheduler.leaguelobster.com/api/team/', { headers: authHeaders })
-      
-      // If the team endpoint is blocked (returns HTML/404), throw the exact error so we can see it in the UI
-      if (!teamsRes.ok) {
-        throw new Error(teamsRes.error)
+      if (teamsRes.ok) {
+        const rootTeams = Array.isArray(teamsRes.data) ? teamsRes.data : (teamsRes.data.results || [])
+        allTeams = [...rootTeams]
       }
 
-      const llTeams = Array.isArray(teamsRes.data) ? teamsRes.data : (teamsRes.data.results || [])
-      
-      if (llTeams.length === 0) {
-        throw new Error('Authenticated successfully, but 0 teams were found on this account.')
+      // Step B: Check nested teams inside Seasons
+      if (allTeams.length === 0) {
+        const seasonsRes = await safeFetch('https://scheduler.leaguelobster.com/api/season/', { headers: authHeaders })
+        if (seasonsRes.ok) {
+          const seasons = Array.isArray(seasonsRes.data) ? seasonsRes.data : (seasonsRes.data.results || [])
+          
+          for (const season of seasons) {
+            const seasonTeamsRes = await safeFetch(`https://scheduler.leaguelobster.com/api/season/${season.id}/teams/`, { headers: authHeaders })
+            if (seasonTeamsRes.ok) {
+              const sTeams = Array.isArray(seasonTeamsRes.data) ? seasonTeamsRes.data : (seasonTeamsRes.data.results || [])
+              allTeams = [...allTeams, ...sTeams]
+            }
+          }
+        }
       }
+
+      if (allTeams.length === 0) {
+        throw new Error('Logged in successfully, but 0 teams were found. Note: LeagueLobster API data is only visible to League Admins, not individual Team Captains.')
+      }
+
+      // Remove duplicates just in case
+      const uniqueTeams = Array.from(new Map(allTeams.map(t => [t.id, t])).values())
 
       return NextResponse.json({ 
         success: true, 
-        teams: llTeams.map((t: any) => ({ id: t.id, name: t.name || t.title || 'Unnamed Team' })) 
+        teams: uniqueTeams.map((t: any) => ({ id: t.id, name: t.name || t.title || 'Unnamed Team' })) 
       })
     }
 
@@ -80,13 +92,28 @@ export async function POST(request: Request) {
         throw new Error('No teams selected for sync')
       }
 
+      // We need to re-fetch the teams based on selected IDs to get their full data
+      let allTeams: any[] = []
       const teamsRes = await safeFetch('https://scheduler.leaguelobster.com/api/team/', { headers: authHeaders })
-      if (!teamsRes.ok) throw new Error(teamsRes.error)
-      
-      const llTeams = Array.isArray(teamsRes.data) ? teamsRes.data : (teamsRes.data.results || [])
-      const teamsToSync = llTeams.filter((t: any) => selectedTeamIds.includes(t.id))
+      if (teamsRes.ok) {
+        allTeams = [...(Array.isArray(teamsRes.data) ? teamsRes.data : (teamsRes.data.results || []))]
+      }
+      if (allTeams.length === 0) {
+        const seasonsRes = await safeFetch('https://scheduler.leaguelobster.com/api/season/', { headers: authHeaders })
+        if (seasonsRes.ok) {
+          const seasons = Array.isArray(seasonsRes.data) ? seasonsRes.data : (seasonsRes.data.results || [])
+          for (const season of seasons) {
+            const seasonTeamsRes = await safeFetch(`https://scheduler.leaguelobster.com/api/season/${season.id}/teams/`, { headers: authHeaders })
+            if (seasonTeamsRes.ok) {
+              allTeams = [...allTeams, ...(Array.isArray(seasonTeamsRes.data) ? seasonTeamsRes.data : (seasonTeamsRes.data.results || []))]
+            }
+          }
+        }
+      }
 
-      // 3. Format and Upsert Selected Teams
+      const teamsToSync = allTeams.filter((t: any) => selectedTeamIds.includes(t.id))
+
+      // Upsert Selected Teams
       const formattedTeams = teamsToSync.map((t: any) => ({
         leaguelobster_id: `${user.id}_${t.id}`, 
         name: t.name || t.title || 'Unnamed Team',
@@ -100,7 +127,7 @@ export async function POST(request: Request) {
         if (teamError) throw teamError
       }
 
-      // 4. Fetch Matches for Selected Teams
+      // Fetch Matches for Selected Teams
       const { data: userTeams } = await supabase
         .from('teams')
         .select('id, leaguelobster_id')
@@ -121,8 +148,8 @@ export async function POST(request: Request) {
             const awayName = m.away_team_name || m.away_team?.name || ''
             
             let opponent = 'TBD'
-            if (homeName && homeName !== team.name) opponent = homeName
-            else if (awayName && awayName !== team.name) opponent = awayName
+            if (homeName && homeName !== (team.name || team.title)) opponent = homeName
+            else if (awayName && awayName !== (team.name || team.title)) opponent = awayName
 
             allMatches.push({
               leaguelobster_match_id: `${user.id}_${m.id}`,
