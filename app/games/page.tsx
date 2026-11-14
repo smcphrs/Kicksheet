@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Calendar, Clock, MapPin, Trash2, Plus, ArrowLeft, Loader2, AlertCircle, Filter, ArrowDownAZ, Copy, Trophy, Archive } from 'lucide-react'
+import { Calendar, Clock, MapPin, Trash2, Plus, ArrowLeft, Loader2, AlertCircle, Filter, ArrowDownAZ, Copy, Trophy, Archive, RefreshCw, Download, X } from 'lucide-react'
 
 export default function GamesPage() {
   const supabase = createClient()
@@ -25,23 +25,86 @@ export default function GamesPage() {
   const [updatingResultId, setUpdatingResultId] = useState<string | null>(null)
   const [archivingId, setArchivingId] = useState<string | null>(null)
 
+  // --- Sync Modal State ---
+  const [showSyncModal, setShowSyncModal] = useState(false)
+  const [icalUrl, setIcalUrl] = useState('')
+  const [syncTeamId, setSyncTeamId] = useState('')
+  const [userTeams, setUserTeams] = useState<any[]>([])
+  const [isSyncing, setIsSyncing] = useState(false)
+  const [syncMessage, setSyncMessage] = useState({ type: '', text: '' })
+
   useEffect(() => {
-    async function fetchGames() {
+    async function fetchData() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      const { data } = await supabase
+      // Fetch Games
+      const { data: gamesData } = await supabase
         .from('games')
         .select('*, teams(name)')
         .eq('user_id', user.id)
-        .neq('is_archived', true) // Hides archived games (handles both false and null)
+        .neq('is_archived', true)
         .order('game_date', { ascending: false })
 
-      if (data) setGames(data)
+      if (gamesData) setGames(gamesData)
+
+      // Fetch Teams for the Sync Dropdown
+      const { data: teamsData } = await supabase
+        .from('teams')
+        .select('id, name')
+        .eq('owner_id', user.id)
+        .eq('is_archived', false)
+
+      if (teamsData) setUserTeams(teamsData)
+
       setLoading(false)
     }
-    fetchGames()
+    fetchData()
   }, [supabase])
+
+  // --- Calendar Sync Handler ---
+  const handleCalendarSync = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSyncing(true)
+    setSyncMessage({ type: '', text: '' })
+
+    try {
+      const res = await fetch('/api/ical/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ calendarUrl: icalUrl, teamId: syncTeamId })
+      })
+      
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Sync failed')
+      
+      setSyncMessage({ type: 'success', text: `Successfully imported ${data.count} games! Refreshing...` })
+      setIcalUrl('')
+
+      // Refetch games to immediately show the new synced data
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: newGames } = await supabase
+          .from('games')
+          .select('*, teams(name)')
+          .eq('user_id', user.id)
+          .neq('is_archived', true)
+          .order('game_date', { ascending: false })
+        if (newGames) setGames(newGames)
+      }
+      
+      // Auto-close modal after success
+      setTimeout(() => {
+        setShowSyncModal(false)
+        setSyncMessage({ type: '', text: '' })
+      }, 2000)
+
+    } catch (err: any) {
+      setSyncMessage({ type: 'error', text: err.message })
+    } finally {
+      setIsSyncing(false)
+    }
+  }
 
   const handleDelete = async () => {
     if (!gameToDelete) return
@@ -198,13 +261,20 @@ export default function GamesPage() {
           </h1>
           
           <div className="flex w-full sm:w-auto gap-3">
+            <button 
+              onClick={() => setShowSyncModal(true)}
+              className="flex-1 sm:flex-none text-center bg-orange-500 text-white px-5 py-2 rounded-lg hover:bg-orange-600 text-sm font-bold transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center gap-1.5"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Sync
+            </button>
             <Link 
-          href="/games/archived"
-          className="flex-1 sm:flex-none text-center bg-gray-300/80 dark:bg-gray-800 text-gray-800 dark:text-gray-300 px-5 py-2 rounded-lg hover:bg-gray-400/80 dark:hover:bg-gray-700 text-sm font-bold transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center gap-1.5"
-        >
-          <Archive className="w-4 h-4" />
-          Archive
-        </Link>
+              href="/games/archived"
+              className="flex-1 sm:flex-none text-center bg-gray-300/80 dark:bg-gray-800 text-gray-800 dark:text-gray-300 px-5 py-2 rounded-lg hover:bg-gray-400/80 dark:hover:bg-gray-700 text-sm font-bold transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center gap-1.5"
+            >
+              <Archive className="w-4 h-4" />
+              Archive
+            </Link>
             <Link 
               href="/games/new"
               className="flex-1 sm:flex-none text-center bg-[#0a192f] dark:bg-blue-200 text-white dark:text-[#0a192f] px-5 py-2 rounded-lg hover:bg-gray-800 dark:hover:bg-blue-300 text-sm font-bold transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center gap-1.5"
@@ -441,6 +511,7 @@ export default function GamesPage() {
           )}
         </div>
 
+        {/* --- DELETE MODAL --- */}
         {gameToDelete && (
           <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-gray-900/40 dark:bg-black/60 backdrop-blur-sm">
             <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 max-w-sm w-full border border-gray-300 dark:border-gray-700">
@@ -470,6 +541,76 @@ export default function GamesPage() {
             </div>
           </div>
         )}
+
+        {/* --- SYNC MODAL --- */}
+        {showSyncModal && (
+          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-gray-900/40 dark:bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-300 dark:border-gray-700 p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
+              
+              <button 
+                onClick={() => setShowSyncModal(false)}
+                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-full transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center shrink-0 border border-orange-200 dark:border-orange-900/50">
+                  <Download className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-gray-900 dark:text-white leading-tight">Sync Schedule</h3>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Import an iCal (.ics) feed.</p>
+                </div>
+              </div>
+
+              {syncMessage.text && (
+                <div className={`p-4 rounded-xl text-sm font-bold mb-6 ${syncMessage.type === 'error' ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400' : 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400'}`}>
+                  {syncMessage.text}
+                </div>
+              )}
+
+              <form onSubmit={handleCalendarSync} className="flex flex-col gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 ml-1">Select Team</label>
+                  <select 
+                    required 
+                    value={syncTeamId} 
+                    onChange={(e) => setSyncTeamId(e.target.value)} 
+                    className="appearance-none w-full px-4 py-3.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-500/50 font-bold cursor-pointer transition-all"
+                  >
+                    <option value="" disabled>Choose team...</option>
+                    {userTeams.map(t => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 ml-1">Calendar URL</label>
+                  <input 
+                    type="url" 
+                    required 
+                    value={icalUrl} 
+                    onChange={(e) => setIcalUrl(e.target.value)} 
+                    className="appearance-none w-full px-4 py-3.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-500/50 font-medium transition-all" 
+                    placeholder="https://..." 
+                  />
+                </div>
+
+                <button 
+                  type="submit" 
+                  disabled={isSyncing || !icalUrl || !syncTeamId} 
+                  className="mt-4 w-full py-3.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-black text-base disabled:opacity-50 transition-colors active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20"
+                >
+                  {isSyncing ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
+                  {isSyncing ? 'Importing Schedule...' : 'Sync Schedule'}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   )
