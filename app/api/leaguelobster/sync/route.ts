@@ -37,12 +37,42 @@ export async function POST(request: Request) {
     const llTeams = Array.isArray(teamsData) ? teamsData : (teamsData.results || [])
     
     // --- ACTION: PREVIEW (Return list of teams to UI) ---
-    if (action === 'preview') {
-      return NextResponse.json({ 
-        success: true, 
-        teams: llTeams.map((t: any) => ({ id: t.id, name: t.name || t.title || 'Unnamed Team' })) 
-      })
-    }
+          // --- ACTION: PREVIEW (Diagnostic Scanner) ---
+        if (action === 'preview') {
+          // 1. Check Teams
+          const teamsRes = await fetch('https://scheduler.leaguelobster.com/api/team/', { headers: authHeaders })
+          const teamsData = await teamsRes.json()
+          const llTeams = Array.isArray(teamsData) ? teamsData : (teamsData.results || [])
+          
+          // 2. Check Seasons
+          const seasonsRes = await fetch('https://scheduler.leaguelobster.com/api/season/', { headers: authHeaders })
+          const seasonsData = await seasonsRes.json()
+          const llSeasons = Array.isArray(seasonsData) ? seasonsData : (seasonsData.results || [])
+
+          // 3. Check Associations
+          const assocRes = await fetch('https://scheduler.leaguelobster.com/api/association/', { headers: authHeaders })
+          const assocData = await assocRes.json()
+          const llAssoc = Array.isArray(assocData) ? assocData : (assocData.results || [])
+
+          // If everything is empty, they are likely blocked by the Free Tier
+          if (llTeams.length === 0 && llSeasons.length === 0 && llAssoc.length === 0) {
+            throw new Error('No data found. If this is a free/ad-supported league, LeagueLobster blocks API exports.')
+          }
+
+          // If we found seasons but no root teams, return the seasons as "Teams" so you can at least select them
+          if (llTeams.length === 0 && llSeasons.length > 0) {
+            return NextResponse.json({ 
+              success: true, 
+              teams: llSeasons.map((s: any) => ({ id: s.id, name: `Season: ${s.title || s.name}` })) 
+            })
+          }
+
+          return NextResponse.json({ 
+            success: true, 
+            teams: llTeams.map((t: any) => ({ id: t.id, name: t.name || t.title || 'Unnamed Team' })) 
+          })
+        }
+
 
     // --- ACTION: SYNC (Save selected teams & fetch their matches) ---
     if (action === 'sync') {
