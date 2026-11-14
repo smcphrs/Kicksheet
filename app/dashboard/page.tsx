@@ -130,12 +130,10 @@ export default async function DashboardPage() {
     </div>
 
     {/* COMBINED ANALYTICS & SHORTCUTS ROW (Desktop) */}
+        {/* COMBINED ANALYTICS & SHORTCUTS ROW (Desktop) */}
     <div className="space-y-3 sm:space-y-4">
-      <div className="w-full flex items-center justify-between mb-1 px-1 group/header">
+      <div className="w-full flex items-center justify-between mb-1 px-1">
         <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Analytics & Shortcuts</h2>
-        <Link href="/dashboard" className="opacity-0 group-hover/header:opacity-100 transition-opacity p-0.5" title="Refresh Analytics">
-          <RefreshCw className="w-3.5 h-3.5 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
-        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -183,11 +181,15 @@ export default async function DashboardPage() {
           </div>
 
           {/* 2. Season Donut */}
-          <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-6 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center">
-            <div className="w-full flex justify-start items-start mb-3 sm:mb-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-6 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center group/card">
+            <div className="w-full flex justify-between items-start mb-3 sm:mb-4">
               <h3 className="text-[11px] sm:text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
                 <Activity className="w-3 h-3 sm:w-4 sm:h-4" /> Season
               </h3>
+              <Link href="/dashboard" className="opacity-0 group-hover/card:opacity-100 transition-opacity flex items-center gap-1 text-gray-400 hover:text-blue-500" title="Refresh Analytics">
+                <RefreshCw className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Reset</span>
+              </Link>
             </div>
             
             {/* CSS Donut */}
@@ -215,6 +217,7 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
+
 
                 {/* RIGHT: Shortcuts (Stacked in 1 column on Desktop, Grid on Mobile) */}
         <div className="lg:col-span-1 grid grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-col gap-3 sm:gap-4 h-full">
