@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useSettingsStore } from '@/store/useSettingsStore'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, Save, User, Wand2, AlertTriangle, RotateCcw, Map } from 'lucide-react'
+import { ArrowLeft, Loader2, Save, User, Wand2, AlertTriangle, RotateCcw, Map, HelpCircle } from 'lucide-react'
 import { FieldMapModal } from '@/components/FieldMapModal'
 
 const POSITIONS = {
@@ -15,6 +15,47 @@ const POSITIONS = {
 }
 const ALL_POSITIONS = [...POSITIONS.BENCH, ...POSITIONS.INFIELD, ...POSITIONS.OUTFIELD]
 const FIELD_POSITIONS = [...POSITIONS.INFIELD, ...POSITIONS.OUTFIELD]
+
+// --- Interactive Hover Tooltip for Player Preferences ---
+const PlayerTooltip = ({ name, preferredPositions, isSub }: { name: string, preferredPositions?: string[], isSub?: boolean }) => {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <div 
+      className="relative flex items-center gap-1.5 cursor-help"
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+      onClick={() => setIsOpen(!isOpen)}
+    >
+      {name}
+      {isSub && (
+        <span className="text-[10px] uppercase font-black bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400 px-2 py-0.5 rounded-md inline-flex items-center">
+          <User className="w-3 h-3 mr-1" /> Sub
+        </span>
+      )}
+      
+      {preferredPositions && preferredPositions.length > 0 && (
+        <>
+          <HelpCircle className="w-3.5 h-3.5 text-gray-400 hover:text-blue-500 transition-colors shrink-0" />
+          
+          <div 
+            className={`absolute bottom-full left-0 mb-2 w-max max-w-[200px] p-2.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-bold rounded-lg transition-all duration-200 z-50 text-left shadow-xl pointer-events-none ${
+              isOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-1'
+            }`}
+          >
+            <div className="text-[10px] uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">Preferred Positions</div>
+            <div className="flex flex-wrap gap-1">
+              {preferredPositions.map(pos => (
+                <span key={pos} className="px-1.5 py-0.5 bg-gray-800 dark:bg-gray-200 rounded text-blue-400 dark:text-blue-600">{pos}</span>
+              ))}
+            </div>
+            <div className="absolute top-full left-4 -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-gray-100"></div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
 
 function PositionsContent() {
   const router = useRouter()
@@ -228,9 +269,7 @@ function PositionsContent() {
 
     if (updateError) throw updateError
 
-    // FIX: Stop the spinner immediately upon success
     setSaving(false) 
-
     router.refresh()
     router.push(`/games/${id}`) 
 
@@ -340,13 +379,8 @@ function PositionsContent() {
                       <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-400 font-black flex items-center justify-center text-sm shrink-0 shadow-sm">
                         {idx + 1}
                       </div>
-                      <div className="font-bold text-gray-900 dark:text-white text-base sm:text-lg tracking-tight flex items-center">
-                        {player.name}
-                        {player.isSub && (
-                          <span className="ml-2 text-[10px] uppercase font-black bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-400 px-2 py-0.5 rounded-md inline-flex items-center">
-                            <User className="w-3 h-3 mr-1" /> Sub
-                          </span>
-                        )}
+                      <div className="font-bold text-gray-900 dark:text-white text-base sm:text-lg tracking-tight">
+                        <PlayerTooltip name={player.name} preferredPositions={player.preferred_positions} isSub={player.isSub} />
                       </div>
                     </div>
 
