@@ -5,7 +5,7 @@ import { useSettingsStore } from '@/store/useSettingsStore'
 import { useTheme } from 'next-themes'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Moon, Sun, Monitor, Loader2, ArrowLeft, KeyRound, CheckCircle2, AlertCircle, Mail, HelpCircle, ChevronRight, RefreshCw, Download } from 'lucide-react'
+import { Moon, Sun, Monitor, Loader2, ArrowLeft, KeyRound, CheckCircle2, AlertCircle, Mail, HelpCircle, ChevronRight, RefreshCw, Download, Check } from 'lucide-react'
 import Link from 'next/link'
 
 const SettingsTooltip = ({ text }: { text: string }) => {
@@ -61,8 +61,11 @@ export default function SettingsPage() {
   const [passwordSuccess, setPasswordSuccess] = useState(false)
 
   // LeagueLobster State
+  const [llStep, setLlStep] = useState<'credentials' | 'select'>('credentials')
   const [llUsername, setLlUsername] = useState('')
   const [llPassword, setLlPassword] = useState('')
+  const [availableLlTeams, setAvailableLlTeams] = useState<{id: string, name: string}[]>([])
+  const [selectedLlTeamIds, setSelectedLlTeamIds] = useState<string[]>([])
   const [isSyncingLL, setIsSyncingLL] = useState(false)
   const [llMessage, setLlMessage] = useState({ type: '', text: '' })
 
@@ -137,7 +140,7 @@ export default function SettingsPage() {
     setIsUpdatingPassword(false)
   }
 
-  const handleLeagueLobsterSync = async (e: React.FormEvent) => {
+  const handleFetchTeams = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSyncingLL(true)
     setLlMessage({ type: '', text: '' })
@@ -146,21 +149,66 @@ export default function SettingsPage() {
       const res = await fetch('/api/leaguelobster/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: llUsername, password: llPassword })
+        body: JSON.stringify({ action: 'preview', username: llUsername, password: llPassword })
+      })
+      
+      const data = await res.json()
+      
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch teams')
+      
+      if (data.teams && data.teams.length > 0) {
+        setAvailableLlTeams(data.teams)
+        // Pre-select all by default
+        setSelectedLlTeamIds(data.teams.map((t: any) => t.id))
+        setLlStep('select')
+      } else {
+        setLlMessage({ type: 'error', text: 'No teams found on this account.' })
+      }
+    } catch (err: any) {
+      setLlMessage({ type: 'error', text: err.message })
+    } finally {
+      setIsSyncingLL(false)
+    }
+  }
+
+  const handleConfirmSync = async () => {
+    setIsSyncingLL(true)
+    setLlMessage({ type: '', text: '' })
+
+    try {
+      const res = await fetch('/api/leaguelobster/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          action: 'sync', 
+          username: llUsername, 
+          password: llPassword,
+          selectedTeamIds: selectedLlTeamIds
+        })
       })
       
       const data = await res.json()
       
       if (!res.ok) throw new Error(data.error || 'Sync failed')
       
-      setLlMessage({ type: 'success', text: `Successfully synced ${data.count} games!` })
+      setLlMessage({ type: 'success', text: `Successfully imported ${selectedLlTeamIds.length} teams and ${data.count} games!` })
+      // Reset flow
       setLlUsername('')
       setLlPassword('')
+      setLlStep('credentials')
+      setAvailableLlTeams([])
+      setSelectedLlTeamIds([])
     } catch (err: any) {
       setLlMessage({ type: 'error', text: err.message })
     } finally {
       setIsSyncingLL(false)
     }
+  }
+
+  const toggleLlTeam = (id: string) => {
+    setSelectedLlTeamIds(prev => 
+      prev.includes(id) ? prev.filter(tId => tId !== id) : [...prev, id]
+    )
   }
 
   if (!mounted) return (
@@ -185,7 +233,6 @@ export default function SettingsPage() {
         <section>
           <h2 className="text-[13px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1 mb-2">Game Engine</h2>
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
-            
             {/* Row 1 */}
             <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
               <div className="flex items-center">
@@ -250,7 +297,6 @@ export default function SettingsPage() {
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
             <span className="text-[15px] sm:text-[17px] font-semibold text-gray-900 dark:text-white w-full sm:w-auto">Theme</span>
             
-            {/* Segmented Control */}
             <div className="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-lg w-full sm:w-auto shrink-0 border border-gray-200 dark:border-gray-700">
               <button onClick={() => setTheme('light')} className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-md text-[13px] font-bold transition-all ${theme === 'light' ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'}`}>
                 <Sun className="w-3.5 h-3.5" /> Light
@@ -286,32 +332,83 @@ export default function SettingsPage() {
               </div>
             )}
 
-            <form onSubmit={handleLeagueLobsterSync} className="flex flex-col gap-3">
-              <input 
-                type="text" 
-                required 
-                value={llUsername} 
-                onChange={(e) => setLlUsername(e.target.value)} 
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-500/50 font-medium" 
-                placeholder="LeagueLobster Username" 
-              />
-              <input 
-                type="password" 
-                required 
-                value={llPassword} 
-                onChange={(e) => setLlPassword(e.target.value)} 
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-500/50 font-medium" 
-                placeholder="Password (Not Saved)" 
-              />
-              <button 
-                type="submit" 
-                disabled={isSyncingLL || !llUsername || !llPassword} 
-                className="mt-1 w-full py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-[15px] disabled:opacity-50 transition-colors active:scale-95 flex items-center justify-center gap-2"
-              >
-                {isSyncingLL ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                {isSyncingLL ? 'Syncing Schedule...' : 'Sync Now'}
-              </button>
-            </form>
+            {llStep === 'credentials' ? (
+              <form onSubmit={handleFetchTeams} className="flex flex-col gap-3">
+                <input 
+                  type="text" 
+                  required 
+                  value={llUsername} 
+                  onChange={(e) => setLlUsername(e.target.value)} 
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-500/50 font-medium" 
+                  placeholder="LeagueLobster Username" 
+                />
+                <input 
+                  type="password" 
+                  required 
+                  value={llPassword} 
+                  onChange={(e) => setLlPassword(e.target.value)} 
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-[15px] text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-orange-500/50 font-medium" 
+                  placeholder="Password (Not Saved)" 
+                />
+                <button 
+                  type="submit" 
+                  disabled={isSyncingLL || !llUsername || !llPassword} 
+                  className="mt-1 w-full py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-[15px] disabled:opacity-50 transition-colors active:scale-95 flex items-center justify-center gap-2"
+                >
+                  {isSyncingLL ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                  {isSyncingLL ? 'Finding Teams...' : 'Fetch Teams'}
+                </button>
+              </form>
+            ) : (
+              <div className="flex flex-col gap-3">
+                <p className="text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">Select the teams you want to import:</p>
+                
+                <div className="space-y-2 mb-2 max-h-60 overflow-y-auto">
+                  {availableLlTeams.map((team) => {
+                    const isSelected = selectedLlTeamIds.includes(team.id)
+                    return (
+                      <div 
+                        key={team.id}
+                        onClick={() => toggleLlTeam(team.id)}
+                        className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                          isSelected 
+                            ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-300 dark:border-orange-800' 
+                            : 'bg-gray-50 dark:bg-gray-950 border-gray-300 dark:border-gray-700 hover:border-orange-300 dark:hover:border-orange-700'
+                        }`}
+                      >
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center border shrink-0 transition-colors ${
+                          isSelected 
+                            ? 'bg-orange-500 border-orange-500 text-white' 
+                            : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600'
+                        }`}>
+                          {isSelected && <Check className="w-3.5 h-3.5" />}
+                        </div>
+                        <span className={`text-[15px] font-bold ${isSelected ? 'text-orange-900 dark:text-orange-300' : 'text-gray-700 dark:text-gray-300'}`}>
+                          {team.name}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <div className="flex gap-2 mt-2">
+                  <button 
+                    onClick={() => { setLlStep('credentials'); setAvailableLlTeams([]); setSelectedLlTeamIds([]); setLlMessage({type:'', text:''}) }}
+                    className="px-4 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-bold text-[15px] transition-colors active:scale-95"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleConfirmSync}
+                    disabled={isSyncingLL || selectedLlTeamIds.length === 0}
+                    className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold text-[15px] disabled:opacity-50 transition-colors active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    {isSyncingLL ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                    {isSyncingLL ? 'Importing...' : `Import ${selectedLlTeamIds.length} Teams`}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
