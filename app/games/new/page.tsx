@@ -32,11 +32,17 @@ export default function NewGamePage() {
         .from('teams')
         .select('*')
         .eq('owner_id', user.id)
-        .order('name')
+        .order('name') // Keep dropdown alphabetical for readability
       
       if (data) {
         setTeams(data)
-        if (data.length > 0) setTeamId(data[0].id)
+        if (data.length > 0) {
+          // Find the most recently created team to set as the default
+          const newestTeam = [...data].sort((a, b) => 
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          )[0]
+          setTeamId(newestTeam.id)
+        }
       }
       setLoading(false)
     }
