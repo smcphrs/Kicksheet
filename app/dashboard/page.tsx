@@ -141,70 +141,74 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             
             {/* 1. Performance Donut */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-4 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center">
-              <div className="w-full flex justify-start items-start mb-3">
-                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <PieChart className="w-3 h-3" /> Record
+            <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-6 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center">
+              <div className="w-full flex justify-start items-start mb-3 sm:mb-4">
+                <h3 className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <PieChart className="w-3 h-3 sm:w-4 sm:h-4" /> Record
                 </h3>
               </div>
               
               {/* CSS Donut */}
               <div 
-                className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center shadow-inner mb-3"
+                className="relative w-16 h-16 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full flex items-center justify-center shadow-inner mb-3 sm:mb-5"
                 style={{
                   background: totalDecidedGames === 0 
                     ? '#e5e7eb' 
                     : `conic-gradient(#10b981 0% ${winEnd}%, #f43f5e ${winEnd}% ${lossEnd}%, #94a3b8 ${lossEnd}% 100%)`
                 }}
               >
-                <div className="w-11 h-11 sm:w-14 sm:h-14 bg-white dark:bg-gray-900 rounded-full flex flex-col items-center justify-center shadow-sm">
-                  <span className="text-[12px] sm:text-sm font-black text-gray-900 dark:text-white leading-none">{winPct.toFixed(0)}%</span>
-                  <span className="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase mt-0.5 tracking-wider">Win</span>
+                <div className="w-11 h-11 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-white dark:bg-gray-900 rounded-full flex flex-col items-center justify-center shadow-sm">
+                  <span className="text-[12px] sm:text-xl lg:text-2xl font-black text-gray-900 dark:text-white leading-none">{winPct.toFixed(0)}%</span>
+                  <span className="text-[8px] sm:text-[10px] lg:text-xs font-bold text-gray-400 uppercase mt-0.5 tracking-wider">Win</span>
                 </div>
               </div>
 
-              <div className="w-full flex justify-between px-1 gap-1">
-                <span className="text-[11px] sm:text-[12px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500"></div>
-                  {totalWins} {totalWins === 1 ? 'Win' : 'Wins'}
+              <div className="w-full flex justify-between px-1 sm:px-4 gap-1 sm:gap-3">
+                <span className="text-[11px] sm:text-[13px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 sm:gap-1.5">
+                  <div className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500"></div>
+                  {totalWins} <span className="hidden sm:inline">{totalWins === 1 ? 'Win' : 'Wins'}</span><span className="sm:hidden">{totalWins === 1 ? 'W' : 'W'}</span>
                 </span>
-                <span className="text-[11px] sm:text-[12px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-rose-500"></div>
-                  {totalLosses} {totalLosses === 1 ? 'Loss' : 'Losses'}
+                <span className="text-[11px] sm:text-[13px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1 sm:gap-1.5">
+                  <div className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-500"></div>
+                  {totalLosses} <span className="hidden sm:inline">{totalLosses === 1 ? 'Loss' : 'Losses'}</span><span className="sm:hidden">{totalLosses === 1 ? 'L' : 'L'}</span>
                 </span>
-                <span className="text-[11px] sm:text-[12px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-slate-400"></div>
-                  {totalTies} {totalTies === 1 ? 'Tie' : 'Ties'}
+                <span className="text-[11px] sm:text-[13px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1 sm:gap-1.5">
+                  <div className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 rounded-full bg-slate-400"></div>
+                  {totalTies} <span className="hidden sm:inline">{totalTies === 1 ? 'Tie' : 'Ties'}</span><span className="sm:hidden">{totalTies === 1 ? 'T' : 'T'}</span>
                 </span>
               </div>
             </div>
 
             {/* 2. Season Donut */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-4 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center">
-              <div className="w-full flex justify-start items-start mb-3">
-                <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <Activity className="w-3 h-3" /> Season
+            <div className="bg-white dark:bg-gray-900 rounded-2xl p-3 sm:p-6 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center">
+              <div className="w-full flex justify-start items-start mb-3 sm:mb-4">
+                <h3 className="text-[11px] sm:text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <Activity className="w-3 h-3 sm:w-4 sm:h-4" /> Season
                 </h3>
               </div>
               
               {/* CSS Donut */}
               <div 
-                className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center shadow-inner mb-3"
+                className="relative w-16 h-16 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full flex items-center justify-center shadow-inner mb-3 sm:mb-5"
                 style={{
                   background: totalScheduled === 0 
                     ? '#e5e7eb' 
                     : `conic-gradient(#2563eb 0% ${playedPct}%, #f97316 ${playedPct}% 100%)`
                 }}
               >
-                <div className="w-11 h-11 sm:w-14 sm:h-14 bg-white dark:bg-gray-900 rounded-full flex flex-col items-center justify-center shadow-sm">
-                  <span className="text-[12px] sm:text-sm font-black text-gray-900 dark:text-white leading-none">{totalScheduled}</span>
-                  <span className="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase mt-0.5 tracking-wider">Games</span>
+                <div className="w-11 h-11 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-white dark:bg-gray-900 rounded-full flex flex-col items-center justify-center shadow-sm">
+                  <span className="text-[12px] sm:text-xl lg:text-2xl font-black text-gray-900 dark:text-white leading-none">{totalScheduled}</span>
+                  <span className="text-[8px] sm:text-[10px] lg:text-xs font-bold text-gray-400 uppercase mt-0.5 tracking-wider">Games</span>
                 </div>
               </div>
 
-              <div className="w-full flex justify-between px-1 gap-1">
-                <span className="text-[11px] sm:text-[12px] font-bold text-blue-600 dark:text-blue-500 flex items-center gap-1 truncate"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 rounded-full bg-blue-600"></div>{pastGames.length} Played</span>
-                <span className="text-[11px] sm:text-[12px] font-bold text-orange-500 dark:text-orange-400 flex items-center gap-1 truncate"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 rounded-full bg-orange-500"></div>{upcomingGames.length} Upcoming</span>
+              <div className="w-full flex justify-between px-1 sm:px-6 gap-1 sm:gap-4">
+                <span className="text-[11px] sm:text-[13px] font-bold text-blue-600 dark:text-blue-500 flex items-center gap-1 sm:gap-1.5 truncate">
+                  <div className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 shrink-0 rounded-full bg-blue-600"></div>{pastGames.length} Played
+                </span>
+                <span className="text-[11px] sm:text-[13px] font-bold text-orange-500 dark:text-orange-400 flex items-center gap-1 sm:gap-1.5 truncate">
+                  <div className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 shrink-0 rounded-full bg-orange-500"></div>{upcomingGames.length} Upcoming
+                </span>
               </div>
             </div>
 
