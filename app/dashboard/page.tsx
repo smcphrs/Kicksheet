@@ -216,21 +216,23 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* RIGHT: Shortcuts (Stacked in 1 column on Desktop, Grid on Mobile) */}
-        <div className="lg:col-span-1 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-3 sm:gap-4 h-full">
-          <Link href="https://scheduler.leaguelobster.com/o/586394/big-apple-recreational-sports/" className="group flex items-center justify-center gap-2.5 p-3.5 lg:p-0 lg:flex-1 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1">
+                {/* RIGHT: Shortcuts (Stacked in 1 column on Desktop, Grid on Mobile) */}
+        <div className="lg:col-span-1 grid grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-col gap-3 sm:gap-4 h-full">
+          <Link href="https://scheduler.leaguelobster.com/o/586394/big-apple-recreational-sports/" className="group flex items-center justify-center gap-2.5 p-3.5 lg:p-0 w-full h-full lg:flex-1 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1">
             <Calendar className="w-4 h-4 text-orange-500 group-hover:scale-110 transition-transform" /> League Lobster
           </Link>
-          <div className="transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 rounded-xl flex lg:flex-1">
-            {/* Ensure the FieldMapShortcut wrapper fills the height if needed */}
+          
+          <div className="transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 rounded-xl flex w-full h-full lg:flex-1 overflow-hidden">
             <div className="w-full h-full flex *:w-full *:h-full">
               <FieldMapShortcut />
             </div>
           </div>
-          <Link href="/settings" className="group flex items-center justify-center gap-2.5 p-3.5 lg:p-0 lg:flex-1 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1">
+          
+          <Link href="/settings" className="group flex items-center justify-center gap-2.5 p-3.5 lg:p-0 w-full h-full lg:flex-1 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 text-sm font-bold text-gray-700 dark:text-gray-300 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1">
             <Settings className="w-4 h-4 text-gray-500 group-hover:rotate-90 transition-transform duration-500" /> Settings
           </Link>
         </div>
+
         
       </div>
     </div>
