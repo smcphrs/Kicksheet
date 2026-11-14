@@ -2,6 +2,29 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 
+// Helper function to safely catch HTML error pages from LeagueLobster
+async function safeFetch(url: string, options: any) {
+  const res = await fetch(url, options)
+  const contentType = res.headers.get('content-type') || ''
+  
+  const text = await res.text()
+  
+  if (!contentType.includes('application/json')) {
+    console.error(`[LeagueLobster Error] ${url} returned HTML. Status: ${res.status}`)
+    return { 
+      ok: false, 
+      status: res.status, 
+      error: `LeagueLobster blocked the request to ${url} (Status ${res.status}). This usually means the API is disabled for this account.` 
+    }
+  }
+
+  try {
+    return { ok: res.ok, status: res.status, data: JSON.parse(text) }
+  } catch (e) {
+    return { ok: false, status: res.status, error: 'Failed to parse JSON response.' }
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const cookieStore = await cookies()
@@ -15,71 +38,52 @@ export async function POST(request: Request) {
     const { username, password, action, selectedTeamIds } = await request.json()
 
     // 1. Fetch the Auth Token
-    const loginRes = await fetch('https://scheduler.leaguelobster.com/api/access-token/', {
+    const loginRes = await safeFetch('https://scheduler.leaguelobster.com/api/access-token/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     })
 
-    if (!loginRes.ok) throw new Error('Invalid LeagueLobster credentials')
-    const { token } = await loginRes.json()
+    if (!loginRes.ok) throw new Error(loginRes.error || 'Invalid LeagueLobster credentials')
+    const token = loginRes.data.token
 
     const authHeaders = {
       'Authorization': `JWT ${token}`,
       'Content-Type': 'application/json'
     }
 
-    // 2. Fetch Teams 
-    const teamsRes = await fetch('https://scheduler.leaguelobster.com/api/team/', { headers: authHeaders })
-    if (!teamsRes.ok) throw new Error('Failed to download teams from LeagueLobster')
-    
-    const teamsData = await teamsRes.json()
-    const llTeams = Array.isArray(teamsData) ? teamsData : (teamsData.results || [])
-    
-    // --- ACTION: PREVIEW (Return list of teams to UI) ---
-          // --- ACTION: PREVIEW (Diagnostic Scanner) ---
-        if (action === 'preview') {
-          // 1. Check Teams
-          const teamsRes = await fetch('https://scheduler.leaguelobster.com/api/team/', { headers: authHeaders })
-          const teamsData = await teamsRes.json()
-          const llTeams = Array.isArray(teamsData) ? teamsData : (teamsData.results || [])
-          
-          // 2. Check Seasons
-          const seasonsRes = await fetch('https://scheduler.leaguelobster.com/api/season/', { headers: authHeaders })
-          const seasonsData = await seasonsRes.json()
-          const llSeasons = Array.isArray(seasonsData) ? seasonsData : (seasonsData.results || [])
+    // --- ACTION: PREVIEW (Diagnostic Scanner) ---
+    if (action === 'preview') {
+      // 2. Check Teams
+      const teamsRes = await safeFetch('https://scheduler.leaguelobster.com/api/team/', { headers: authHeaders })
+      
+      // If the team endpoint is blocked (returns HTML/404), throw the exact error so we can see it in the UI
+      if (!teamsRes.ok) {
+        throw new Error(teamsRes.error)
+      }
 
-          // 3. Check Associations
-          const assocRes = await fetch('https://scheduler.leaguelobster.com/api/association/', { headers: authHeaders })
-          const assocData = await assocRes.json()
-          const llAssoc = Array.isArray(assocData) ? assocData : (assocData.results || [])
+      const llTeams = Array.isArray(teamsRes.data) ? teamsRes.data : (teamsRes.data.results || [])
+      
+      if (llTeams.length === 0) {
+        throw new Error('Authenticated successfully, but 0 teams were found on this account.')
+      }
 
-          // If everything is empty, they are likely blocked by the Free Tier
-          if (llTeams.length === 0 && llSeasons.length === 0 && llAssoc.length === 0) {
-            throw new Error('No data found. If this is a free/ad-supported league, LeagueLobster blocks API exports.')
-          }
+      return NextResponse.json({ 
+        success: true, 
+        teams: llTeams.map((t: any) => ({ id: t.id, name: t.name || t.title || 'Unnamed Team' })) 
+      })
+    }
 
-          // If we found seasons but no root teams, return the seasons as "Teams" so you can at least select them
-          if (llTeams.length === 0 && llSeasons.length > 0) {
-            return NextResponse.json({ 
-              success: true, 
-              teams: llSeasons.map((s: any) => ({ id: s.id, name: `Season: ${s.title || s.name}` })) 
-            })
-          }
-
-          return NextResponse.json({ 
-            success: true, 
-            teams: llTeams.map((t: any) => ({ id: t.id, name: t.name || t.title || 'Unnamed Team' })) 
-          })
-        }
-
-
-    // --- ACTION: SYNC (Save selected teams & fetch their matches) ---
+    // --- ACTION: SYNC ---
     if (action === 'sync') {
       if (!selectedTeamIds || selectedTeamIds.length === 0) {
         throw new Error('No teams selected for sync')
       }
 
+      const teamsRes = await safeFetch('https://scheduler.leaguelobster.com/api/team/', { headers: authHeaders })
+      if (!teamsRes.ok) throw new Error(teamsRes.error)
+      
+      const llTeams = Array.isArray(teamsRes.data) ? teamsRes.data : (teamsRes.data.results || [])
       const teamsToSync = llTeams.filter((t: any) => selectedTeamIds.includes(t.id))
 
       // 3. Format and Upsert Selected Teams
@@ -106,12 +110,10 @@ export async function POST(request: Request) {
       let allMatches: any[] = []
 
       for (const team of teamsToSync) {
-        const matchesRes = await fetch(`https://scheduler.leaguelobster.com/api/team/${team.id}/matches/`, { headers: authHeaders })
+        const matchesRes = await safeFetch(`https://scheduler.leaguelobster.com/api/team/${team.id}/matches/`, { headers: authHeaders })
         
         if (matchesRes.ok) {
-          const matchesData = await matchesRes.json()
-          const teamMatches = Array.isArray(matchesData) ? matchesData : (matchesData.results || [])
-          
+          const teamMatches = Array.isArray(matchesRes.data) ? matchesRes.data : (matchesRes.data.results || [])
           const kicksheetTeamId = teamMap.get(`${user.id}_${team.id}`)
           
           teamMatches.forEach((m: any) => {
@@ -137,7 +139,6 @@ export async function POST(request: Request) {
 
       const uniqueMatches = Array.from(new Map(allMatches.map(m => [m.leaguelobster_match_id, m])).values())
 
-      // 5. Save everything to the database
       if (uniqueMatches.length > 0) {
         const { error: gameError } = await supabase
           .from('games')
